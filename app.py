@@ -74,22 +74,7 @@ if df is not None:
         equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
         df_equipo = df[df["equipo"] == equipo_seleccionado]
 
-        st.subheader("🏅 Jugadores destacados")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
-            st.markdown("**Goleadores**")
-            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}))
-        with col2:
-            top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
-            st.markdown("**Más minutos jugados**")
-            st.dataframe(top_minutos)
-        with col3:
-            top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
-            st.markdown("**Más amarillas**")
-            st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
-
-        st.markdown("### 📌 Datos de rachas y portería")
+        # st.markdown("### 📌 Datos de rachas y portería")
         partidos_equipo = df[df["equipo"] == equipo_seleccionado].sort_values("numero_jornada")
         codactas_ordenadas = partidos_equipo.drop_duplicates("codacta")["codacta"].tolist()
 
@@ -128,6 +113,24 @@ if df is not None:
         col2.metric("🔥 Mayor racha", f"{mayor_racha} victorias")
         col3.metric("🛡️ Victorias con portería 0", victorias_porteria_0)
         col4.metric("🧱 Partidos con portería 0", partidos_porteria_0)
+        
+
+        st.subheader("🏅 Jugadores destacados")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
+            st.markdown("**Goleadores**")
+            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}))
+        with col2:
+            top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
+            st.markdown("**Más minutos jugados**")
+            st.dataframe(top_minutos)
+        with col3:
+            top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
+            st.markdown("**Más amarillas**")
+            st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
+
+
 
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
