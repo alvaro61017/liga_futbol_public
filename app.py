@@ -132,16 +132,16 @@ if df is not None:
         )
         st.plotly_chart(fig2, use_container_width=True)
 
-        st.subheader("📈 Tendencia de minutos jugados (últimas 5 jornadas vs 10 anteriores)")
+        st.subheader("📈 Tendencia de minutos jugados (últimas 5 jornadas vs 5 anteriores)")
         jornadas = sorted(df["numero_jornada"].unique())
         ultimas_5 = jornadas[-5:]
-        anteriores_10 = jornadas[-15:-5]
+        anteriores_5 = jornadas[-10:-5]
 
-        minutos_recientes = df_equipo[df_equipo["jornada"].isin(ultimas_5)].groupby("nombre_jugador")["minutos_jugados"].sum().reset_index()
-        minutos_pasados = df_equipo[df_equipo["jornada"].isin(anteriores_10)].groupby("nombre_jugador")["minutos_jugados"].sum().reset_index()
+        minutos_recientes = df_equipo[df_equipo["numero_jornada"].isin(ultimas_5)].groupby("nombre_jugador")["minutos_jugados"].sum().reset_index()
+        minutos_pasados = df_equipo[df_equipo["numero_jornada"].isin(anteriores_5)].groupby("nombre_jugador")["minutos_jugados"].sum().reset_index()
 
-        tendencia = minutos_pasados.merge(minutos_recientes, on="nombre_jugador", how="outer", suffixes=("_10prev", "_ult5")).fillna(0)
-        tendencia["variacion"] = tendencia["minutos_jugados_ult5"] - tendencia["minutos_jugados_10prev"]
+        tendencia = minutos_pasados.merge(minutos_recientes, on="nombre_jugador", how="outer", suffixes=("_5prev", "_ult5")).fillna(0)
+        tendencia["variacion"] = tendencia["minutos_jugados_ult5"] - tendencia["minutos_jugados_5prev"]
         tendencia = tendencia.sort_values(by="variacion", ascending=False)
 
         col_a, col_b = st.columns(2)
