@@ -58,43 +58,49 @@ if df is not None:
             "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P"
         }), use_container_width=True)
 
-        # Top 5 de equipos con más victorias seguidas
-        st.header("🏆 Top 5 de equipos con más victorias seguidas")
-        # Calculamos las victorias seguidas por equipo
-        victorias_seguidas = []
-        for equipo in clasificacion['equipo']:
-            partidos_equipo = partidos[partidos['equipo'] == equipo]
-            victorias = 0
-            max_victorias = 0
-            for i, row in partidos_equipo.iterrows():
-                if row['ganado']:
-                    victorias += 1
-                    max_victorias = max(max_victorias, victorias)
-                else:
-                    victorias = 0
-            victorias_seguidas.append((equipo, max_victorias))
-        
-        victorias_seguidas = sorted(victorias_seguidas, key=lambda x: x[1], reverse=True)[:5]
-        st.dataframe(pd.DataFrame(victorias_seguidas, columns=['Equipo', 'Máxima Racha de Victorias']), use_container_width=True)
+        # Añadimos los equipos más en forma y menos en forma en la misma fila
+        st.header("⚡ Top 5 Equipos con más victorias seguidas y más partidos sin ganar")
 
-        # Top 5 de equipos con más partidos seguidos sin ganar
-        st.header("⚠️ Top 5 de equipos con más partidos seguidos sin ganar")
-        # Calculamos los partidos seguidos sin ganar por equipo
-        sin_ganar_seguidos = []
-        for equipo in clasificacion['equipo']:
-            partidos_equipo = partidos[partidos['equipo'] == equipo]
-            no_ganar = 0
-            max_no_ganar = 0
-            for i, row in partidos_equipo.iterrows():
-                if not row['ganado']:
-                    no_ganar += 1
-                    max_no_ganar = max(max_no_ganar, no_ganar)
-                else:
-                    no_ganar = 0
-            sin_ganar_seguidos.append((equipo, max_no_ganar))
-        
-        sin_ganar_seguidos = sorted(sin_ganar_seguidos, key=lambda x: x[1], reverse=True)[:5]
-        st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Máxima Racha sin Ganar']), use_container_width=True)
+        # Creamos las dos columnas
+        col1, col2 = st.columns(2)
+
+        # Columna 1: Top 5 equipos con más victorias seguidas
+        with col1:
+            st.subheader("🏆 Top 5 equipos con más victorias seguidas")
+            victorias_seguidas = []
+            for equipo in clasificacion['equipo']:
+                partidos_equipo = partidos[partidos['equipo'] == equipo]
+                victorias = 0
+                max_victorias = 0
+                for i, row in partidos_equipo.iterrows():
+                    if row['ganado']:
+                        victorias += 1
+                        max_victorias = max(max_victorias, victorias)
+                    else:
+                        victorias = 0
+                victorias_seguidas.append((equipo, max_victorias))
+
+            victorias_seguidas = sorted(victorias_seguidas, key=lambda x: x[1], reverse=True)[:5]
+            st.dataframe(pd.DataFrame(victorias_seguidas, columns=['Equipo', 'Máxima Racha de Victorias']), use_container_width=True)
+
+        # Columna 2: Top 5 equipos con más partidos seguidos sin ganar
+        with col2:
+            st.subheader("⚠️ Top 5 equipos con más partidos seguidos sin ganar")
+            sin_ganar_seguidos = []
+            for equipo in clasificacion['equipo']:
+                partidos_equipo = partidos[partidos['equipo'] == equipo]
+                no_ganar = 0
+                max_no_ganar = 0
+                for i, row in partidos_equipo.iterrows():
+                    if not row['ganado']:
+                        no_ganar += 1
+                        max_no_ganar = max(max_no_ganar, no_ganar)
+                    else:
+                        no_ganar = 0
+                sin_ganar_seguidos.append((equipo, max_no_ganar))
+
+            sin_ganar_seguidos = sorted(sin_ganar_seguidos, key=lambda x: x[1], reverse=True)[:5]
+            st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Máxima Racha sin Ganar']), use_container_width=True)
 
         st.header("⚽ Goleadores")
         goleadores = df.groupby(["nombre_jugador", "equipo"])["num_goles"].sum().reset_index()
