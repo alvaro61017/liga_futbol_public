@@ -7,7 +7,7 @@ import requests
 import io
 
 st.set_page_config(page_title="Temporada 24/25", layout="wide")
-st.title("⚽ Segunda Regional - grupo 7 24/25")
+st.title("⚽ Segunda regional grupo 7")
 
 @st.cache_data
 def cargar_datos_desde_drive():
@@ -28,8 +28,8 @@ df = cargar_datos_desde_drive()
 if df is not None:
     menu = st.sidebar.radio("Selecciona una vista:", ("🏆 Clasificación y Rankings", "📋 Equipos"))
 
-    if menu == "🏆 Clasificación y Rankings":
-        st.header("🏆 Clasificación de equipos (por puntos)")
+    if menu == "🏆 General":
+        st.header("🏆 Clasificación")
 
         goles_por_partido = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
         merged = goles_por_partido.merge(goles_por_partido, on="codacta")
@@ -59,19 +59,18 @@ if df is not None:
         }), use_container_width=True)
 
         # Añadimos los equipos más en forma y menos en forma en la misma fila
-        st.header("⚡ Top 5 Equipos con más victorias seguidas y más partidos sin ganar")
+        # st.header("⚡ Top 5 Equipos con más victorias seguidas y más partidos sin ganar")
 
         # Creamos las dos columnas
         col1, col2 = st.columns(2)
 
         # Columna 1: Top 5 equipos con más victorias seguidas
         with col1:
-            st.subheader("🏆 Top 5 equipos con más victorias seguidas")
+            st.subheader("🔥 Racha actual de victorias")
             victorias_seguidas = []
             for equipo in clasificacion['equipo']:
-                partidos_equipo = partidos[partidos['equipo'] == equipo].sort_values(by="codacta")
+                partidos_equipo = partidos[partidos['equipo'] == equipo].sort_values(by="codacta", ascending=False)
                 victorias = 0
-                max_victorias = 0
                 for i, row in partidos_equipo.iterrows():
                     if row['ganado']:
                         victorias += 1
@@ -84,12 +83,11 @@ if df is not None:
 
         # Columna 2: Top 5 equipos con más partidos seguidos sin ganar
         with col2:
-            st.subheader("⚠️ Top 5 equipos con más partidos seguidos sin ganar")
+            st.subheader("⚠️ Racha actual de partidos seguidos sin ganar")
             sin_ganar_seguidos = []
             for equipo in clasificacion['equipo']:
-                partidos_equipo = partidos[partidos['equipo'] == equipo].sort_values(by="codacta")
+                partidos_equipo = partidos[partidos['equipo'] == equipo].sort_values(by="codacta", ascending=False)
                 no_ganar = 0
-                max_no_ganar = 0
                 for i, row in partidos_equipo.iterrows():
                     if not row['ganado']:
                         no_ganar += 1
@@ -113,4 +111,16 @@ if df is not None:
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
         equipos = sorted(df["equipo"].unique())
-        equipo_sele_
+        equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
+        df_equipo = df[df["equipo"] == equipo_seleccionado]
+
+        st.subheader("🏅 Jugadores destacados")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
+            st.markdown("**Goleadores**")
+            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}))
+        with col2:
+            top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
+            st.markdown("**Más minutos jugados**")
+            st.dataframe(top
