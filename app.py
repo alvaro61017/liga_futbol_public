@@ -133,7 +133,7 @@ if df is not None:
         st.plotly_chart(fig2, use_container_width=True)
 
         st.subheader("📈 Tendencia de minutos jugados (últimas 5 jornadas vs 10 anteriores)")
-        jornadas = sorted(df["jornada"].unique())
+        jornadas = sorted(df["num_jornada"].unique())
         ultimas_5 = jornadas[-5:]
         anteriores_10 = jornadas[-15:-5]
 
