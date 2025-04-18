@@ -25,50 +25,12 @@ def cargar_datos_desde_drive():
 
 df = cargar_datos_desde_drive()
 
-def calcular_estadisticas_equipo(df, equipo):
-    df_equipo = df[df["equipo"] == equipo]
-    partidos = df[df["equipo"] == equipo].groupby("codacta").agg({
-        "equipo": "first",
-        "num_goles": "sum"
-    }).rename(columns={"num_goles": "gf"})
-
-    rivales = df[df["equipo"] != equipo].groupby("codacta")["num_goles"].sum().rename("gc")
-    partidos = partidos.join(rivales, on="codacta")
-
-    partidos["resultado"] = partidos.apply(lambda x: "W" if x.gf > x.gc else "D" if x.gf == x.gc else "L", axis=1)
-    partidos = partidos.sort_index()
-
-    resultados = partidos["resultado"].tolist()
-
-    # Racha actual
-    racha_actual = 0
-    for r in reversed(resultados):
-        if r == "W":
-            racha_actual += 1
-        else:
-            break
-
-    # Mayor racha
-    mayor_racha = 0
-    temp = 0
-    for r in resultados:
-        if r == "W":
-            temp += 1
-            mayor_racha = max(mayor_racha, temp)
-        else:
-            temp = 0
-
-    # Portería a 0
-    victorias_porteria_0 = partidos[(partidos["resultado"] == "W") & (partidos["gc"] == 0)].shape[0]
-    partidos_porteria_0 = partidos[partidos["gc"] == 0].shape[0]
-
-    return racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0
-
 if df is not None:
     menu = st.sidebar.radio("Selecciona una vista:", ("🏆 Clasificación y Rankings", "📋 Equipos"))
 
     if menu == "🏆 Clasificación y Rankings":
         st.header("🏆 Clasificación de equipos (por puntos)")
+
         goles_por_partido = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
         merged = goles_por_partido.merge(goles_por_partido, on="codacta")
         partidos = merged[merged["equipo_x"] != merged["equipo_y"]].copy()
@@ -112,13 +74,6 @@ if df is not None:
         equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
         df_equipo = df[df["equipo"] == equipo_seleccionado]
 
-        racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df, equipo_seleccionado)
-        st.markdown("### 📌 Datos de rachas y portería")
-        st.columns(4)[0].metric("🏅 Racha actual", f"{racha_actual} victorias")
-        st.columns(4)[1].metric("🔥 Mayor racha", f"{mayor_racha} victorias")
-        st.columns(4)[2].metric("🛡️ Victorias con portería 0", victorias_porteria_0)
-        st.columns(4)[3].metric("🧱 Partidos con portería 0", partidos_porteria_0)
-
         st.subheader("🏅 Jugadores destacados")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -134,6 +89,46 @@ if df is not None:
             st.markdown("**Más amarillas**")
             st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
 
+        st.markdown("### 📌 Datos de rachas y portería")
+        partidos_equipo = df[df["equipo"] == equipo_seleccionado].sort_values("numero_jornada")
+        codactas_ordenadas = partidos_equipo.drop_duplicates("codacta")["codacta"].tolist()
+
+        partidos = df[df["codacta"].isin(codactas_ordenadas)]
+        goles = partidos.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+        merged = goles.merge(goles, on="codacta")
+        merged = merged[merged["equipo_x"] != merged["equipo_y"]]
+        merged = merged[merged["equipo_x"] == equipo_seleccionado].sort_values(by="codacta", key=lambda x: [codactas_ordenadas.index(c) for c in x])
+
+        resultados = merged.apply(lambda row: "W" if row["num_goles_x"] > row["num_goles_y"] else "L" if row["num_goles_x"] < row["num_goles_y"] else "D", axis=1).tolist()
+
+        racha_actual = 0
+        for res in reversed(resultados):
+            if res == "W":
+                racha_actual += 1
+            else:
+                break
+
+        mayor_racha = 0
+        temp = 0
+        for res in resultados:
+            if res == "W":
+                temp += 1
+                mayor_racha = max(mayor_racha, temp)
+            else:
+                temp = 0
+
+        merged["porter\u00eda_0"] = merged["num_goles_y"] == 0
+        merged["victoria"] = merged["num_goles_x"] > merged["num_goles_y"]
+
+        victorias_porteria_0 = merged[(merged["porter\u00eda_0"]) & (merged["victoria"])].shape[0]
+        partidos_porteria_0 = merged[merged["porter\u00eda_0"].astype(bool)].shape[0]
+
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("🏅 Racha actual", f"{racha_actual} victorias")
+        col2.metric("🔥 Mayor racha", f"{mayor_racha} victorias")
+        col3.metric("🛡️ Victorias con portería 0", victorias_porteria_0)
+        col4.metric("🧱 Partidos con portería 0", partidos_porteria_0)
+
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
             for m in lista_minutos:
@@ -142,7 +137,6 @@ if df is not None:
             total = sum(tramos)
             return [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
 
-        # Goles a favor por tramo
         st.subheader("📊 Goles a favor por tramo (15 min)")
         todos_goles = df_equipo["minutos_goles"].sum()
         tramos_favor = goles_por_tramo(todos_goles)
@@ -156,7 +150,6 @@ if df is not None:
         )
         st.plotly_chart(fig1, use_container_width=True)
 
-        # Goles en contra
         goles_partidos = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
         rivales = goles_partidos.merge(goles_partidos, on="codacta")
         rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
