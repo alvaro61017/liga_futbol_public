@@ -153,10 +153,11 @@ if df is not None:
 
         racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df, equipo_seleccionado)
         st.markdown("### 📌 Datos de rachas y portería")
-        st.columns(4)[0].metric("🏅 Racha actual", f"{racha_actual} victorias")
-        st.columns(4)[1].metric("🔥 Mayor racha", f"{mayor_racha} victorias")
-        st.columns(4)[2].metric("🛡️ Victorias con portería 0", victorias_porteria_0)
-        st.columns(4)[3].metric("🧱 Partidos con portería 0", partidos_porteria_0)
+        cols = st.columns(4)
+        cols[0].metric("🏅 Racha actual", f"{racha_actual} victorias")
+        cols[1].metric("🔥 Mayor racha", f"{mayor_racha} victorias")
+        cols[2].metric("🛡️ Victorias con portería 0", victorias_porteria_0)
+        cols[3].metric("🧱 Partidos con portería 0", partidos_porteria_0)
 
         st.subheader("🏅 Jugadores destacados")
         col1, col2, col3 = st.columns(3)
