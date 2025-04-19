@@ -260,33 +260,128 @@ if df is not None:
 
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
+        # equipos = sorted(df["equipo"].unique())
+        # equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
+        # df_equipo = df[df["equipo"] == equipo_seleccionado]
+
+        # racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df, equipo_seleccionado)
+        # st.markdown("### 📌 Datos de rachas y portería")
+        # cols = st.columns(4)
+        # cols[0].metric("🏅 Racha actual", f"{racha_actual} victorias")
+        # cols[1].metric("🔥 Mayor racha", f"{mayor_racha} victorias")
+        # cols[2].metric("🛡️ Victorias con portería 0", victorias_porteria_0)
+        # cols[3].metric("🧱 Partidos con portería 0", partidos_porteria_0)
+
+        # st.subheader("🏅 Jugadores destacados")
+        # col1, col2, col3 = st.columns(3)
+        # with col1:
+        #     top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
+        #     st.markdown("**Goleadores**")
+        #     st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}))
+        # with col2:
+        #     top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
+        #     st.markdown("**Más minutos jugados**")
+        #     st.dataframe(top_minutos)
+        # with col3:
+        #     top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
+        #     st.markdown("**Más amarillas**")
+        #     st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
+
+        # def goles_por_tramo(lista_minutos):
+        #     tramos = [0]*6
+        #     for m in lista_minutos:
+        #         idx = min(m // 15, 5)
+        #         tramos[idx] += 1
+        #     total = sum(tramos)
+        #     return [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
+
+        # # Goles a favor por tramo
+        # st.subheader("📊 Goles a favor por tramo")
+        # todos_goles = df_equipo["minutos_goles"].sum()
+        # tramos_favor = goles_por_tramo(todos_goles)
+
+        # fig1 = px.bar(
+        #     x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
+        #     y=tramos_favor,
+        #     labels={"x": "Tramo", "y": "% Goles a favor"},
+        #     title="Distribución de goles a favor por tramo",
+        #     color_discrete_sequence=["green"]
+        # )
+        # st.plotly_chart(fig1, use_container_width=True)
+
+        # # Goles en contra
+        # goles_partidos = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+        # rivales = goles_partidos.merge(goles_partidos, on="codacta")
+        # rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
+
+        # goles_contra = rivales[rivales["equipo_x"] == equipo_seleccionado][["codacta", "num_goles_y"]]
+        # goles_contra_listas = df[df["equipo"] != equipo_seleccionado]
+        # goles_contra_listas = goles_contra_listas[goles_contra_listas["codacta"].isin(goles_contra["codacta"])]
+        # minutos_contra = goles_contra_listas["minutos_goles"].sum()
+        # tramos_contra = goles_por_tramo(minutos_contra)
+
+        # st.subheader("📊 Goles en contra por tramo")
+        # fig2 = px.bar(
+        #     x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
+        #     y=tramos_contra,
+        #     labels={"x": "Tramo", "y": "% Goles en contra"},
+        #     title="Distribución de goles en contra por tramo",
+        #     color_discrete_sequence=["red"]
+        # )
+        # st.plotly_chart(fig2, use_container_width=True)
+
+       # Seleccionar equipo
         equipos = sorted(df["equipo"].unique())
         equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
+        
+        # Filtrar el DataFrame según el equipo seleccionado
         df_equipo = df[df["equipo"] == equipo_seleccionado]
-
-        racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df, equipo_seleccionado)
+        
+        # Filtro para seleccionar total, local o visitante
+        filtro_localidad = st.selectbox("Selecciona el tipo de partidos:", ["Total", "Local", "Visitante"])
+        
+        # Aplicar el filtro de local/visitante
+        if filtro_localidad == "Local":
+            df_filtrado = df_equipo[df_equipo["local"] == 1]
+        elif filtro_localidad == "Visitante":
+            df_filtrado = df_equipo[df_equipo["visitante"] == 1]
+        else:
+            df_filtrado = df_equipo  # Total, sin filtrar por local/visitante
+        
+        # Función de cálculo de estadísticas para un equipo
+        def calcular_estadisticas_equipo(df, equipo_seleccionado):
+            racha_actual = calcular_racha_actual(df)
+            mayor_racha = calcular_mayor_racha(df)
+            victorias_porteria_0 = calcular_victorias_porteria_0(df)
+            partidos_porteria_0 = calcular_partidos_porteria_0(df)
+            return racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0
+        
+        # Mostrar estadísticas de rachas y portería
+        racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df_filtrado, equipo_seleccionado)
         st.markdown("### 📌 Datos de rachas y portería")
         cols = st.columns(4)
         cols[0].metric("🏅 Racha actual", f"{racha_actual} victorias")
         cols[1].metric("🔥 Mayor racha", f"{mayor_racha} victorias")
         cols[2].metric("🛡️ Victorias con portería 0", victorias_porteria_0)
         cols[3].metric("🧱 Partidos con portería 0", partidos_porteria_0)
-
+        
+        # Mostrar jugadores destacados
         st.subheader("🏅 Jugadores destacados")
         col1, col2, col3 = st.columns(3)
         with col1:
-            top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
+            top_goleadores = df_filtrado.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
             st.markdown("**Goleadores**")
             st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}))
         with col2:
-            top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
+            top_minutos = df_filtrado.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
             st.markdown("**Más minutos jugados**")
             st.dataframe(top_minutos)
         with col3:
-            top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
+            top_amarillas = df_filtrado[df_filtrado["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
             st.markdown("**Más amarillas**")
             st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
-
+        
+        # Función para calcular goles por tramo
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
             for m in lista_minutos:
@@ -294,12 +389,12 @@ if df is not None:
                 tramos[idx] += 1
             total = sum(tramos)
             return [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
-
+        
         # Goles a favor por tramo
         st.subheader("📊 Goles a favor por tramo")
-        todos_goles = df_equipo["minutos_goles"].sum()
+        todos_goles = df_filtrado["minutos_goles"].sum()
         tramos_favor = goles_por_tramo(todos_goles)
-
+        
         fig1 = px.bar(
             x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
             y=tramos_favor,
@@ -308,19 +403,19 @@ if df is not None:
             color_discrete_sequence=["green"]
         )
         st.plotly_chart(fig1, use_container_width=True)
-
-        # Goles en contra
-        goles_partidos = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+        
+        # Goles en contra por tramo
+        st.subheader("📊 Goles en contra por tramo")
+        goles_partidos = df_filtrado.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
         rivales = goles_partidos.merge(goles_partidos, on="codacta")
         rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
-
+        
         goles_contra = rivales[rivales["equipo_x"] == equipo_seleccionado][["codacta", "num_goles_y"]]
-        goles_contra_listas = df[df["equipo"] != equipo_seleccionado]
+        goles_contra_listas = df_filtrado[df_filtrado["equipo"] != equipo_seleccionado]
         goles_contra_listas = goles_contra_listas[goles_contra_listas["codacta"].isin(goles_contra["codacta"])]
         minutos_contra = goles_contra_listas["minutos_goles"].sum()
         tramos_contra = goles_por_tramo(minutos_contra)
-
-        st.subheader("📊 Goles en contra por tramo")
+        
         fig2 = px.bar(
             x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
             y=tramos_contra,
@@ -329,6 +424,8 @@ if df is not None:
             color_discrete_sequence=["red"]
         )
         st.plotly_chart(fig2, use_container_width=True)
+
+        
 
         st.subheader("📈 Tendencia de minutos jugados (últimas 5 jornadas vs 5 anteriores)")
         jornadas = sorted(df["numero_jornada"].unique())
