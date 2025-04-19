@@ -166,6 +166,31 @@ if df is not None:
         # Mostramos la tabla completa con scroll
         st.dataframe(amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), use_container_width=True)
 
+        # Cálculo de expulsiones: doble amarilla + roja directa
+        st.header("🚨 Expulsiones")
+        
+        # Agrupar por jugador y sumar las tarjetas de doble amarilla
+        expulsiones = df[df["doble_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["doble_amarilla"].sum().reset_index()
+        expulsiones = expulsiones.rename(columns={"doble_amarilla": "Dobles Amarillas"})
+        
+        # Agrupar por jugador y sumar las tarjetas rojas directas
+        roja_directa = df[df["roja_directa"] > 0].groupby(["nombre_jugador", "equipo"])["roja_directa"].sum().reset_index()
+        roja_directa = roja_directa.rename(columns={"roja_directa": "Tarjetas Rojas Directas"})
+        
+        # Combinar los dos DataFrames
+        expulsiones_totales = pd.merge(expulsiones, roja_directa, on=["nombre_jugador", "equipo"], how="outer").fillna(0)
+        
+        # Calcular las expulsiones totales sumando las dobles amarillas y las rojas directas
+        expulsiones_totales["Expulsiones"] = expulsiones_totales["Dobles Amarillas"] + expulsiones_totales["Tarjetas Rojas Directas"]
+        
+        # Ordenar por expulsiones totales
+        expulsiones_totales = expulsiones_totales.sort_values(by="Expulsiones", ascending=False)
+        
+        # Mostrar la tabla con las columnas de expulsiones, doble amarilla y roja directa
+        st.dataframe(expulsiones_totales[["nombre_jugador", "equipo", "Expulsiones", "Dobles Amarillas", "Tarjetas Rojas Directas"]], use_container_width=True)
+
+
+
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
         equipos = sorted(df["equipo"].unique())
