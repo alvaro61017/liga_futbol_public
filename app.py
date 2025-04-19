@@ -81,6 +81,12 @@ if df is not None:
         partidos["empatado"] = partidos.gf == partidos.gc
         partidos["perdido"] = partidos.gf < partidos.gc
 
+        # Determinar local o visitante desde el dataset original
+        codacta_local = df.groupby("codacta")["equipo"].first()
+        partidos["local"] = partidos.apply(lambda x: x.equipo == codacta_local[x.codacta], axis=1).astype(int)
+        partidos["visitante"] = 1 - partidos["local"]
+
+
         clasificacion = partidos.groupby("equipo").agg({
             "puntos": "sum",
             "gf": "sum",
