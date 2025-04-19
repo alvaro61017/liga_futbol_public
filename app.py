@@ -99,10 +99,11 @@ if df is not None:
         st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True)
 
         # Modificación para tarjetas amarillas y rojas
-        st.header("🟨 Tarjetas Amarillas y Rojas")
+        st.header("🟨 Tarjetas Amarillas, Rojas y Dobles Amarillas")
         # Calculamos las dobles amarillas y consideramos las rojas como amarillas
         df["doble_amarilla"] = 0  # Inicializamos la columna para dobles amarillas
         df["num_tarjeta_amarilla_acumulada"] = df["num_tarjeta_amarilla"].copy()  # Copiamos las amarillas para el acumulado
+        df["num_tarjeta_roja"] = 0  # Inicializamos la columna de tarjetas rojas
 
         for idx, row in df.iterrows():
             # Verificamos si un jugador tiene más de 1 amarilla en un partido
@@ -113,14 +114,19 @@ if df is not None:
             # Verificamos si el jugador tiene tarjeta roja
             if row["num_tarjeta_roja"] > 0:
                 df.at[idx, "num_tarjeta_amarilla_acumulada"] += 1  # Sumamos una amarilla por la roja
+                df.at[idx, "num_tarjeta_roja"] = row["num_tarjeta_roja"]  # Registramos la tarjeta roja
 
         amarillas = df.groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla_acumulada"].sum().reset_index()
         dobles_amarillas = df.groupby(["nombre_jugador", "equipo"])["doble_amarilla"].sum().reset_index()
+        rojas = df.groupby(["nombre_jugador", "equipo"])["num_tarjeta_roja"].sum().reset_index()
 
         # Mostramos las tablas
-        st.subheader("🟨 Resumen de Tarjetas Amarillas y Dobles Amarillas")
+        st.subheader("🟨 Resumen de Tarjetas Amarillas, Rojas y Dobles Amarillas")
         resumen_amarillas = amarillas.merge(dobles_amarillas, on=["nombre_jugador", "equipo"], how="left").fillna(0)
-        resumen_amarillas = resumen_amarillas.rename(columns={"num_tarjeta_amarilla_acumulada": "Total Amarillas", "doble_amarilla": "Dobles Amarillas"})
+        resumen_amarillas = resumen_amarillas.merge(rojas, on=["nombre_jugador", "equipo"], how="left").fillna(0)
+        resumen_amarillas = resumen_amarillas.rename(columns={
+            "num_tarjeta_amarilla_acumulada": "Total Amarillas", "doble_amarilla": "Dobles Amarillas", "num_tarjeta_roja": "Tarjetas Rojas"
+        })
         st.dataframe(resumen_amarillas.sort_values(by="Total Amarillas", ascending=False), use_container_width=True)
 
     elif menu == "📋 Equipos":
@@ -144,60 +150,17 @@ if df is not None:
             st.markdown("**Más amarillas**")
             st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
 
-        # Goles a favor por tramo
-        st.subheader("📊 Goles a favor por tramo")
-        todos_goles = df_equipo["minutos_goles"].sum()
-        tramos_favor = goles_por_tramo(todos_goles)
+        # Añadir tarjetas rojas y dobles amarillas
+        top_rojas = df_equipo[df_equipo["num_tarjeta_roja"] > 0].groupby("nombre_jugador")["num_tarjeta_roja"].sum().reset_index().sort_values(by="num_tarjeta_roja", ascending=False).head(5)
+        top_dobles_amarillas = df_equipo[df_equipo["doble_amarilla"] > 0].groupby("nombre_jugador")["doble_amarilla"].sum().reset_index().sort_values(by="doble_amarilla", ascending=False).head(5)
 
-        fig1 = px.bar(
-            x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
-            y=tramos_favor,
-            labels={"x": "Tramo", "y": "% Goles a favor"},
-            title="Distribución de goles a favor por tramo",
-            color_discrete_sequence=["green"]
-        )
-        st.plotly_chart(fig1, use_container_width=True)
-
-        # Goles en contra
-        goles_partidos = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
-        rivales = goles_partidos.merge(goles_partidos, on="codacta")
-        rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
-
-        goles_contra = rivales[rivales["equipo_x"] == equipo_seleccionado][["codacta", "num_goles_y"]]
-        goles_contra_listas = df[df["equipo"] != equipo_seleccionado]
-        goles_contra_listas = goles_contra_listas[goles_contra_listas["codacta"].isin(goles_contra["codacta"])]
-        minutos_contra = goles_contra_listas["minutos_goles"].sum()
-        tramos_contra = goles_por_tramo(minutos_contra)
-
-        st.subheader("📊 Goles en contra por tramo")
-        fig2 = px.bar(
-            x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
-            y=tramos_contra,
-            labels={"x": "Tramo", "y": "% Goles en contra"},
-            title="Distribución de goles en contra por tramo",
-            color_discrete_sequence=["red"]
-        )
-        st.plotly_chart(fig2, use_container_width=True)
-
-        st.subheader("📈 Tendencia de minutos jugados (últimas 5 jornadas vs 5 anteriores)")
-        jornadas = sorted(df["numero_jornada"].unique())
-        ultimas_5 = jornadas[-5:]
-        anteriores_5 = jornadas[-10:-5]
-
-        minutos_recientes = df_equipo[df_equipo["numero_jornada"].isin(ultimas_5)].groupby("nombre_jugador")["minutos_jugados"].sum().reset_index()
-        minutos_pasados = df_equipo[df_equipo["numero_jornada"].isin(anteriores_5)].groupby("nombre_jugador")["minutos_jugados"].sum().reset_index()
-
-        tendencia = minutos_pasados.merge(minutos_recientes, on="nombre_jugador", how="outer", suffixes=("_5prev", "_ult5")).fillna(0)
-        tendencia["variacion"] = tendencia["minutos_jugados_ult5"] - tendencia["minutos_jugados_5prev"]
-        tendencia = tendencia.sort_values(by="variacion", ascending=False)
-
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.markdown("**Jugadores ganando protagonismo**")
-            st.dataframe(tendencia.head(5).rename(columns={"variacion": "+/- minutos"}))
-        with col_b:
-            st.markdown("**Jugadores perdiendo protagonismo**")
-            st.dataframe(tendencia.tail(5).sort_values(by="variacion").rename(columns={"variacion": "+/- minutos"}))
+        col4, col5 = st.columns(2)
+        with col4:
+            st.markdown("**Más Tarjetas Rojas**")
+            st.dataframe(top_rojas.rename(columns={"num_tarjeta_roja": "Tarjetas Rojas"}))
+        with col5:
+            st.markdown("**Más Dobles Amarillas**")
+            st.dataframe(top_dobles_amarillas.rename(columns={"doble_amarilla": "Dobles Amarillas"}))
 
 else:
     st.warning("❌ No se pudieron cargar los datos desde Google Drive.")
