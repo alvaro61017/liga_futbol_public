@@ -167,7 +167,7 @@ if df is not None:
         st.dataframe(amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), use_container_width=True)
 
         # Cálculo de expulsiones: doble amarilla + roja directa
-        st.header("🚨 Expulsiones")
+        st.header("🟥 Expulsiones")
         
         # Agrupar por jugador y sumar las tarjetas de doble amarilla
         expulsiones = df[df["segunda_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["segunda_amarilla"].sum().reset_index()
