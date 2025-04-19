@@ -170,12 +170,12 @@ if df is not None:
         st.header("🚨 Expulsiones")
         
         # Agrupar por jugador y sumar las tarjetas de doble amarilla
-        expulsiones = df[df["doble_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["doble_amarilla"].sum().reset_index()
-        expulsiones = expulsiones.rename(columns={"doble_amarilla": "Dobles Amarillas"})
+        expulsiones = df[df["segunda_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["segunda_amarilla"].sum().reset_index()
+        expulsiones = expulsiones.rename(columns={"segunda_amarilla": "Dobles Amarillas"})
         
         # Agrupar por jugador y sumar las tarjetas rojas directas
-        roja_directa = df[df["roja_directa"] > 0].groupby(["nombre_jugador", "equipo"])["roja_directa"].sum().reset_index()
-        roja_directa = roja_directa.rename(columns={"roja_directa": "Tarjetas Rojas Directas"})
+        roja_directa = df[df["num_tarjeta_roja"] > 0].groupby(["nombre_jugador", "equipo"])["num_tarjeta_roja"].sum().reset_index()
+        roja_directa = roja_directa.rename(columns={"num_tarjeta_roja": "Tarjetas Rojas Directas"})
         
         # Combinar los dos DataFrames
         expulsiones_totales = pd.merge(expulsiones, roja_directa, on=["nombre_jugador", "equipo"], how="outer").fillna(0)
