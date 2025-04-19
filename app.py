@@ -59,12 +59,8 @@ if df is not None:
         }), use_container_width=True)
 
         # Añadimos los equipos más en forma y menos en forma en la misma fila
-        # st.header("⚡ Top 5 Equipos con más victorias seguidas y más partidos sin ganar")
-
-        # Creamos las dos columnas
         col1, col2 = st.columns(2)
 
-        # Columna 1: Top 5 equipos con más victorias seguidas
         with col1:
             st.subheader("🔥 Racha actual de victorias seguidas")
             victorias_seguidas = []
@@ -81,7 +77,6 @@ if df is not None:
             victorias_seguidas = sorted(victorias_seguidas, key=lambda x: x[1], reverse=True)[:5]
             st.dataframe(pd.DataFrame(victorias_seguidas, columns=['Equipo', 'Racha de Victorias Seguidas']), use_container_width=True)
 
-        # Columna 2: Top 5 equipos con más partidos seguidos sin ganar
         with col2:
             st.subheader("⚠️ Racha actual de partidos seguidos sin ganar")
             sin_ganar_seguidos = []
@@ -103,10 +98,13 @@ if df is not None:
         goleadores = goleadores[goleadores["num_goles"] > 0].sort_values(by="num_goles", ascending=False)
         st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True)
 
-        st.header("🟨 Top 5 en tarjetas amarillas")
-        top_amarillas = df[df["num_tarjeta_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla"].sum().reset_index()
-        top_amarillas = top_amarillas.sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
-        st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), use_container_width=True)
+        # Modificación aquí para mostrar todas las tarjetas amarillas
+        st.header("🟨 Tarjetas Amarillas")
+        amarillas = df[df["num_tarjeta_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla"].sum().reset_index()
+        amarillas = amarillas.sort_values(by="num_tarjeta_amarilla", ascending=False)
+
+        # Mostramos la tabla completa con scroll
+        st.dataframe(amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), use_container_width=True)
 
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
