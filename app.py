@@ -31,6 +31,11 @@ if df is not None:
     if menu == "🏆 General":
         st.header("🏆 Clasificación")
 
+        # Añadir lógica para tarjetas amarillas, rojas y dobles
+        df["doble_amarilla"] = df["num_tarjeta_amarilla"].apply(lambda x: 1 if x == 2 else 0)
+        df["tarjeta_roja"] = df["num_tarjeta_roja"].apply(lambda x: 1 if x > 0 else 0)
+        df["tarjetas_amarillas_totales"] = df["num_tarjeta_amarilla"] + df["doble_amarilla"] + df["tarjeta_roja"]
+
         goles_por_partido = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
         merged = goles_por_partido.merge(goles_por_partido, on="codacta")
         partidos = merged[merged["equipo_x"] != merged["equipo_y"]].copy()
@@ -58,76 +63,22 @@ if df is not None:
             "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P"
         }), use_container_width=True)
 
-        # Añadimos los equipos más en forma y menos en forma en la misma fila
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.subheader("🔥 Racha actual de victorias seguidas")
-            victorias_seguidas = []
-            for equipo in clasificacion['equipo']:
-                partidos_equipo = partidos[partidos['equipo'] == equipo].sort_values(by="codacta", ascending=False)
-                victorias = 0
-                for i, row in partidos_equipo.iterrows():
-                    if row['ganado']:
-                        victorias += 1
-                    else:
-                        break  # Detenemos el conteo en cuanto el equipo no gane
-                victorias_seguidas.append((equipo, victorias))
-
-            victorias_seguidas = sorted(victorias_seguidas, key=lambda x: x[1], reverse=True)[:5]
-            st.dataframe(pd.DataFrame(victorias_seguidas, columns=['Equipo', 'Racha de Victorias Seguidas']), use_container_width=True)
-
-        with col2:
-            st.subheader("⚠️ Racha actual de partidos seguidos sin ganar")
-            sin_ganar_seguidos = []
-            for equipo in clasificacion['equipo']:
-                partidos_equipo = partidos[partidos['equipo'] == equipo].sort_values(by="codacta", ascending=False)
-                no_ganar = 0
-                for i, row in partidos_equipo.iterrows():
-                    if not row['ganado']:
-                        no_ganar += 1
-                    else:
-                        break  # Detenemos el conteo en cuanto el equipo gane
-                sin_ganar_seguidos.append((equipo, no_ganar))
-
-            sin_ganar_seguidos = sorted(sin_ganar_seguidos, key=lambda x: x[1], reverse=True)[:5]
-            st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']), use_container_width=True)
-
-        st.header("⚽ Goleadores")
-        goleadores = df.groupby(["nombre_jugador", "equipo"])["num_goles"].sum().reset_index()
-        goleadores = goleadores[goleadores["num_goles"] > 0].sort_values(by="num_goles", ascending=False)
-        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True)
-
-        # Modificación para tarjetas amarillas y rojas
-        st.header("🟨 Tarjetas Amarillas, Rojas y Dobles Amarillas")
-        # Calculamos las dobles amarillas y consideramos las rojas como amarillas
-        df["doble_amarilla"] = 0  # Inicializamos la columna para dobles amarillas
-        df["num_tarjeta_amarilla_acumulada"] = df["num_tarjeta_amarilla"].copy()  # Copiamos las amarillas para el acumulado
-        df["num_tarjeta_roja"] = 0  # Inicializamos la columna de tarjetas rojas
-
-        for idx, row in df.iterrows():
-            # Verificamos si un jugador tiene más de 1 amarilla en un partido
-            if len(row["minutos_tarjeta_amarilla"]) > 1:
-                df.at[idx, "doble_amarilla"] = 1
-                df.at[idx, "num_tarjeta_amarilla_acumulada"] = len(row["minutos_tarjeta_amarilla"]) - 1  # No sumamos las dobles
-
-            # Verificamos si el jugador tiene tarjeta roja
-            if row["num_tarjeta_roja"] > 0:
-                df.at[idx, "num_tarjeta_amarilla_acumulada"] += 1  # Sumamos una amarilla por la roja
-                df.at[idx, "num_tarjeta_roja"] = row["num_tarjeta_roja"]  # Registramos la tarjeta roja
-
-        amarillas = df.groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla_acumulada"].sum().reset_index()
-        dobles_amarillas = df.groupby(["nombre_jugador", "equipo"])["doble_amarilla"].sum().reset_index()
-        rojas = df.groupby(["nombre_jugador", "equipo"])["num_tarjeta_roja"].sum().reset_index()
-
-        # Mostramos las tablas
-        st.subheader("🟨 Resumen de Tarjetas Amarillas, Rojas y Dobles Amarillas")
-        resumen_amarillas = amarillas.merge(dobles_amarillas, on=["nombre_jugador", "equipo"], how="left").fillna(0)
-        resumen_amarillas = resumen_amarillas.merge(rojas, on=["nombre_jugador", "equipo"], how="left").fillna(0)
-        resumen_amarillas = resumen_amarillas.rename(columns={
-            "num_tarjeta_amarilla_acumulada": "Total Amarillas", "doble_amarilla": "Dobles Amarillas", "num_tarjeta_roja": "Tarjetas Rojas"
-        })
-        st.dataframe(resumen_amarillas.sort_values(by="Total Amarillas", ascending=False), use_container_width=True)
+        # Tarjetas amarillas y rojas
+        st.header("🟨 Tarjetas Amarillas y Rojas")
+        amarillas_y_rojas = df.groupby(["nombre_jugador", "equipo"]).agg({
+            "num_tarjeta_amarilla": "sum",
+            "doble_amarilla": "sum",
+            "tarjeta_roja": "sum"
+        }).reset_index()
+        
+        amarillas_y_rojas["amarillas_totales"] = amarillas_y_rojas["num_tarjeta_amarilla"] + amarillas_y_rojas["doble_amarilla"] + amarillas_y_rojas["tarjeta_roja"]
+        
+        st.dataframe(amarillas_y_rojas.rename(columns={
+            "num_tarjeta_amarilla": "Amarillas", 
+            "doble_amarilla": "Doble Amarilla", 
+            "tarjeta_roja": "Tarjetas Rojas", 
+            "amarillas_totales": "Total Tarjetas Amarillas"
+        }), use_container_width=True)
 
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
@@ -146,21 +97,19 @@ if df is not None:
             st.markdown("**Más minutos jugados**")
             st.dataframe(top_minutos)
         with col3:
-            top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
-            st.markdown("**Más amarillas**")
-            st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
-
-        # Añadir tarjetas rojas y dobles amarillas
-        top_rojas = df_equipo[df_equipo["num_tarjeta_roja"] > 0].groupby("nombre_jugador")["num_tarjeta_roja"].sum().reset_index().sort_values(by="num_tarjeta_roja", ascending=False).head(5)
-        top_dobles_amarillas = df_equipo[df_equipo["doble_amarilla"] > 0].groupby("nombre_jugador")["doble_amarilla"].sum().reset_index().sort_values(by="doble_amarilla", ascending=False).head(5)
-
-        col4, col5 = st.columns(2)
-        with col4:
-            st.markdown("**Más Tarjetas Rojas**")
-            st.dataframe(top_rojas.rename(columns={"num_tarjeta_roja": "Tarjetas Rojas"}))
-        with col5:
-            st.markdown("**Más Dobles Amarillas**")
-            st.dataframe(top_dobles_amarillas.rename(columns={"doble_amarilla": "Dobles Amarillas"}))
+            top_amarillas = df_equipo.groupby("nombre_jugador").agg({
+                "num_tarjeta_amarilla": "sum",
+                "doble_amarilla": "sum",
+                "tarjeta_roja": "sum"
+            }).reset_index()
+            top_amarillas["total_amarillas"] = top_amarillas["num_tarjeta_amarilla"] + top_amarillas["doble_amarilla"] + top_amarillas["tarjeta_roja"]
+            st.markdown("**Más tarjetas**")
+            st.dataframe(top_amarillas.rename(columns={
+                "num_tarjeta_amarilla": "Amarillas", 
+                "doble_amarilla": "Doble Amarilla", 
+                "tarjeta_roja": "Tarjetas Rojas", 
+                "total_amarillas": "Total Amarillas"
+            }))
 
 else:
     st.warning("❌ No se pudieron cargar los datos desde Google Drive.")
