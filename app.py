@@ -165,31 +165,29 @@ if df is not None:
 
         # # Mostramos la tabla completa con scroll
         # st.dataframe(amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), use_container_width=True)
+        # Cálculo de tarjetas amarillas
         st.header("🟨 Tarjetas Amarillas")
-
-        # Filtrar los jugadores que han recibido al menos una tarjeta amarilla
-        amarillas = df[df["num_tarjeta_amarilla"] > 0]
         
-        # Crear una nueva columna para las tarjetas amarillas ajustadas
-        amarillas["num_tarjeta_amarilla_final"] = amarillas["num_tarjeta_amarilla"]
+        # Definimos la lógica de tarjetas amarillas
+        def calcular_amarillas(row):
+            amarillas = row['num_tarjeta_amarilla']
+            if row['segunda_amarilla'] == 1:
+                amarillas = 0  # Si hay segunda amarilla, no sumamos las amarillas
+            if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
+                amarillas += 1  # Si hay tarjeta roja, sumamos 1 amarilla adicional
+            return amarillas
         
-        # Si tiene 'segunda_amarilla' == 1, no sumar tarjetas amarillas (es decir, sumar 0)
-        amarillas.loc[amarillas["segunda_amarilla"] == 1, "num_tarjeta_amarilla_final"] = 0
+        # Aplicamos la lógica a cada fila
+        df['amarillas_totales'] = df.apply(calcular_amarillas, axis=1)
         
-        # Si tiene 'roja_directa' == 1, sumar 1 tarjeta amarilla
-        amarillas.loc[amarillas["num_tarjeta_roja"] == 1, "num_tarjeta_amarilla_final"] += 1
+        # Agrupamos los datos por jugador y equipo, sumando las tarjetas amarillas
+        amarillas = df.groupby(["nombre_jugador", "equipo"])["amarillas_totales"].sum().reset_index()
         
-        # Si tiene tanto 'num_tarjeta_amarilla' == 1 y 'roja_directa' == 1, el total de amarillas en ese partido debe ser 1
-        amarillas.loc[(amarillas["num_tarjeta_amarilla"] == 1) & (amarillas["num_tarjeta_roja"] == 1), "num_tarjeta_amarilla_final"] = 1
+        # Ordenamos por el número de tarjetas amarillas
+        amarillas = amarillas.sort_values(by="amarillas_totales", ascending=False)
         
-        # Agrupar por jugador y equipo, y sumar el total de tarjetas amarillas finales
-        amarillas_totales = amarillas.groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla_final"].sum().reset_index()
-        
-        # Ordenar por el total de tarjetas amarillas
-        amarillas_totales = amarillas_totales.sort_values(by="num_tarjeta_amarilla_final", ascending=False)
-        
-        # Mostrar la tabla con los jugadores, el equipo y el total de tarjetas amarillas
-        st.dataframe(amarillas_totales[["nombre_jugador", "equipo", "num_tarjeta_amarilla_final"]], use_container_width=True)
+        # Mostramos el resultado
+        st.dataframe(amarillas)
         
 
         # Cálculo de expulsiones: doble amarilla + roja directa
