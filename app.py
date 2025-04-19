@@ -56,7 +56,7 @@ if df is not None:
 
         st.dataframe(clasificacion[["Pos", "equipo", "puntos", "ganado", "empatado", "perdido", "gf", "gc", "dif"]].rename(columns={
             "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P"
-        }), use_container_width=True, index=False)
+        }).reset_index(drop=True), use_container_width=True)
 
         # Añadimos los equipos más en forma y menos en forma en la misma fila
         col1, col2 = st.columns(2)
@@ -76,7 +76,7 @@ if df is not None:
                 victorias_seguidas.append((equipo, victorias))
 
             victorias_seguidas = sorted(victorias_seguidas, key=lambda x: x[1], reverse=True)[:5]
-            st.dataframe(pd.DataFrame(victorias_seguidas, columns=['Equipo', 'Racha de Victorias Seguidas']), use_container_width=True, index=False)
+            st.dataframe(pd.DataFrame(victorias_seguidas, columns=['Equipo', 'Racha de Victorias Seguidas']).reset_index(drop=True), use_container_width=True)
 
         # Columna 2: Top 5 equipos con más partidos seguidos sin ganar
         with col2:
@@ -93,17 +93,17 @@ if df is not None:
                 sin_ganar_seguidos.append((equipo, no_ganar))
 
             sin_ganar_seguidos = sorted(sin_ganar_seguidos, key=lambda x: x[1], reverse=True)[:5]
-            st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']), use_container_width=True, index=False)
+            st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']).reset_index(drop=True), use_container_width=True)
 
         st.header("⚽ Goleadores")
         goleadores = df.groupby(["nombre_jugador", "equipo"])["num_goles"].sum().reset_index()
         goleadores = goleadores[goleadores["num_goles"] > 0].sort_values(by="num_goles", ascending=False)
-        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True, index=False)
+        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}).reset_index(drop=True), use_container_width=True)
 
         st.header("🟨 Top 5 en tarjetas amarillas")
         top_amarillas = df[df["num_tarjeta_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla"].sum().reset_index()
         top_amarillas = top_amarillas.sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
-        st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), use_container_width=True, index=False)
+        st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}).reset_index(drop=True), use_container_width=True)
 
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
@@ -116,78 +116,17 @@ if df is not None:
         with col1:
             top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
             st.markdown("**Goleadores**")
-            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}), index=False)
+            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}).reset_index(drop=True), use_container_width=True)
         with col2:
             top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
             st.markdown("**Más minutos jugados**")
-            st.dataframe(top_minutos, index=False)
+            st.dataframe(top_minutos.reset_index(drop=True), use_container_width=True)
         with col3:
             top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
             st.markdown("**Más amarillas**")
-            st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), index=False)
+            st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}).reset_index(drop=True), use_container_width=True)
 
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
             for m in lista_minutos:
                 idx = min(m // 15, 5)
-                tramos[idx] += 1
-            total = sum(tramos)
-            return [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
-
-        # Goles a favor por tramo
-        st.subheader("📊 Goles a favor por tramo")
-        todos_goles = df_equipo["minutos_goles"].sum()
-        tramos_favor = goles_por_tramo(todos_goles)
-
-        fig1 = px.bar(
-            x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
-            y=tramos_favor,
-            labels={"x": "Tramo", "y": "% Goles a favor"},
-            title="Distribución de goles a favor por tramo",
-            color_discrete_sequence=["green"]
-        )
-        st.plotly_chart(fig1, use_container_width=True)
-
-        # Goles en contra
-        goles_partidos = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
-        rivales = goles_partidos.merge(goles_partidos, on="codacta")
-        rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
-
-        goles_contra = rivales[rivales["equipo_x"] == equipo_seleccionado][["codacta", "num_goles_y"]]
-        goles_contra_listas = df[df["equipo"] != equipo_seleccionado]
-        goles_contra_listas = goles_contra_listas[goles_contra_listas["codacta"].isin(goles_contra["codacta"])]
-        minutos_contra = goles_contra_listas["minutos_goles"].sum()
-        tramos_contra = goles_por_tramo(minutos_contra)
-
-        st.subheader("📊 Goles en contra por tramo")
-        fig2 = px.bar(
-            x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
-            y=tramos_contra,
-            labels={"x": "Tramo", "y": "% Goles en contra"},
-            title="Distribución de goles en contra por tramo",
-            color_discrete_sequence=["red"]
-        )
-        st.plotly_chart(fig2, use_container_width=True)
-
-        st.subheader("📈 Tendencia de minutos jugados (últimas 5 jornadas vs 5 anteriores)")
-        jornadas = sorted(df["numero_jornada"].unique())
-        ultimas_5 = jornadas[-5:]
-        anteriores_5 = jornadas[-10:-5]
-
-        minutos_recientes = df_equipo[df_equipo["numero_jornada"].isin(ultimas_5)].groupby("nombre_jugador")["minutos_jugados"].sum().reset_index()
-        minutos_pasados = df_equipo[df_equipo["numero_jornada"].isin(anteriores_5)].groupby("nombre_jugador")["minutos_jugados"].sum().reset_index()
-
-        tendencia = minutos_pasados.merge(minutos_recientes, on="nombre_jugador", how="outer", suffixes=("_5prev", "_ult5")).fillna(0)
-        tendencia["variacion"] = tendencia["minutos_jugados_ult5"] - tendencia["minutos_jugados_5prev"]
-        tendencia = tendencia.sort_values(by="variacion", ascending=False)
-
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.markdown("**Jugadores ganando protagonismo**")
-            st.dataframe(tendencia.head(5).rename(columns={"variacion": "+/- minutos"}), index=False)
-        with col_b:
-            st.markdown("**Jugadores perdiendo protagonismo**")
-            st.dataframe(tendencia.tail(5).sort_values(by="variacion").rename(columns={"variacion": "+/- minutos"}), index=False)
-
-else:
-    st.warning("❌ No se pudieron cargar los datos desde Google Drive.")
