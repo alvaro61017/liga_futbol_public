@@ -25,6 +25,45 @@ def cargar_datos_desde_drive():
 
 df = cargar_datos_desde_drive()
 
+def calcular_estadisticas_equipo(df, equipo):
+     df_equipo = df[df["equipo"] == equipo]
+     partidos = df[df["equipo"] == equipo].groupby("codacta").agg({
+         "equipo": "first",
+         "num_goles": "sum"
+     }).rename(columns={"num_goles": "gf"})
+ 
+     rivales = df[df["equipo"] != equipo].groupby("codacta")["num_goles"].sum().rename("gc")
+     partidos = partidos.join(rivales, on="codacta")
+ 
+     partidos["resultado"] = partidos.apply(lambda x: "W" if x.gf > x.gc else "D" if x.gf == x.gc else "L", axis=1)
+     partidos = partidos.sort_index()
+ 
+     resultados = partidos["resultado"].tolist()
+ 
+     # Racha actual
+     racha_actual = 0
+     for r in reversed(resultados):
+         if r == "W":
+             racha_actual += 1
+         else:
+             break
+ 
+     # Mayor racha
+     mayor_racha = 0
+     temp = 0
+     for r in resultados:
+         if r == "W":
+             temp += 1
+             mayor_racha = max(mayor_racha, temp)
+         else:
+             temp = 0
+ 
+     # Portería a 0
+     victorias_porteria_0 = partidos[(partidos["resultado"] == "W") & (partidos["gc"] == 0)].shape[0]
+     partidos_porteria_0 = partidos[partidos["gc"] == 0].shape[0]
+ 
+     return racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0
+
 if df is not None:
     menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Equipos"))
 
@@ -111,6 +150,13 @@ if df is not None:
         equipos = sorted(df["equipo"].unique())
         equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
         df_equipo = df[df["equipo"] == equipo_seleccionado]
+
+        racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df, equipo_seleccionado)
+        st.markdown("### 📌 Datos de rachas y portería")
+        st.columns(4)[0].metric("🏅 Racha actual", f"{racha_actual} victorias")
+        st.columns(4)[1].metric("🔥 Mayor racha", f"{mayor_racha} victorias")
+        st.columns(4)[2].metric("🛡️ Victorias con portería 0", victorias_porteria_0)
+        st.columns(4)[3].metric("🧱 Partidos con portería 0", partidos_porteria_0)
 
         st.subheader("🏅 Jugadores destacados")
         col1, col2, col3 = st.columns(3)
