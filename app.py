@@ -87,6 +87,7 @@ if df is not None:
         partidos["visitante"] = 1 - partidos["local"]
 
 
+        # Agrupamos los partidos por equipo y tipo de resultado (ganado, empatado, perdido)
         clasificacion = partidos.groupby("equipo").agg({
             "puntos": "sum",
             "gf": "sum",
@@ -95,23 +96,40 @@ if df is not None:
             "empatado": "sum",
             "perdido": "sum"
         }).reset_index()
-
+        
+        # Diferencia de goles
         clasificacion["dif"] = clasificacion["gf"] - clasificacion["gc"]
         clasificacion = clasificacion.sort_values(by=["puntos", "dif"], ascending=False)
         clasificacion["Pos"] = range(1, len(clasificacion)+1)
-
+        
+        # Asegúrate de contar correctamente los partidos jugados en casa y fuera
         clasificacion["partidos_jugados"] = partidos.groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
+        
+        # Victorias, empates y derrotas por local y visitante
         clasificacion["locales_ganados"] = partidos[(partidos["ganado"]) & (partidos["local"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
         clasificacion["visitantes_ganados"] = partidos[(partidos["ganado"]) & (partidos["visitante"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
         clasificacion["locales_empatados"] = partidos[(partidos["empatado"]) & (partidos["local"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
         clasificacion["visitantes_empatados"] = partidos[(partidos["empatado"]) & (partidos["visitante"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
         clasificacion["locales_perdidos"] = partidos[(partidos["perdido"]) & (partidos["local"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
         clasificacion["visitantes_perdidos"] = partidos[(partidos["perdido"]) & (partidos["visitante"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
-
+        
+        # Asegúrate de que los valores nulos en los contadores sean reemplazados por 0
+        clasificacion.fillna({
+            "locales_ganados": 0, 
+            "visitantes_ganados": 0, 
+            "locales_empatados": 0, 
+            "visitantes_empatados": 0,
+            "locales_perdidos": 0,
+            "visitantes_perdidos": 0
+        }, inplace=True)
+        
+        # Muestra el DataFrame final con la clasificación
         st.dataframe(clasificacion[["Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif", 
                                     "locales_ganados", "locales_empatados", "locales_perdidos",
                                     "visitantes_ganados", "visitantes_empatados", "visitantes_perdidos"]]
-                     .rename(columns={"gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P"}), 
+                     .rename(columns={"gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P", 
+                                      "locales_ganados": "G_local", "locales_empatados" : "E_local", "locales_perdidos": "P_local",
+                                      "visitantes_ganados": "G_visitante", "visitantes_empatados" : "E_visitante", "visitantes_perdidos": "P_visitante",}), 
                      use_container_width=True)
 
         # st.dataframe(clasificacion[["Pos", "equipo", "puntos", "ganado", "empatado", "perdido", "gf", "gc", "dif"]].rename(columns={
