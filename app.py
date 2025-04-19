@@ -94,39 +94,20 @@ if df is not None:
         clasificacion = clasificacion.sort_values(by=["puntos", "dif"], ascending=False)
         clasificacion["Pos"] = range(1, len(clasificacion)+1)
 
-        # Estadísticas por local y visitante
-        partidos_local = df[df["local"] == 1].copy()
-        partidos_visitante = df[df["visitante"] == 1].copy()
-        
-        # Unimos los goles del rival para cada partido
-        goles_por_partido = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
-        rivales = goles_por_partido.merge(goles_por_partido, on="codacta")
-        rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
-        
-        # Añadir columnas de local/visitante
-        rivales = rivales.merge(df[["codacta", "equipo", "local", "visitante"]], left_on=["codacta", "equipo_x"], right_on=["codacta", "equipo"], how="left")
-        
-        # Recalculamos resultados por condición
-        rivales["ganado"] = rivales["num_goles_x"] > rivales["num_goles_y"]
-        rivales["empatado"] = rivales["num_goles_x"] == rivales["num_goles_y"]
-        rivales["perdido"] = rivales["num_goles_x"] < rivales["num_goles_y"]
-        
-        # Local
-        local_stats = rivales[rivales["local"] == 1].groupby("equipo_x")[["ganado", "empatado", "perdido"]].sum().reset_index()
-        local_stats.columns = ["equipo", "G_Local", "E_Local", "P_Local"]
-        
-        # Visitante
-        visitante_stats = rivales[rivales["visitante"] == 1].groupby("equipo_x")[["ganado", "empatado", "perdido"]].sum().reset_index()
-        visitante_stats.columns = ["equipo", "G_Visitante", "E_Visitante", "P_Visitante"]
-        
-        # Merge final
-        clasificacion = clasificacion.merge(local_stats, on="equipo", how="left")
-        clasificacion = clasificacion.merge(visitante_stats, on="equipo", how="left")
+        clasificacion["partidos_jugados"] = partidos.groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
+        clasificacion["locales_ganados"] = partidos[(partidos["ganado"]) & (partidos["local"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
+        clasificacion["visitantes_ganados"] = partidos[(partidos["ganado"]) & (partidos["visitante"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
+        clasificacion["locales_empatados"] = partidos[(partidos["empatado"]) & (partidos["local"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
+        clasificacion["visitantes_empatados"] = partidos[(partidos["empatado"]) & (partidos["visitante"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
+        clasificacion["locales_perdidos"] = partidos[(partidos["perdido"]) & (partidos["local"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
+        clasificacion["visitantes_perdidos"] = partidos[(partidos["perdido"]) & (partidos["visitante"] == 1)].groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
 
-        st.dataframe(clasificacion[["Pos", "equipo", "puntos", "PJ", "ganado", "empatado", "perdido", "gf", "gc", "dif", 
-                                    "G_Local", "E_Local", "P_Local", "G_Visitante", "E_Visitante", "P_Visitante"]]
-                     .rename(columns={"puntos": "Pts", "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P"}), 
+        st.dataframe(clasificacion[["Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif", 
+                                    "locales_ganados", "locales_empatados", "locales_perdidos",
+                                    "visitantes_ganados", "visitantes_empatados", "visitantes_perdidos"]]
+                     .rename(columns={"gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P"}), 
                      use_container_width=True)
+
         # st.dataframe(clasificacion[["Pos", "equipo", "puntos", "ganado", "empatado", "perdido", "gf", "gc", "dif"]].rename(columns={
         #     "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P"
         # }), use_container_width=True)
