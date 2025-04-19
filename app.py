@@ -98,13 +98,30 @@ if df is not None:
         goleadores = goleadores[goleadores["num_goles"] > 0].sort_values(by="num_goles", ascending=False)
         st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True)
 
-        # Modificación aquí para mostrar todas las tarjetas amarillas
-        st.header("🟨 Tarjetas Amarillas")
-        amarillas = df[df["num_tarjeta_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla"].sum().reset_index()
-        amarillas = amarillas.sort_values(by="num_tarjeta_amarilla", ascending=False)
+        # Modificación para tarjetas amarillas y rojas
+        st.header("🟨 Tarjetas Amarillas y Rojas")
+        # Calculamos las dobles amarillas y consideramos las rojas como amarillas
+        df["doble_amarilla"] = 0  # Inicializamos la columna para dobles amarillas
+        df["num_tarjeta_amarilla_acumulada"] = df["num_tarjeta_amarilla"].copy()  # Copiamos las amarillas para el acumulado
 
-        # Mostramos la tabla completa con scroll
-        st.dataframe(amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), use_container_width=True)
+        for idx, row in df.iterrows():
+            # Verificamos si un jugador tiene más de 1 amarilla en un partido
+            if len(row["minutos_tarjeta_amarilla"]) > 1:
+                df.at[idx, "doble_amarilla"] = 1
+                df.at[idx, "num_tarjeta_amarilla_acumulada"] = len(row["minutos_tarjeta_amarilla"]) - 1  # No sumamos las dobles
+
+            # Verificamos si el jugador tiene tarjeta roja
+            if row["num_tarjeta_roja"] > 0:
+                df.at[idx, "num_tarjeta_amarilla_acumulada"] += 1  # Sumamos una amarilla por la roja
+
+        amarillas = df.groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla_acumulada"].sum().reset_index()
+        dobles_amarillas = df.groupby(["nombre_jugador", "equipo"])["doble_amarilla"].sum().reset_index()
+
+        # Mostramos las tablas
+        st.subheader("🟨 Resumen de Tarjetas Amarillas y Dobles Amarillas")
+        resumen_amarillas = amarillas.merge(dobles_amarillas, on=["nombre_jugador", "equipo"], how="left").fillna(0)
+        resumen_amarillas = resumen_amarillas.rename(columns={"num_tarjeta_amarilla_acumulada": "Total Amarillas", "doble_amarilla": "Dobles Amarillas"})
+        st.dataframe(resumen_amarillas.sort_values(by="Total Amarillas", ascending=False), use_container_width=True)
 
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
@@ -126,14 +143,6 @@ if df is not None:
             top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
             st.markdown("**Más amarillas**")
             st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
-
-        def goles_por_tramo(lista_minutos):
-            tramos = [0]*6
-            for m in lista_minutos:
-                idx = min(m // 15, 5)
-                tramos[idx] += 1
-            total = sum(tramos)
-            return [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
 
         # Goles a favor por tramo
         st.subheader("📊 Goles a favor por tramo")
