@@ -23,9 +23,22 @@ def cargar_datos_desde_drive():
     df["minutos_goles_propia"] = df["minutos_goles_propia"].apply(ast.literal_eval)
     return df
 
+# Cargar los datos
 df = cargar_datos_desde_drive()
 
+# Función para calcular las tarjetas amarillas y rojas considerando la lógica
+def calcular_tarjetas(row):
+    amarillas = row["num_tarjeta_amarilla"]
+    tarjetas_rojas = 0
+    if amarillas >= 2:
+        tarjetas_rojas = 1
+        amarillas = amarillas - 2  # Restamos las 2 amarillas que se convierten en roja
+    return amarillas, tarjetas_rojas
+
+# Aplicamos la función de calcular tarjetas amarillas y rojas
 if df is not None:
+    df["tarjetas_amarillas", "tarjetas_rojas"] = df.apply(calcular_tarjetas, axis=1, result_type="expand")
+
     menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Equipos"))
 
     if menu == "🏆 General":
@@ -50,12 +63,19 @@ if df is not None:
             "perdido": "sum"
         }).reset_index()
 
+        # Agregamos las tarjetas amarillas y rojas totales por equipo
+        amarillas_por_equipo = df.groupby("equipo")["tarjetas_amarillas"].sum().reset_index()
+        rojas_por_equipo = df.groupby("equipo")["tarjetas_rojas"].sum().reset_index()
+
+        clasificacion = clasificacion.merge(amarillas_por_equipo, on="equipo", how="left")
+        clasificacion = clasificacion.merge(rojas_por_equipo, on="equipo", how="left")
+
         clasificacion["dif"] = clasificacion["gf"] - clasificacion["gc"]
         clasificacion = clasificacion.sort_values(by=["puntos", "dif"], ascending=False)
         clasificacion["Pos"] = range(1, len(clasificacion)+1)
 
-        st.dataframe(clasificacion[["Pos", "equipo", "puntos", "ganado", "empatado", "perdido", "gf", "gc", "dif"]].rename(columns={
-            "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P"
+        st.dataframe(clasificacion[["Pos", "equipo", "puntos", "ganado", "empatado", "perdido", "gf", "gc", "tarjetas_amarillas", "tarjetas_rojas", "dif"]].rename(columns={
+            "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P", "tarjetas_amarillas": "Amarillas", "tarjetas_rojas": "Rojas"
         }), use_container_width=True)
 
         # Añadimos los equipos más en forma y menos en forma en la misma fila
@@ -100,11 +120,11 @@ if df is not None:
 
         # Modificación aquí para mostrar todas las tarjetas amarillas
         st.header("🟨 Tarjetas Amarillas")
-        amarillas = df[df["num_tarjeta_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["num_tarjeta_amarilla"].sum().reset_index()
-        amarillas = amarillas.sort_values(by="num_tarjeta_amarilla", ascending=False)
+        amarillas = df[df["tarjetas_amarillas"] > 0].groupby(["nombre_jugador", "equipo"])["tarjetas_amarillas"].sum().reset_index()
+        amarillas = amarillas.sort_values(by="tarjetas_amarillas", ascending=False)
 
         # Mostramos la tabla completa con scroll
-        st.dataframe(amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}), use_container_width=True)
+        st.dataframe(amarillas.rename(columns={"tarjetas_amarillas": "Amarillas"}), use_container_width=True)
 
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
@@ -123,9 +143,9 @@ if df is not None:
             st.markdown("**Más minutos jugados**")
             st.dataframe(top_minutos)
         with col3:
-            top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
+            top_amarillas = df_equipo[df_equipo["tarjetas_amarillas"] > 0].groupby("nombre_jugador")["tarjetas_amarillas"].sum().reset_index().sort_values(by="tarjetas_amarillas", ascending=False).head(5)
             st.markdown("**Más amarillas**")
-            st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
+            st.dataframe(top_amarillas.rename(columns={"tarjetas_amarillas": "Amarillas"}))
 
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
