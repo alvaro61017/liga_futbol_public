@@ -379,7 +379,7 @@ if df is not None:
                 y=[ult_posicion],
                 mode="text",
                 text=[equipo],
-                textposition="middle left",
+                textposition="middle right",
                 showlegend=False,
                 textfont=dict(color=colores_personalizados[equipo], size=12)
             ))
