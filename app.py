@@ -320,7 +320,7 @@ if df is not None:
         clasificaciones_df = pd.concat(clasificaciones_por_jornada)
         clasificaciones_df = clasificaciones_df.sort_values(by=["equipo", "jornada"])
 
-        # Asegúrate de que las columnas son numéricas
+        # Asegúrate de que las columnas sean numéricas
         clasificaciones_df["jornada"] = clasificaciones_df["jornada"].astype(int)
         clasificaciones_df["posicion"] = clasificaciones_df["posicion"].astype(int)
         
@@ -347,20 +347,26 @@ if df is not None:
         max_jornada = clasificaciones_df["jornada"].max()
         num_equipos = clasificaciones_df["equipo"].nunique()
         
-        # Gráfico animado
-        fig = px.line(
-            clasificaciones_df,
-            x="jornada",
-            y="posicion",
-            color="equipo",
-            line_group="equipo",
-            animation_frame="jornada",
-            color_discrete_map=colores_personalizados,
-            markers=True,
-            line_shape='linear'  # Asegura que las líneas sean continuas entre puntos
-        )
+        # Configuramos la figura con el layout adecuado
+        fig = go.Figure()
         
-        # Ajustamos el layout para evitar zoom raro
+        # Añadir los puntos y las líneas para cada equipo
+        for equipo in clasificaciones_df["equipo"].unique():
+            equipo_data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
+            
+            # Añadimos la línea del equipo, pero asegurando que las líneas y los puntos se mantengan
+            fig.add_trace(go.Scatter(
+                x=equipo_data["jornada"],
+                y=equipo_data["posicion"],
+                mode="lines+markers",  # Esto asegura que tenga tanto las líneas como los puntos
+                name=equipo,
+                line=dict(width=3, color=colores_personalizados.get(equipo.lower(), "#888888")),
+                marker=dict(size=8),
+                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>",
+                showlegend=True
+            ))
+        
+        # Ajustar el layout para evitar zoom raro
         fig.update_layout(
             title="📊 Evolución de la Clasificación Jornada a Jornada",
             xaxis=dict(
@@ -398,7 +404,7 @@ if df is not None:
         
         # Añade el gráfico a la app
         st.plotly_chart(fig, use_container_width=True)
-        
+                
         # # Añade los colores personalizados
         # colores_personalizados = {
         #     "C.D. GETAFE CITY 'A'": "#800000",          # granate
