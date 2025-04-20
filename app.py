@@ -356,8 +356,8 @@ if df is not None:
 
         clasificaciones_por_jornada = []
 
-        for jornada in sorted(df["num_jornada"].unique()):
-            df_hasta_jornada = df[df["num_jornada"] <= jornada]
+        for jornada in sorted(df["numero_jornada"].unique()):
+            df_hasta_jornada = df[df["numero_jornada"] <= jornada]
             
             goles = df_hasta_jornada.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
             conteo_equipos = goles.groupby("codacta")["equipo"].nunique()
