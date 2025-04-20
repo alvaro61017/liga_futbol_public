@@ -367,6 +367,42 @@ if df is not None:
         cols[2].metric("🚫 Victorias con portería 0", victorias_porteria_0)
         cols[3].metric("🧱 Partidos con portería 0", partidos_porteria_0)
 
+
+        st.subheader("📅 Últimos 3 resultados")
+
+        # Agrupamos goles por partido y equipo
+        goles_partido = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+        
+        # Hacemos merge para tener equipo, rival, goles a favor y en contra
+        partidos_equipo = goles_partido.merge(goles_partido, on="codacta")
+        partidos_equipo = partidos_equipo[partidos_equipo["equipo_x"] == equipo_seleccionado]
+        partidos_equipo = partidos_equipo[partidos_equipo["equipo_x"] != partidos_equipo["equipo_y"]].copy()
+        
+        # Renombramos columnas
+        partidos_equipo = partidos_equipo.rename(columns={
+            "equipo_x": "equipo",
+            "equipo_y": "rival",
+            "num_goles_x": "gf",
+            "num_goles_y": "gc"
+        })
+        
+        # Añadimos fecha y resultado
+        partidos_equipo = partidos_equipo.merge(df[["codacta", "fecha"]].drop_duplicates(), on="codacta", how="left")
+        partidos_equipo["resultado"] = partidos_equipo.apply(
+            lambda row: "G" if row.gf > row.gc else "E" if row.gf == row.gc else "P", axis=1
+        )
+        partidos_equipo["marcador"] = partidos_equipo["gf"].astype(str) + "-" + partidos_equipo["gc"].astype(str)
+        partidos_equipo["vs"] = "vs " + partidos_equipo["rival"]
+        
+        # Ordenamos por fecha y nos quedamos con los 3 últimos
+        ultimos_resultados = partidos_equipo.sort_values(by="fecha", ascending=False).head(3)[["fecha", "vs", "marcador", "resultado"]]
+        ultimos_resultados = ultimos_resultados.rename(columns={"fecha": "Fecha", "vs": "Rival", "marcador": "Marcador", "resultado": "Resultado"})
+        
+        # Mostramos
+        st.dataframe(ultimos_resultados, use_container_width=True)
+        
+        
+
         st.subheader("🏅 Jugadores destacados")
         col1, col2, col3, col4 = st.columns(4)  # Añadimos una cuarta columna
 
