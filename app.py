@@ -262,7 +262,7 @@ if df is not None:
         # Lógica de tarjetas amarillas y expulsiones
         def calcular_amarillas(row):
             amarillas = row['num_tarjeta_amarilla']
-            if row['segunda_amarilla'] == 1:
+            if row['segunda_amarilla'] == 1 or row['num_tarjeta_amarilla'] == 2:
                 amarillas = 0  # Si hay segunda amarilla, no sumamos las amarillas
             if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
                 amarillas += 1  # Si hay tarjeta roja, sumamos 1 amarilla adicional
@@ -271,7 +271,9 @@ if df is not None:
         df_equipo['amarillas_totales'] = df_equipo.apply(calcular_amarillas, axis=1)
 
         # Expulsiones
-        expulsiones = df_equipo[df_equipo["segunda_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["segunda_amarilla"].sum().reset_index()
+        df_equipo.loc[df_equipo['num_tarjeta_amarilla'] == 2, 'segunda_amarilla'] = 1 # en la doble amarilla de pache vs el fepe, segunda_amarilla viene a 0. En esos casos, fuerzo segunda amarilla a 1 si tiene 2 amarillas
+        expulsiones = df_equipo[(df_equipo["segunda_amarilla"] > 0) | (df_equipo['num_tarjeta_amarilla'] == 2)].groupby(["nombre_jugador", "equipo"])["segunda_amarilla"].sum().reset_index()
+        # expulsiones = df_equipo[df_equipo["segunda_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["segunda_amarilla"].sum().reset_index()
         expulsiones = expulsiones.rename(columns={"segunda_amarilla": "Dobles Amarillas"})
         
         # Agrupar por jugador y sumar las tarjetas rojas directas
