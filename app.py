@@ -241,50 +241,6 @@ if df is not None:
         # Mostrar la tabla con las columnas de expulsiones, doble amarilla y roja directa
         st.dataframe(expulsiones_totales[["nombre_jugador", "equipo", "Expulsiones", "Dobles Amarillas", "Tarjetas Rojas Directas"]], use_container_width=True)
 
-       
-        # --- Promedio de Goles por Partido ---
-        promedio_goles = df.groupby('equipo')['num_goles'].mean().reset_index()
-        
-        # Ordenar por promedio de goles en orden descendente
-        promedio_goles = promedio_goles.sort_values('num_goles', ascending=False)
-
-        # Definir color para Getafe City (granate) y otros colores suaves para equipos
-        getafe_color = "#9B1B30"  # Granate
-        other_colors = ['#4C9ED9', '#FFD200', '#1E9F8E', '#F4794D', '#C75C96', '#7086D1', '#F5A623', '#8BCA9B', '#D56E73', '#C3A3FC']
-                
-        # Crear un gráfico interactivo con Plotly
-        fig = px.bar(promedio_goles, 
-                     x='equipo', 
-                     y='num_goles', 
-                     color='equipo', 
-                     color_discrete_map={'Getafe City': getafe_color},
-                     title="⚽ Promedio de Goles por Partido",
-                     labels={'equipo': 'Equipo', 'num_goles': 'Promedio de Goles por Partido'},
-                     template="plotly_white")
-        
-        # Mejorar diseño: Estilo limpio y moderno
-        fig.update_layout(
-            xaxis_title="Equipo",
-            yaxis_title="Promedio de Goles por Partido",
-            xaxis_tickangle=-45,  # Rotar etiquetas del eje X para mejor visibilidad
-            showlegend=False,  # Quitar leyenda ya que los colores se asignan a los equipos
-            plot_bgcolor='rgba(255, 255, 255, 0.1)',  # Fondo suave para resaltar las barras
-            paper_bgcolor='white',
-            font=dict(family="Helvetica", size=12, color="black"),  # Fuente más moderna
-            hoverlabel=dict(bgcolor="white", font_size=12, font_family="Arial", font_color="black"),  # Mejorar hover
-            margin=dict(l=40, r=40, t=50, b=40)  # Márgenes para que se vea equilibrado
-        )
-        
-        # Añadir bordes suaves a las barras
-        fig.update_traces(marker=dict(line=dict(width=2, color='rgba(255, 255, 255, 0.5)')), opacity=0.8)
-        
-        # Mostrar el gráfico en Streamlit
-        st.subheader("⚽ Promedio de Goles por Partido")
-        st.plotly_chart(fig, use_container_width=True)
-        
-        
-
-
     
 
 
