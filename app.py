@@ -324,15 +324,15 @@ if df is not None:
 
         # Diccionario personalizado con colores por equipo (en minúsculas y normalizados)
         colores_personalizados = {
-            "getafe city": "#800000",          # granate
-            "ciudad de getafe": "#FFD700",     # amarillo
-            "fepe": "#0000FF",                 # azul
-            "norte": "#ADD8E6",                # azul clarito
-            "brunete": "#FFA500",              # naranja
-            "juventud canario": "#008000",     # verde
-            "honduras": "#00008B",             # azul oscuro
-            "socios": "#FF0000",               # rojo
-            "santa barbara": "#FFFFFF",        # blanco
+            "C.D. GETAFE CITY 'A'": "#800000",          # granate
+            "E.F. CIUDAD DE GETAFE 'B'": "#FFD700",     # amarillo
+            "FEPE GETAFE III 'B'": "#0000FF",                 # azul
+            "A.D. EL NORTE ": "#ADD8E6",                # azul clarito
+            "A.D.C. BRUNETE 'B'": "#FFA500",              # naranja
+            "A.D. JUVENTUD CANARIO ": "#008000",     # verde
+            "C.D. HONDURAS ": "#00008B",             # azul oscuro
+            "ATLETICO CLUB DE SOCIOS 'B'": "#FF0000",               # rojo
+            "C.D. SANTA BARBARA GETAFE ": "#FFFFFF",        # blanco
         }
         
         # Normalizamos las claves del diccionario
