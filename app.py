@@ -396,6 +396,14 @@ if df is not None:
         
         # Calcular las expulsiones totales sumando las dobles amarillas y las rojas directas
         expulsiones_totales["Expulsiones"] = expulsiones_totales["Dobles Amarillas"] + expulsiones_totales["Tarjetas Rojas Directas"]
+
+        # Jugadores más veces titulares
+        top_titulares = equipo_df[equipo_df["titular"] == 1].groupby(["nombre_jugador", "dorsal"]).size().reset_index(name="titularidades")
+        top_titulares = top_titulares.sort_values(by="titularidades", ascending=False).head(5)
+        
+        # Jugadores que más han entrado desde el banquillo
+        top_suplentes = equipo_df[(equipo_df["titular"] == 0) & (equipo_df["minutos_jugados"] > 0)].groupby(["nombre_jugador", "dorsal"]).size().reset_index(name="entradas_desde_banquillo")
+        top_suplentes = top_suplentes.sort_values(by="entradas_desde_banquillo", ascending=False).head(5)
     
         with col1:
             top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
@@ -418,6 +426,18 @@ if df is not None:
             top_expulsiones = expulsiones_totales.groupby("nombre_jugador")["Expulsiones"].sum().reset_index().sort_values(by="Expulsiones", ascending=False).head(5)
             st.markdown("**Más expulsiones**")
             st.dataframe(top_expulsiones)
+
+        # Fila inferior para titulares y suplentes
+        col5, col6 = st.columns(2)
+
+        with col5:
+            st.markdown("**🟢 Más veces titular**")
+            st.dataframe(top_titulares.rename(columns={"nombre_jugador": "Jugador", "dorsal": "Dorsal", "titularidades": "Titularidades"}), use_container_width=True)
+        
+        with col6:
+            st.markdown("**🟡 Más entradas desde banquillo**")
+            st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "dorsal": "Dorsal", "entradas_desde_banquillo": "Entradas"}), use_container_width=True)
+            
 
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
