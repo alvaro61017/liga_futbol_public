@@ -242,49 +242,45 @@ if df is not None:
         st.dataframe(expulsiones_totales[["nombre_jugador", "equipo", "Expulsiones", "Dobles Amarillas", "Tarjetas Rojas Directas"]], use_container_width=True)
 
        
-
-        
-        
         # --- Promedio de Goles por Partido ---
         promedio_goles = df.groupby('equipo')['num_goles'].mean().reset_index()
+        
+        # Ordenar por promedio de goles en orden descendente
+        promedio_goles = promedio_goles.sort_values('num_goles', ascending=False)
         
         # Definir color para Getafe City (granate) y otros colores únicos para equipos
         getafe_color = "#9B1B30"  # Granate
         other_colors = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD', '#8C564B', '#E377C2', '#7F7F7F', '#BCBD22', '#17BECF']
         
-        # Ordenar por promedio de goles en orden descendente
-        promedio_goles = promedio_goles.sort_values('num_goles', ascending=False)
+        # Crear un gráfico interactivo con Plotly
+        fig = px.bar(promedio_goles, 
+                     x='equipo', 
+                     y='num_goles', 
+                     color='equipo', 
+                     color_discrete_map={'Getafe City': getafe_color},
+                     title="⚽ Promedio de Goles por Partido",
+                     labels={'equipo': 'Equipo', 'num_goles': 'Promedio de Goles por Partido'},
+                     template="plotly_dark")
         
-        # Crear un gráfico con Altair
-        chart = alt.Chart(promedio_goles).mark_bar(size=40).encode(
-            x=alt.X('equipo:N', title='Equipo', sort='-y'),  # Ordenar por goles en el eje X
-            y=alt.Y('num_goles:Q', title='Promedio de Goles por Partido'),
-            color=alt.Color('equipo:N', 
-                            scale=alt.Scale(domain=['Getafe City'] + promedio_goles['equipo'].unique().tolist(), 
-                                            range=[getafe_color] + other_colors)),
-            tooltip=['equipo:N', 'num_goles:Q']
-        ).properties(
-            # title="⚽ Promedio de Goles por Partido",
-            width=600,
-            height=400
-        ).configure_mark(
-            opacity=0.8,  # Translucidez de las barras
-            cornerRadiusTopLeft=5,  # Bordes redondeados para un look más moderno
-            cornerRadiusTopRight=5,
-        ).configure_axis(
-            grid=False,  # Quitar las líneas de la cuadrícula
-            labelFontSize=12,
-            titleFontSize=14,
-        ).configure_title(
-            fontSize=16, 
-            font='Arial', 
-            anchor='start',
-            color='black'
+        # Configuración adicional de la apariencia
+        fig.update_layout(
+            xaxis_title="Equipo",
+            yaxis_title="Promedio de Goles por Partido",
+            xaxis_tickangle=-45,  # Rotar etiquetas del eje X para que se vean mejor
+            showlegend=False,  # Quitar leyenda, ya que los colores se asignan por equipo
+            plot_bgcolor='rgb(34,34,34)',  # Fondo oscuro para hacer que resalten las barras
+            paper_bgcolor='rgb(34,34,34)',
+            font=dict(family="Arial", size=12, color="white"),
         )
         
-        # Mostrar el gráfico
+        # Mostrar el gráfico en Streamlit
         st.subheader("⚽ Promedio de Goles por Partido")
-        st.altair_chart(chart, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
+        
+        
+
+
+    
 
 
     elif menu == "📋 Equipos":
