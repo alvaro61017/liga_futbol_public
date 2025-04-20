@@ -404,6 +404,7 @@ if df is not None:
         for i in range(1, max(clasificaciones_df["jornada"]) + 1):
             data = clasificaciones_df[clasificaciones_df["jornada"] <= i]
             
+            # Cada frame debe incluir las trazas de todos los equipos hasta esa jornada
             frames.append(go.Frame(
                 data=[go.Scatter(
                     x=data[data["equipo"] == equipo]["jornada"],
