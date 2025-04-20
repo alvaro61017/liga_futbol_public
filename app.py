@@ -324,100 +324,100 @@ if df is not None:
         # Asegúrate de que las columnas sean numéricas
         # clasificaciones_df["jornada"] = clasificaciones_df["jornada"].astype(int)
         # clasificaciones_df["posicion"] = clasificaciones_df["posicion"].astype(int)
-    colores_personalizados = {
-            "C.D. GETAFE CITY 'A'": "#800000",  # granate
-            "E.F. CIUDAD DE GETAFE 'B'": "#FFD700",  # amarillo
-            "FEPE GETAFE III 'B'": "#0000FF",  # azul
-            "A.D. EL NORTE ": "#ADD8E6",  # azul clarito
-            "A.D.C. BRUNETE 'B'": "#FFA500",  # naranja
-            "A.D. JUVENTUD CANARIO ": "#008000",  # verde
-            "C.D. HONDURAS ": "#00008B",  # azul oscuro
-            "ATLETICO CLUB DE SOCIOS 'B'": "#FF0000",  # rojo
-            "C.D. SANTA BARBARA GETAFE ": "#FFFFFF",  # blanco
-        }
+        colores_personalizados = {
+                "C.D. GETAFE CITY 'A'": "#800000",  # granate
+                "E.F. CIUDAD DE GETAFE 'B'": "#FFD700",  # amarillo
+                "FEPE GETAFE III 'B'": "#0000FF",  # azul
+                "A.D. EL NORTE ": "#ADD8E6",  # azul clarito
+                "A.D.C. BRUNETE 'B'": "#FFA500",  # naranja
+                "A.D. JUVENTUD CANARIO ": "#008000",  # verde
+                "C.D. HONDURAS ": "#00008B",  # azul oscuro
+                "ATLETICO CLUB DE SOCIOS 'B'": "#FF0000",  # rojo
+                "C.D. SANTA BARBARA GETAFE ": "#FFFFFF",  # blanco
+            }
+            
+        # Obtén los equipos únicos
+        equipos_unicos = clasificaciones_df["equipo"].unique()
         
-    # Obtén los equipos únicos
-    equipos_unicos = clasificaciones_df["equipo"].unique()
-    
-    # Generar colores aleatorios para los equipos que no están en el diccionario
-    colores_disponibles = ['#FF6347', '#8A2BE2', '#32CD32', '#FFD700', '#D2691E', '#DC143C', '#008B8B', '#F0E68C', '#FF1493', '#7FFF00']
-    colores_asignados = list(colores_personalizados.values())
-    
-    for equipo in equipos_unicos:
-        if equipo not in colores_personalizados:
-            # Asignar un color aleatorio que no haya sido asignado
-            color_asignado = random.choice([color for color in colores_disponibles if color not in colores_asignados])
-            colores_personalizados[equipo] = color_asignado
-            colores_asignados.append(color_asignado)
-    
-    # Inicializar la figura
-    fig = go.Figure()
-    
-    # Crear frames con la evolución de la clasificación por jornada
-    frames = []
-    for jornada in sorted(clasificaciones_df["jornada"].unique()):
-        data = clasificaciones_df[clasificaciones_df["jornada"] <= jornada]
+        # Generar colores aleatorios para los equipos que no están en el diccionario
+        colores_disponibles = ['#FF6347', '#8A2BE2', '#32CD32', '#FFD700', '#D2691E', '#DC143C', '#008B8B', '#F0E68C', '#FF1493', '#7FFF00']
+        colores_asignados = list(colores_personalizados.values())
         
-        # Crear las trazas de cada equipo
         for equipo in equipos_unicos:
-            equipo_data = data[data["equipo"] == equipo]
-            fig.add_trace(go.Scatter(
-                x=equipo_data["jornada"],
-                y=equipo_data["posicion"],
-                mode='lines+markers',
-                name=equipo,
-                line=dict(width=3, color=colores_personalizados.get(equipo, '#808080')),  # Gris si no tiene color asignado
-                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
+            if equipo not in colores_personalizados:
+                # Asignar un color aleatorio que no haya sido asignado
+                color_asignado = random.choice([color for color in colores_disponibles if color not in colores_asignados])
+                colores_personalizados[equipo] = color_asignado
+                colores_asignados.append(color_asignado)
+        
+        # Inicializar la figura
+        fig = go.Figure()
+        
+        # Crear frames con la evolución de la clasificación por jornada
+        frames = []
+        for jornada in sorted(clasificaciones_df["jornada"].unique()):
+            data = clasificaciones_df[clasificaciones_df["jornada"] <= jornada]
+            
+            # Crear las trazas de cada equipo
+            for equipo in equipos_unicos:
+                equipo_data = data[data["equipo"] == equipo]
+                fig.add_trace(go.Scatter(
+                    x=equipo_data["jornada"],
+                    y=equipo_data["posicion"],
+                    mode='lines+markers',
+                    name=equipo,
+                    line=dict(width=3, color=colores_personalizados.get(equipo, '#808080')),  # Gris si no tiene color asignado
+                    hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
+                ))
+        
+            # Crear el frame para esta jornada
+            frames.append(go.Frame(
+                data=[go.Scatter(
+                    x=equipo_data["jornada"],
+                    y=equipo_data["posicion"],
+                    mode='lines+markers',
+                    name=equipo,
+                    line=dict(width=3, color=colores_personalizados.get(equipo, '#808080')),
+                    hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
+                )],
+                name=f"Jornada {jornada}"
             ))
-    
-        # Crear el frame para esta jornada
-        frames.append(go.Frame(
-            data=[go.Scatter(
-                x=equipo_data["jornada"],
-                y=equipo_data["posicion"],
-                mode='lines+markers',
-                name=equipo,
-                line=dict(width=3, color=colores_personalizados.get(equipo, '#808080')),
-                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
-            )],
-            name=f"Jornada {jornada}"
-        ))
-    
-    # Añadir los frames a la figura
-    fig.frames = frames
-    
-    # Configurar la animación
-    fig.update_layout(
-        title="📈 Evolución de la Clasificación por Jornada",
-        xaxis_title="Jornada",
-        yaxis_title="Posición en la Clasificación",
-        yaxis_autorange='reversed',  # La posición más alta debe estar arriba
-        template="plotly_dark",
-        height=550,
-        hovermode="x unified",
-        legend_title="Equipos",
-        margin=dict(t=60, b=40, l=10, r=10),
-        updatemenus=[{
-            'buttons': [
-                {
-                    'args': [None, {'frame': {'duration': 1500, 'redraw': True}, 'fromcurrent': True}],
-                    'label': 'Reproducir',
-                    'method': 'animate'
-                }
-            ],
-            'direction': 'left',
-            'pad': {'r': 10, 't': 87},
-            'showactive': False,
-            'type': 'buttons',
-            'x': 0.1,
-            'xanchor': 'right',
-            'y': 0,
-            'yanchor': 'top'
-        }]
-    )
-    
-    # Mostrar el gráfico en Streamlit
-    st.plotly_chart(fig, use_container_width=True)
+        
+        # Añadir los frames a la figura
+        fig.frames = frames
+        
+        # Configurar la animación
+        fig.update_layout(
+            title="📈 Evolución de la Clasificación por Jornada",
+            xaxis_title="Jornada",
+            yaxis_title="Posición en la Clasificación",
+            yaxis_autorange='reversed',  # La posición más alta debe estar arriba
+            template="plotly_dark",
+            height=550,
+            hovermode="x unified",
+            legend_title="Equipos",
+            margin=dict(t=60, b=40, l=10, r=10),
+            updatemenus=[{
+                'buttons': [
+                    {
+                        'args': [None, {'frame': {'duration': 1500, 'redraw': True}, 'fromcurrent': True}],
+                        'label': 'Reproducir',
+                        'method': 'animate'
+                    }
+                ],
+                'direction': 'left',
+                'pad': {'r': 10, 't': 87},
+                'showactive': False,
+                'type': 'buttons',
+                'x': 0.1,
+                'xanchor': 'right',
+                'y': 0,
+                'yanchor': 'top'
+            }]
+        )
+        
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig, use_container_width=True)
                 
         # # Añade los colores personalizados
         # colores_personalizados = {
