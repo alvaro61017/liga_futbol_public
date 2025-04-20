@@ -325,7 +325,7 @@ if df is not None:
         # clasificaciones_df["jornada"] = clasificaciones_df["jornada"].astype(int)
         # clasificaciones_df["posicion"] = clasificaciones_df["posicion"].astype(int)
         
-        # Tu diccionario de colores
+        # Diccionario de colores personalizados
         colores_personalizados = {
             "C.D. GETAFE CITY 'A'": "#800000",          # granate
             "E.F. CIUDAD DE GETAFE 'B'": "#FFD700",     # amarillo
@@ -346,10 +346,8 @@ if df is not None:
         
         # Función para asignar colores a los equipos
         def asignar_color(equipo):
-            # Si el equipo está en el diccionario, devolver el color asignado
             if equipo in colores_personalizados:
                 return colores_personalizados[equipo]
-            # Si no está, asignar un color aleatorio de la lista de colores disponibles
             else:
                 color_random = random.choice(colores_disponibles)
                 colores_disponibles.remove(color_random)  # Eliminar para evitar duplicados
@@ -404,7 +402,7 @@ if df is not None:
         for i in range(1, max(clasificaciones_df["jornada"]) + 1):
             data = clasificaciones_df[clasificaciones_df["jornada"] <= i]
             
-            # Cada frame debe incluir las trazas de todos los equipos hasta esa jornada
+            # Crear trazas para este frame
             frames.append(go.Frame(
                 data=[go.Scatter(
                     x=data[data["equipo"] == equipo]["jornada"],
@@ -414,8 +412,8 @@ if df is not None:
                     line=dict(width=3, color=asignar_color(equipo)),  # Asignar color aquí
                 ) for equipo in equipos_seleccionados],
                 name=f"Jornada {i}",
-                # Para que se mantenga más tiempo en cada jornada
-                frame_duration=1500  # Duración en milisegundos (1.5 segundos por jornada)
+                # Duración del frame (1500ms)
+                frame_duration=1500  
             ))
         
         # Asignamos los frames a la figura
