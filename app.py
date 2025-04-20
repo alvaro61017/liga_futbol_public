@@ -353,32 +353,32 @@ if df is not None:
         
         # fig = go.Figure()
         
-        for equipo in equipos_seleccionados:
-            equipo_key = equipo.lower()
-            if equipo_key not in colores_personalizados:
-                # Asignar color de forma dinámica si no está definido
-                colores_personalizados[equipo_key] = next(colores_disponibles)
-        
-            data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
-            fig.add_trace(go.Scatter(
-                x=data["jornada"],
-                y=data["posicion"],
-                mode='lines+markers',
-                name=equipo,
-                line=dict(width=3, color=colores_personalizados[equipo_key]),
-                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
-            ))
-                
         # for equipo in equipos_seleccionados:
+        #     equipo_key = equipo.lower()
+        #     if equipo_key not in colores_personalizados:
+        #         # Asignar color de forma dinámica si no está definido
+        #         colores_personalizados[equipo_key] = next(colores_disponibles)
+        
         #     data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
         #     fig.add_trace(go.Scatter(
         #         x=data["jornada"],
         #         y=data["posicion"],
         #         mode='lines+markers',
         #         name=equipo,
-        #         line=dict(width=3, color=colores_personalizados.get(equipo, None)),
+        #         line=dict(width=3, color=colores_personalizados[equipo_key]),
         #         hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
         #     ))
+                
+        for equipo in equipos_seleccionados:
+            data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
+            fig.add_trace(go.Scatter(
+                x=data["jornada"],
+                y=data["posicion"],
+                mode='lines+markers',
+                name=equipo,
+                line=dict(width=3, color=colores_personalizados.get(equipo, None)),
+                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
+            ))
         
         fig.update_layout(
             title="📈 Evolución de la Clasificación por Jornada",
