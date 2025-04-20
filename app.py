@@ -321,88 +321,81 @@ if df is not None:
         clasificaciones_df = clasificaciones_df.sort_values(by=["equipo", "jornada"])
 
         # Asegúrate de que las columnas sean numéricas
-        clasificaciones_df["jornada"] = clasificaciones_df["jornada"].astype(int)
-        clasificaciones_df["posicion"] = clasificaciones_df["posicion"].astype(int)
+        # clasificaciones_df["jornada"] = clasificaciones_df["jornada"].astype(int)
+        # clasificaciones_df["posicion"] = clasificaciones_df["posicion"].astype(int)
         
-        # Diccionario de colores personalizados
+        # Aquí tienes tu diccionario con los colores
         colores_personalizados = {
             "C.D. GETAFE CITY 'A'": "#800000",          # granate
             "E.F. CIUDAD DE GETAFE 'B'": "#FFD700",     # amarillo
-            "FEPE GETAFE III 'B'": "#0000FF",                 # azul
+            "FEPE GETAFE III 'B'": "#0000FF",           # azul
             "A.D. EL NORTE ": "#ADD8E6",                # azul clarito
-            "A.D.C. BRUNETE 'B'": "#FFA500",              # naranja
-            "A.D. JUVENTUD CANARIO ": "#008000",     # verde
-            "C.D. HONDURAS ": "#00008B",             # azul oscuro
-            "ATLETICO CLUB DE SOCIOS 'B'": "#FF0000",               # rojo
-            "C.D. SANTA BARBARA GETAFE ": "#FFFFFF",        # blanco
+            "A.D.C. BRUNETE 'B'": "#FFA500",            # naranja
+            "A.D. JUVENTUD CANARIO ": "#008000",        # verde
+            "C.D. HONDURAS ": "#00008B",                # azul oscuro
+            "ATLETICO CLUB DE SOCIOS 'B'": "#FF0000",   # rojo
+            "C.D. SANTA BARBARA GETAFE ": "#FFFFFF",    # blanco
         }
         
-        # Normalizamos los nombres para el mapeo
-        clasificaciones_df["equipo_lower"] = clasificaciones_df["equipo"].str.lower()
-        clasificaciones_df["color"] = clasificaciones_df["equipo_lower"].map(
-            lambda x: colores_personalizados.get(x, "#888888")  # gris por defecto si no está
-        )
+        # Aquí debes asegurar que 'clasificaciones_df' tiene los datos correctos y ordenados
+        equipos_seleccionados = clasificaciones_df["equipo"].unique()
         
-        # Obtenemos el número máximo de jornadas y equipos
-        max_jornada = clasificaciones_df["jornada"].max()
-        num_equipos = clasificaciones_df["equipo"].nunique()
-        
-        # Configuramos la figura con el layout adecuado
         fig = go.Figure()
         
-        # Añadir los puntos y las líneas para cada equipo
-        for equipo in clasificaciones_df["equipo"].unique():
-            equipo_data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
+        # Añadir una traza por cada equipo
+        for equipo in equipos_seleccionados:
+            data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
             
-            # Añadimos la línea del equipo, pero asegurando que las líneas y los puntos se mantengan
+            # Asignamos el color correcto a cada equipo
+            color_equipo = colores_personalizados.get(equipo, '#808080')  # Gris si no se encuentra
+            
             fig.add_trace(go.Scatter(
-                x=equipo_data["jornada"],
-                y=equipo_data["posicion"],
-                mode="lines+markers",  # Esto asegura que tenga tanto las líneas como los puntos
+                x=data["jornada"],
+                y=data["posicion"],
+                mode='lines+markers',
                 name=equipo,
-                line=dict(width=3, color=colores_personalizados.get(equipo.lower(), "#888888")),
-                marker=dict(size=8),
-                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>",
-                showlegend=True
+                line=dict(width=3, color=color_equipo),
+                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
             ))
         
-        # Ajustar el layout para evitar zoom raro
+        # Configuración del gráfico
         fig.update_layout(
-            title="📊 Evolución de la Clasificación Jornada a Jornada",
-            xaxis=dict(
-                title="Jornada",
-                range=[1, max_jornada],  # Fijamos el rango del eje X
-                dtick=1
-            ),
-            yaxis=dict(
-                title="Posición",
-                range=[num_equipos + 0.5, 0.5],  # Reverso con margen para que no se corte
-                dtick=1
-            ),
-            height=600,
+            title="📈 Evolución de la Clasificación por Jornada",
+            xaxis_title="Jornada",
+            yaxis_title="Posición en la Clasificación",
+            yaxis_autorange='reversed',
             template="plotly_dark",
+            height=550,
             hovermode="x unified",
+            legend_title="Equipos",
             margin=dict(t=60, b=40, l=10, r=10),
-            updatemenus=[{
-                'buttons': [
-                    {
-                        'args': [None, {'frame': {'duration': 1000, 'redraw': True}, 'fromcurrent': True, 'mode': 'immediate'}],
-                        'label': 'Reproducir',
-                        'method': 'animate'
-                    }
-                ],
-                'direction': 'left',
-                'pad': {'r': 10, 't': 87},
-                'showactive': False,
-                'type': 'buttons',
-                'x': 0.1,
-                'xanchor': 'right',
-                'y': 0,
-                'yanchor': 'top'
-            }]
+            updatemenus=[dict(
+                type="buttons",
+                showactive=False,
+                buttons=[dict(
+                    label="Reproducir",
+                    method="animate",
+                    args=[None, dict(frame=dict(duration=500, redraw=True), fromcurrent=True)]
+                )]
+            )]
         )
         
-        # Añade el gráfico a la app
+        # Crear los frames para la animación (una por cada jornada)
+        frames = [go.Frame(
+            data=[go.Scatter(
+                x=data["jornada"][:i+1],
+                y=data["posicion"][:i+1],
+                mode="lines+markers",
+                name=equipo,
+                line=dict(width=3, color=color_equipo),
+            ) for equipo in equipos_seleccionados],
+            name=f"Jornada {i+1}"
+        ) for i in range(max(clasificaciones_df["jornada"]))]
+        
+        # Asignamos los frames a la figura
+        fig.frames = frames
+        
+        # Mostrar el gráfico
         st.plotly_chart(fig, use_container_width=True)
                 
         # # Añade los colores personalizados
