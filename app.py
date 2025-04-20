@@ -402,18 +402,23 @@ if df is not None:
         for i in range(1, max(clasificaciones_df["jornada"]) + 1):
             data = clasificaciones_df[clasificaciones_df["jornada"] <= i]
             
-            # Crear trazas para este frame
-            frames.append(go.Frame(
-                data=[go.Scatter(
-                    x=data[data["equipo"] == equipo]["jornada"],
-                    y=data[data["equipo"] == equipo]["posicion"],
+            # Crear las trazas para este frame
+            frame_data = []
+            for equipo in equipos_seleccionados:
+                equipo_data = data[data["equipo"] == equipo]
+                frame_data.append(go.Scatter(
+                    x=equipo_data["jornada"],
+                    y=equipo_data["posicion"],
                     mode="lines+markers",
                     name=equipo,
                     line=dict(width=3, color=asignar_color(equipo)),  # Asignar color aquí
-                ) for equipo in equipos_seleccionados],
+                ))
+        
+            # Crear el frame y añadirlo a la lista de frames
+            frames.append(go.Frame(
+                data=frame_data,
                 name=f"Jornada {i}",
-                # Duración del frame (1500ms)
-                frame_duration=1500  
+                frame_duration=1500  # Duración del frame (1500ms)
             ))
         
         # Asignamos los frames a la figura
