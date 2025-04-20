@@ -249,7 +249,7 @@ if df is not None:
         df_equipo = df[df["equipo"] == equipo_seleccionado]
 
         racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df, equipo_seleccionado)
-        st.markdown("### 📌 Datos de rachas y portería")
+        st.markdown("### 📌 Datos de rachas y porterías a 0")
         cols = st.columns(4)
         cols[0].metric("🏅 Racha actual", f"{racha_actual} victorias")
         cols[1].metric("🔥 Mayor racha", f"{mayor_racha} victorias")
