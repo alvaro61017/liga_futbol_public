@@ -395,7 +395,8 @@ if df is not None:
         
         equipos_unicos = clasificaciones_df["equipo"].unique()
         
-        equipos_seleccionados = st.multiselect("Selecciona equipos a visualizar", equipos_unicos, default=equipos_unicos)
+        # equipos_seleccionados = st.multiselect("Selecciona equipos a visualizar", equipos_unicos, default=equipos_unicos)
+        equipos_seleccionados = equipos_unicos
         
         fig = go.Figure()
         
