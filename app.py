@@ -6,6 +6,8 @@ import ast
 import requests
 import io
 import altair as alt
+import plotly.graph_objects as go
+import streamlit as st
 
 st.set_page_config(page_title="Temporada 24/25", layout="wide")
 st.title("⚽ Grupo 7 Segunda Regional")
@@ -349,6 +351,83 @@ if df is not None:
         
         # Mostrar la tabla con las columnas de expulsiones, doble amarilla y roja directa
         st.dataframe(expulsiones_totales[["nombre_jugador", "equipo", "Expulsiones", "Dobles Amarillas", "Tarjetas Rojas Directas"]], use_container_width=True)
+
+
+
+        clasificaciones_por_jornada = []
+
+        for jornada in sorted(df["num_jornada"].unique()):
+            df_hasta_jornada = df[df["num_jornada"] <= jornada]
+            
+            goles = df_hasta_jornada.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+            conteo_equipos = goles.groupby("codacta")["equipo"].nunique()
+            codactas_validos = conteo_equipos[conteo_equipos == 2].index
+            goles = goles[goles["codacta"].isin(codactas_validos)]
+        
+            partidos = goles.merge(goles, on="codacta")
+            partidos = partidos[partidos["equipo_x"] != partidos["equipo_y"]].copy()
+            partidos = partidos.rename(columns={
+                "equipo_x": "equipo",
+                "equipo_y": "rival",
+                "num_goles_x": "gf",
+                "num_goles_y": "gc"
+            })
+        
+            partidos["puntos"] = partidos.apply(lambda row: 3 if row.gf > row.gc else 1 if row.gf == row.gc else 0, axis=1)
+        
+            clasificacion = partidos.groupby("equipo").agg({
+                "puntos": "sum",
+                "gf": "sum",
+                "gc": "sum"
+            }).reset_index()
+            clasificacion["dif"] = clasificacion["gf"] - clasificacion["gc"]
+            clasificacion = clasificacion.sort_values(by=["puntos", "dif"], ascending=False)
+            clasificacion["posicion"] = range(1, len(clasificacion) + 1)
+            clasificacion["jornada"] = jornada
+            
+            clasificaciones_por_jornada.append(clasificacion[["equipo", "jornada", "posicion"]])
+
+    
+    
+        # Asumiendo que tienes 'clasificaciones_por_jornada' como una lista de DataFrames por jornada
+        clasificaciones_df = pd.concat(clasificaciones_por_jornada)
+        clasificaciones_df = clasificaciones_df.sort_values(by=["equipo", "jornada"])
+        
+        equipos_unicos = clasificaciones_df["equipo"].unique()
+        
+        equipos_seleccionados = st.multiselect("Selecciona equipos a visualizar", equipos_unicos, default=equipos_unicos)
+        
+        fig = go.Figure()
+        
+        # Puedes definir colores por equipo si quieres personalizar más
+        colores_personalizados = {
+            equipo: color for equipo, color in zip(equipos_unicos, px.colors.qualitative.Set3)
+        }
+        
+        for equipo in equipos_seleccionados:
+            data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
+            fig.add_trace(go.Scatter(
+                x=data["jornada"],
+                y=data["posicion"],
+                mode='lines+markers',
+                name=equipo,
+                line=dict(width=3, color=colores_personalizados.get(equipo, None)),
+                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{x}<br>Posición: %{y}<extra></extra>"
+            ))
+        
+        fig.update_layout(
+            title="📈 Evolución de la Clasificación por Jornada",
+            xaxis_title="Jornada",
+            yaxis_title="Posición en la Clasificación",
+            yaxis_autorange='reversed',
+            template="plotly_dark",
+            height=550,
+            hovermode="x unified",
+            legend_title="Equipos",
+            margin=dict(t=60, b=40, l=10, r=10)
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
 
     
 
