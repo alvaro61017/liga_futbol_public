@@ -321,14 +321,8 @@ if df is not None:
         clasificaciones_df = clasificaciones_df.sort_values(by=["equipo", "jornada"])
         
         equipos_unicos = clasificaciones_df["equipo"].unique()
-        
-        # equipos_seleccionados = st.multiselect("Selecciona equipos a visualizar", equipos_unicos, default=equipos_unicos)
-        equipos_seleccionados = equipos_unicos
-        
-        fig = go.Figure()
-        
-        
-        # Tu diccionario personalizado
+
+        # Diccionario personalizado con colores por equipo (en minúsculas y normalizados)
         colores_personalizados = {
             "getafe city": "#800000",          # granate
             "ciudad de getafe": "#FFD700",     # amarillo
@@ -341,42 +335,23 @@ if df is not None:
             "santa barbara": "#FFFFFF",        # blanco
         }
         
-        # # Paleta para equipos adicionales (que no estén ya en el diccionario)
-        # colores_extra = [
-        #     c for c in px.colors.qualitative.Alphabet +
-        #                px.colors.qualitative.Set3 +
-        #                px.colors.qualitative.Set2 +
-        #                px.colors.qualitative.Dark2
-        #     if c.lower() not in [v.lower() for v in colores_personalizados.values()]
-        # ]
-        # colores_disponibles = iter(colores_extra)
+        # Normalizamos las claves del diccionario
+        colores_personalizados_normalizado = {k.lower().strip(): v for k, v in colores_personalizados.items()}
         
-        # fig = go.Figure()
+        equipos_seleccionados = equipos_unicos
         
-        # for equipo in equipos_seleccionados:
-        #     equipo_key = equipo.lower()
-        #     if equipo_key not in colores_personalizados:
-        #         # Asignar color de forma dinámica si no está definido
-        #         colores_personalizados[equipo_key] = next(colores_disponibles)
+        fig = go.Figure()
         
-        #     data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
-        #     fig.add_trace(go.Scatter(
-        #         x=data["jornada"],
-        #         y=data["posicion"],
-        #         mode='lines+markers',
-        #         name=equipo,
-        #         line=dict(width=3, color=colores_personalizados[equipo_key]),
-        #         hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
-        #     ))
-                
         for equipo in equipos_seleccionados:
             data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
+            color = colores_personalizados_normalizado.get(equipo.lower().strip(), None)
+        
             fig.add_trace(go.Scatter(
                 x=data["jornada"],
                 y=data["posicion"],
                 mode='lines+markers',
                 name=equipo,
-                line=dict(width=3, color=colores_personalizados.get(equipo, None)),
+                line=dict(width=3, color=color),
                 hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
             ))
         
