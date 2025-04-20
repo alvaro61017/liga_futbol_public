@@ -245,36 +245,46 @@ if df is not None:
 
         
         
-        # # Mostrar el gráfico de barras
-        # st.subheader("⚽ Promedio de Goles por Partido")
-
-        # # Promedio de goles por partido por equipo
-        # promedio_goles = df.groupby('equipo')['num_goles'].mean()
-        # st.bar_chart(promedio_goles)
-
-
         # --- Promedio de Goles por Partido ---
         promedio_goles = df.groupby('equipo')['num_goles'].mean().reset_index()
         
-        # Definir color para Getafe City (granate)
+        # Definir color para Getafe City (granate) y otros colores únicos para equipos
         getafe_color = "#9B1B30"  # Granate
+        other_colors = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD', '#8C564B', '#E377C2', '#7F7F7F', '#BCBD22', '#17BECF']
         
-        # Crear gráfico con Altair de forma segura
-        chart = alt.Chart(promedio_goles.dropna()).mark_bar().encode(
-            x=alt.X('equipo:N', title='Equipo'),
+        # Ordenar por promedio de goles en orden descendente
+        promedio_goles = promedio_goles.sort_values('num_goles', ascending=False)
+        
+        # Crear un gráfico con Altair
+        chart = alt.Chart(promedio_goles).mark_bar(size=40).encode(
+            x=alt.X('equipo:N', title='Equipo', sort='-y'),  # Ordenar por goles en el eje X
             y=alt.Y('num_goles:Q', title='Promedio de Goles por Partido'),
-            color=alt.Color('equipo:N', scale=alt.Scale(domain=promedio_goles['equipo'].unique(), range=['#9B1B30', 'lightblue', 'lightgreen'])),
+            color=alt.Color('equipo:N', 
+                            scale=alt.Scale(domain=['Getafe City'] + promedio_goles['equipo'].unique().tolist(), 
+                                            range=[getafe_color] + other_colors)),
             tooltip=['equipo:N', 'num_goles:Q']
         ).properties(
-            title="⚽ Promedio de Goles por Partido",
+            # title="⚽ Promedio de Goles por Partido",
             width=600,
             height=400
+        ).configure_mark(
+            opacity=0.8,  # Translucidez de las barras
+            cornerRadiusTopLeft=5,  # Bordes redondeados para un look más moderno
+            cornerRadiusTopRight=5,
+        ).configure_axis(
+            grid=False,  # Quitar las líneas de la cuadrícula
+            labelFontSize=12,
+            titleFontSize=14,
+        ).configure_title(
+            fontSize=16, 
+            font='Arial', 
+            anchor='start',
+            color='black'
         )
         
         # Mostrar el gráfico
         st.subheader("⚽ Promedio de Goles por Partido")
         st.altair_chart(chart, use_container_width=True)
-
 
 
     elif menu == "📋 Equipos":
