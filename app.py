@@ -168,8 +168,8 @@ if df is not None:
         # Marcamos resultado
         partidos["puntos"] = partidos.apply(lambda row: 3 if row.gf > row.gc else 1 if row.gf == row.gc else 0, axis=1)
         partidos["ganado"] = partidos.gf > partidos.gc
-        partidos["empatado"] = partidos.gf == row.gc
-        partidos["perdido"] = partidos.gf < row.gc
+        partidos["empatado"] = partidos.gf == partidos.gc
+        partidos["perdido"] = partidos.gf < partidos.gc
         
         # Determinar local o visitante
         local_dict = df[df["local"] == 1].groupby("codacta")["equipo"].first().to_dict()
