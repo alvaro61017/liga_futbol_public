@@ -319,10 +319,12 @@ if df is not None:
         # Asumiendo que tienes 'clasificaciones_por_jornada' como una lista de DataFrames por jornada
         clasificaciones_df = pd.concat(clasificaciones_por_jornada)
         clasificaciones_df = clasificaciones_df.sort_values(by=["equipo", "jornada"])
-        
-        equipos_unicos = clasificaciones_df["equipo"].unique()
 
-        # Diccionario personalizado con colores por equipo (en minúsculas y normalizados)
+        # Asegúrate de tener estos valores correctos
+        clasificaciones_df["jornada"] = clasificaciones_df["jornada"].astype(int)
+        clasificaciones_df["posicion"] = clasificaciones_df["posicion"].astype(int)
+        
+        # Añade los colores personalizados
         colores_personalizados = {
             "C.D. GETAFE CITY 'A'": "#800000",          # granate
             "E.F. CIUDAD DE GETAFE 'B'": "#FFD700",     # amarillo
@@ -335,39 +337,84 @@ if df is not None:
             "C.D. SANTA BARBARA GETAFE ": "#FFFFFF",        # blanco
         }
         
-        # Normalizamos las claves del diccionario
-        colores_personalizados_normalizado = {k.lower().strip(): v for k, v in colores_personalizados.items()}
+        # Asignamos colores de forma segura
+        clasificaciones_df["color"] = clasificaciones_df["equipo"].map(
+            lambda x: colores_personalizados.get(x.lower(), "#888888")  # gris por defecto
+        )
         
-        equipos_seleccionados = equipos_unicos
-        
-        fig = go.Figure()
-        
-        for equipo in equipos_seleccionados:
-            data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
-            color = colores_personalizados_normalizado.get(equipo.lower().strip(), None)
-        
-            fig.add_trace(go.Scatter(
-                x=data["jornada"],
-                y=data["posicion"],
-                mode='lines+markers',
-                name=equipo,
-                line=dict(width=3, color=color),
-                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
-            ))
+        # Gráfico animado
+        fig = px.line(
+            clasificaciones_df,
+            x="jornada",
+            y="posicion",
+            color="equipo",
+            line_group="equipo",
+            animation_frame="jornada",
+            color_discrete_map=colores_personalizados,
+            markers=True,
+        )
         
         fig.update_layout(
-            title="📈 Evolución de la Clasificación por Jornada",
+            title="📊 Evolución de la Clasificación Jornada a Jornada",
             xaxis_title="Jornada",
-            yaxis_title="Posición en la Clasificación",
-            yaxis_autorange='reversed',
+            yaxis_title="Posición",
+            yaxis_autorange='reversed',  # Para que la posición 1 esté arriba
+            height=600,
             template="plotly_dark",
-            height=550,
             hovermode="x unified",
-            legend_title="Equipos",
             margin=dict(t=60, b=40, l=10, r=10)
         )
         
         st.plotly_chart(fig, use_container_width=True)
+        
+        # equipos_unicos = clasificaciones_df["equipo"].unique()
+
+        # # Diccionario personalizado con colores por equipo (en minúsculas y normalizados)
+        # colores_personalizados = {
+        #     "C.D. GETAFE CITY 'A'": "#800000",          # granate
+        #     "E.F. CIUDAD DE GETAFE 'B'": "#FFD700",     # amarillo
+        #     "FEPE GETAFE III 'B'": "#0000FF",                 # azul
+        #     "A.D. EL NORTE ": "#ADD8E6",                # azul clarito
+        #     "A.D.C. BRUNETE 'B'": "#FFA500",              # naranja
+        #     "A.D. JUVENTUD CANARIO ": "#008000",     # verde
+        #     "C.D. HONDURAS ": "#00008B",             # azul oscuro
+        #     "ATLETICO CLUB DE SOCIOS 'B'": "#FF0000",               # rojo
+        #     "C.D. SANTA BARBARA GETAFE ": "#FFFFFF",        # blanco
+        # }
+        
+        # # Normalizamos las claves del diccionario
+        # colores_personalizados_normalizado = {k.lower().strip(): v for k, v in colores_personalizados.items()}
+        
+        # equipos_seleccionados = equipos_unicos
+        
+        # fig = go.Figure()
+        
+        # for equipo in equipos_seleccionados:
+        #     data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
+        #     color = colores_personalizados_normalizado.get(equipo.lower().strip(), None)
+        
+        #     fig.add_trace(go.Scatter(
+        #         x=data["jornada"],
+        #         y=data["posicion"],
+        #         mode='lines+markers',
+        #         name=equipo,
+        #         line=dict(width=3, color=color),
+        #         hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
+        #     ))
+        
+        # fig.update_layout(
+        #     title="📈 Evolución de la Clasificación por Jornada",
+        #     xaxis_title="Jornada",
+        #     yaxis_title="Posición en la Clasificación",
+        #     yaxis_autorange='reversed',
+        #     template="plotly_dark",
+        #     height=550,
+        #     hovermode="x unified",
+        #     legend_title="Equipos",
+        #     margin=dict(t=60, b=40, l=10, r=10)
+        # )
+        
+        # st.plotly_chart(fig, use_container_width=True)
 
     
 
