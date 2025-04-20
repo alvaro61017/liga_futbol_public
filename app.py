@@ -8,6 +8,7 @@ import io
 import altair as alt
 import plotly.graph_objects as go
 import streamlit as st
+import random
 
 st.set_page_config(page_title="Temporada 24/25", layout="wide")
 st.title("⚽ Grupo 7 Segunda Regional")
