@@ -375,13 +375,13 @@ if df is not None:
             ult_jornada = data["jornada"].max()
             ult_posicion = data[data["jornada"] == ult_jornada]["posicion"].values[0]
             fig.add_trace(go.Scatter(
-                x=[ult_jornada + 0.2],
+                x=[ult_jornada + 1],  # Aún más separado
                 y=[ult_posicion],
                 mode="text",
                 text=[equipo],
                 textposition="middle right",
                 showlegend=False,
-                textfont=dict(color=colores_personalizados[equipo], size=12)
+                textfont=dict(color=colores_personalizados[equipo], size=10)  # tamaño reducido
             ))
         
         # Configurar layout
@@ -395,6 +395,9 @@ if df is not None:
             hovermode="x unified",
             legend_title="Equipos",
             margin=dict(t=60, b=40, l=10, r=10)
+        )
+        fig.update_layout(
+            xaxis=dict(range=[1, clasificaciones_df["jornada"].max() + 2])  # Deja más espacio al final
         )
         
         st.plotly_chart(fig, use_container_width=True)
