@@ -26,44 +26,92 @@ def cargar_datos_desde_drive():
 
 df = cargar_datos_desde_drive()
 
-def calcular_estadisticas_equipo(df, equipo):
-     df_equipo = df[df["equipo"] == equipo]
-     partidos = df[df["equipo"] == equipo].groupby("codacta").agg({
-         "equipo": "first",
-         "num_goles": "sum"
-     }).rename(columns={"num_goles": "gf"})
+# def calcular_estadisticas_equipo(df, equipo):
+#      df_equipo = df[df["equipo"] == equipo]
+#      partidos = df[df["equipo"] == equipo].groupby("codacta").agg({
+#          "equipo": "first",
+#          "num_goles": "sum"
+#      }).rename(columns={"num_goles": "gf"})
  
-     rivales = df[df["equipo"] != equipo].groupby("codacta")["num_goles"].sum().rename("gc")
-     partidos = partidos.join(rivales, on="codacta")
+#      rivales = df[df["equipo"] != equipo].groupby("codacta")["num_goles"].sum().rename("gc")
+#      partidos = partidos.join(rivales, on="codacta")
  
-     partidos["resultado"] = partidos.apply(lambda x: "W" if x.gf > x.gc else "D" if x.gf == x.gc else "L", axis=1)
-     partidos = partidos.sort_index()
+#      partidos["resultado"] = partidos.apply(lambda x: "W" if x.gf > x.gc else "D" if x.gf == x.gc else "L", axis=1)
+#      partidos = partidos.sort_index()
  
-     resultados = partidos["resultado"].tolist()
+#      resultados = partidos["resultado"].tolist()
  
-     # Racha actual
-     racha_actual = 0
-     for r in reversed(resultados):
-         if r == "W":
-             racha_actual += 1
-         else:
-             break
+#      # Racha actual
+#      racha_actual = 0
+#      for r in reversed(resultados):
+#          if r == "W":
+#              racha_actual += 1
+#          else:
+#              break
  
-     # Mayor racha
-     mayor_racha = 0
-     temp = 0
-     for r in resultados:
-         if r == "W":
-             temp += 1
-             mayor_racha = max(mayor_racha, temp)
-         else:
-             temp = 0
+#      # Mayor racha
+#      mayor_racha = 0
+#      temp = 0
+#      for r in resultados:
+#          if r == "W":
+#              temp += 1
+#              mayor_racha = max(mayor_racha, temp)
+#          else:
+#              temp = 0
  
-     # Portería a 0
-     victorias_porteria_0 = partidos[(partidos["resultado"] == "W") & (partidos["gc"] == 0)].shape[0]
-     partidos_porteria_0 = partidos[partidos["gc"] == 0].shape[0]
+#      # Portería a 0
+#      victorias_porteria_0 = partidos[(partidos["resultado"] == "W") & (partidos["gc"] == 0)].shape[0]
+#      partidos_porteria_0 = partidos[partidos["gc"] == 0].shape[0]
  
-     return racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0
+#      return racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0
+
+def calcular_estadisticas_equipo(df, equipo, filtro):
+    # Filtrado según el equipo
+    df_equipo = df[df["equipo"] == equipo]
+    
+    # Filtrado adicional según el filtro: "total", "local", "visitante"
+    if filtro == "local":
+        df_equipo = df_equipo[df_equipo["local"] == 1]
+    elif filtro == "visitante":
+        df_equipo = df_equipo[df_equipo["visitante"] == 1]
+    
+    # Ahora calculamos las estadísticas basadas en df_filtrado (df_equipo)
+    partidos = df_equipo.groupby("codacta").agg({
+        "equipo": "first",
+        "num_goles": "sum"
+    }).rename(columns={"num_goles": "gf"})
+ 
+    rivales = df[df["equipo"] != equipo].groupby("codacta")["num_goles"].sum().rename("gc")
+    partidos = partidos.join(rivales, on="codacta")
+ 
+    partidos["resultado"] = partidos.apply(lambda x: "W" if x.gf > x.gc else "D" if x.gf == x.gc else "L", axis=1)
+    partidos = partidos.sort_index()
+ 
+    resultados = partidos["resultado"].tolist()
+ 
+    # Racha actual
+    racha_actual = 0
+    for r in reversed(resultados):
+        if r == "W":
+            racha_actual += 1
+        else:
+            break
+ 
+    # Mayor racha
+    mayor_racha = 0
+    temp = 0
+    for r in resultados:
+        if r == "W":
+            temp += 1
+            mayor_racha = max(mayor_racha, temp)
+        else:
+            temp = 0
+ 
+    # Portería a 0
+    victorias_porteria_0 = partidos[(partidos["resultado"] == "W") & (partidos["gc"] == 0)].shape[0]
+    partidos_porteria_0 = partidos[partidos["gc"] == 0].shape[0]
+ 
+    return racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0
 
 if df is not None:
     menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Equipos"))
@@ -337,10 +385,10 @@ if df is not None:
         # Filtrar el DataFrame según el equipo seleccionado
         df_equipo = df[df["equipo"] == equipo_seleccionado]
         
-        # Filtro para seleccionar total, local o visitante
+       # Filtro para seleccionar total, local o visitante
         filtro_localidad = st.selectbox("Selecciona el tipo de partidos:", ["Total", "Local", "Visitante"])
         
-        # Aplicar el filtro de local/visitante
+        # Filtrar según la selección de localidad
         if filtro_localidad == "Local":
             df_filtrado = df_equipo[df_equipo["local"] == 1]
         elif filtro_localidad == "Visitante":
@@ -348,16 +396,15 @@ if df is not None:
         else:
             df_filtrado = df_equipo  # Total, sin filtrar por local/visitante
         
-        # Función de cálculo de estadísticas para un equipo
-        def calcular_estadisticas_equipo(df, equipo_seleccionado):
-            racha_actual = calcular_racha_actual(df)
-            mayor_racha = calcular_mayor_racha(df)
-            victorias_porteria_0 = calcular_victorias_porteria_0(df)
-            partidos_porteria_0 = calcular_partidos_porteria_0(df)
-            return racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0
+        # Selección del equipo
+        equipos = sorted(df["equipo"].unique())
+        equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
+        df_equipo = df[df["equipo"] == equipo_seleccionado]
+        
+        # Ahora, pasamos el DataFrame filtrado y el filtro de localidad a la función de estadísticas
+        racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df_filtrado, equipo_seleccionado)
         
         # Mostrar estadísticas de rachas y portería
-        racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df_filtrado, equipo_seleccionado)
         st.markdown("### 📌 Datos de rachas y portería")
         cols = st.columns(4)
         cols[0].metric("🏅 Racha actual", f"{racha_actual} victorias")
