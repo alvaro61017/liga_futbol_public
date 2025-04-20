@@ -213,9 +213,9 @@ if df is not None:
         def calcular_amarillas(row):
             amarillas = row['num_tarjeta_amarilla']
             if row['segunda_amarilla'] == 1 or row['num_tarjeta_amarilla'] == 2:
-            amarillas = 0
+                amarillas = 0
             if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
-            amarillas += 1
+                amarillas += 1
             return amarillas
         
         df['amarillas_totales'] = df.apply(calcular_amarillas, axis=1)
