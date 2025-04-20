@@ -240,6 +240,40 @@ if df is not None:
         # Mostrar la tabla con las columnas de expulsiones, doble amarilla y roja directa
         st.dataframe(expulsiones_totales[["nombre_jugador", "equipo", "Expulsiones", "Dobles Amarillas", "Tarjetas Rojas Directas"]], use_container_width=True)
 
+       
+
+        
+        
+        # # Mostrar el gráfico de barras
+        # st.subheader("⚽ Promedio de Goles por Partido")
+
+        # # Promedio de goles por partido por equipo
+        # promedio_goles = df.groupby('equipo')['num_goles'].mean()
+        # st.bar_chart(promedio_goles)
+
+
+        # --- Promedio de Goles por Partido ---
+        promedio_goles = df.groupby('equipo')['num_goles'].mean().reset_index()
+        
+        # Definir color para Getafe City (granate)
+        getafe_color = "#9B1B30"  # Granate
+        
+        # Crear un gráfico con Altair
+        chart = alt.Chart(promedio_goles).mark_bar().encode(
+            x=alt.X('equipo:N', title='Equipo'),
+            y=alt.Y('num_goles:Q', title='Promedio de Goles por Partido'),
+            color=alt.Color('equipo:N', scale=alt.Scale(domain=['Getafe City', 'Otro equipo 1', 'Otro equipo 2'], range=[getafe_color, 'lightblue', 'lightgreen'])),
+            tooltip=['equipo:N', 'num_goles:Q']
+        ).properties(
+            title="⚽ Promedio de Goles por Partido",
+            width=600,
+            height=400
+        )
+        
+        # Mostrar el gráfico en Streamlit
+        st.subheader("⚽ Promedio de Goles por Partido")
+        st.altair_chart(chart, use_container_width=True)
+
 
 
     elif menu == "📋 Equipos":
