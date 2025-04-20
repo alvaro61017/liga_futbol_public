@@ -337,6 +337,23 @@ if df is not None:
             "C.D. SANTA BARBARA GETAFE ": "#FFFFFF",    # blanco
         }
         
+        # Lista de colores posibles para equipos no definidos en el diccionario
+        colores_disponibles = [
+            "#8A2BE2", "#A52A2A", "#7FFF00", "#D2691E", "#FF7F50", "#6495ED", "#DC143C", "#00FFFF", "#FFD700",
+            "#32CD32", "#FF6347", "#800080", "#FF1493", "#00BFFF", "#1E90FF", "#FF4500", "#ADFF2F"
+        ]
+        
+        # Función para asignar colores a los equipos
+        def asignar_color(equipo):
+            # Si el equipo está en el diccionario, devolver el color asignado
+            if equipo in colores_personalizados:
+                return colores_personalizados[equipo]
+            # Si no está, asignar un color aleatorio de la lista de colores disponibles
+            else:
+                color_random = random.choice(colores_disponibles)
+                colores_disponibles.remove(color_random)  # Eliminar para evitar duplicados
+                return color_random
+        
         # Asegúrate de que clasificaciones_df esté correctamente ordenado y contenga los datos necesarios
         equipos_seleccionados = clasificaciones_df["equipo"].unique()
         
@@ -348,7 +365,7 @@ if df is not None:
             data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
             
             # Asignamos el color correcto para cada equipo
-            color_equipo = colores_personalizados.get(equipo, '#808080')  # Gris si no se encuentra
+            color_equipo = asignar_color(equipo)
             
             fig.add_trace(go.Scatter(
                 x=data["jornada"],
@@ -376,7 +393,7 @@ if df is not None:
                 buttons=[dict(
                     label="Reproducir",
                     method="animate",
-                    args=[None, dict(frame=dict(duration=500, redraw=True), fromcurrent=True)]
+                    args=[None, dict(frame=dict(duration=1500, redraw=True), fromcurrent=True)]  # Duración más larga
                 )]
             )]
         )
@@ -392,9 +409,11 @@ if df is not None:
                     y=data[data["equipo"] == equipo]["posicion"],
                     mode="lines+markers",
                     name=equipo,
-                    line=dict(width=3, color=colores_personalizados.get(equipo, '#808080')),  # Gris si no tiene color asignado
+                    line=dict(width=3, color=asignar_color(equipo)),  # Asignar color aquí
                 ) for equipo in equipos_seleccionados],
-                name=f"Jornada {i}"
+                name=f"Jornada {i}",
+                # Para que se mantenga más tiempo en cada jornada
+                frame_duration=1500  # Duración en milisegundos (1.5 segundos por jornada)
             ))
         
         # Asignamos los frames a la figura
