@@ -412,7 +412,7 @@ if df is not None:
                 mode='lines+markers',
                 name=equipo,
                 line=dict(width=3, color=colores_personalizados.get(equipo, None)),
-                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{x}<br>Posición: %{y}<extra></extra>"
+                hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
             ))
         
         fig.update_layout(
