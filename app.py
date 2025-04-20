@@ -320,10 +320,6 @@ if df is not None:
         clasificaciones_df = pd.concat(clasificaciones_por_jornada)
         clasificaciones_df = clasificaciones_df.sort_values(by=["equipo", "jornada"])
 
-        # Asegúrate de tener estos valores correctos
-        clasificaciones_df["jornada"] = clasificaciones_df["jornada"].astype(int)
-        clasificaciones_df["posicion"] = clasificaciones_df["posicion"].astype(int)
-
         # Asegúrate de que las columnas son numéricas
         clasificaciones_df["jornada"] = clasificaciones_df["jornada"].astype(int)
         clasificaciones_df["posicion"] = clasificaciones_df["posicion"].astype(int)
@@ -361,6 +357,7 @@ if df is not None:
             animation_frame="jornada",
             color_discrete_map=colores_personalizados,
             markers=True,
+            line_shape='linear'  # Asegura que las líneas sean continuas entre puntos
         )
         
         # Ajustamos el layout para evitar zoom raro
