@@ -71,6 +71,80 @@ if df is not None:
     menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Equipos"))
 
     if menu == "🏆 General":
+        # st.header("🏆 Clasificación")
+
+        # # Obtener goles por equipo y partido
+        # goles = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+        
+        # # Asegurarse de que hay 2 equipos por partido
+        # conteo_equipos = goles.groupby("codacta")["equipo"].nunique()
+        # codactas_validos = conteo_equipos[conteo_equipos == 2].index
+        # goles = goles[goles["codacta"].isin(codactas_validos)]
+        
+        # # Hacemos un merge para que cada fila tenga equipo, rival, goles a favor y goles en contra
+        # partidos = goles.merge(goles, on="codacta")
+        # partidos = partidos[partidos["equipo_x"] != partidos["equipo_y"]].copy()
+        # partidos = partidos.rename(columns={
+        #     "equipo_x": "equipo",
+        #     "equipo_y": "rival",
+        #     "num_goles_x": "gf",
+        #     "num_goles_y": "gc"
+        # })
+        
+        # # Marcamos resultado
+        # partidos["puntos"] = partidos.apply(lambda row: 3 if row.gf > row.gc else 1 if row.gf == row.gc else 0, axis=1)
+        # partidos["ganado"] = partidos.gf > partidos.gc
+        # partidos["empatado"] = partidos.gf == partidos.gc
+        # partidos["perdido"] = partidos.gf < partidos.gc
+        
+        # # Determinar local o visitante
+        # local_dict = df[df["local"] == 1].groupby("codacta")["equipo"].first().to_dict()
+        # partidos["local"] = partidos.apply(lambda x: 1 if x["equipo"] == local_dict.get(x["codacta"], "") else 0, axis=1)
+        # partidos["visitante"] = 1 - partidos["local"]
+        
+        # # Agrupamos por equipo
+        # clasificacion = partidos.groupby("equipo").agg({
+        #     "puntos": "sum",
+        #     "gf": "sum",
+        #     "gc": "sum",
+        #     "ganado": "sum",
+        #     "empatado": "sum",
+        #     "perdido": "sum"
+        # }).reset_index()
+        
+        # clasificacion["dif"] = clasificacion["gf"] - clasificacion["gc"]
+        # clasificacion = clasificacion.sort_values(by=["puntos", "dif"], ascending=False)
+        # clasificacion["Pos"] = range(1, len(clasificacion)+1)
+        
+        # # Añadimos desglose local/visitante
+        # clasificacion = clasificacion.merge(
+        #     partidos[partidos["local"] == 1].groupby("equipo")["ganado"].sum().reset_index(name="locales_ganados"), on="equipo", how="left")
+        # clasificacion = clasificacion.merge(
+        #     partidos[partidos["visitante"] == 1].groupby("equipo")["ganado"].sum().reset_index(name="visitantes_ganados"), on="equipo", how="left")
+        # clasificacion = clasificacion.merge(
+        #     partidos[partidos["local"] == 1].groupby("equipo")["empatado"].sum().reset_index(name="locales_empatados"), on="equipo", how="left")
+        # clasificacion = clasificacion.merge(
+        #     partidos[partidos["visitante"] == 1].groupby("equipo")["empatado"].sum().reset_index(name="visitantes_empatados"), on="equipo", how="left")
+        # clasificacion = clasificacion.merge(
+        #     partidos[partidos["local"] == 1].groupby("equipo")["perdido"].sum().reset_index(name="locales_perdidos"), on="equipo", how="left")
+        # clasificacion = clasificacion.merge(
+        #     partidos[partidos["visitante"] == 1].groupby("equipo")["perdido"].sum().reset_index(name="visitantes_perdidos"), on="equipo", how="left")
+        
+        # # Total de partidos jugados
+        # clasificacion["partidos_jugados"] = partidos.groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
+        
+        # # Mostramos
+        # st.dataframe(clasificacion[[
+        #     "Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
+        #     "locales_ganados", "locales_empatados", "locales_perdidos",
+        #     "visitantes_ganados", "visitantes_empatados", "visitantes_perdidos"
+        # ]].rename(columns={
+        #     "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P",
+        #     "locales_ganados": "G_local", "locales_empatados" : "E_local", "locales_perdidos": "P_local",
+        #     "visitantes_ganados": "G_visitante", "visitantes_empatados" : "E_visitante", "visitantes_perdidos": "P_visitante"
+        # }), use_container_width=True)
+
+
         st.header("🏆 Clasificación")
 
         # Obtener goles por equipo y partido
@@ -85,17 +159,17 @@ if df is not None:
         partidos = goles.merge(goles, on="codacta")
         partidos = partidos[partidos["equipo_x"] != partidos["equipo_y"]].copy()
         partidos = partidos.rename(columns={
-            "equipo_x": "equipo",
-            "equipo_y": "rival",
-            "num_goles_x": "gf",
-            "num_goles_y": "gc"
+        "equipo_x": "equipo",
+        "equipo_y": "rival",
+        "num_goles_x": "gf",
+        "num_goles_y": "gc"
         })
         
         # Marcamos resultado
         partidos["puntos"] = partidos.apply(lambda row: 3 if row.gf > row.gc else 1 if row.gf == row.gc else 0, axis=1)
         partidos["ganado"] = partidos.gf > partidos.gc
-        partidos["empatado"] = partidos.gf == partidos.gc
-        partidos["perdido"] = partidos.gf < partidos.gc
+        partidos["empatado"] = partidos.gf == row.gc
+        partidos["perdido"] = partidos.gf < row.gc
         
         # Determinar local o visitante
         local_dict = df[df["local"] == 1].groupby("codacta")["equipo"].first().to_dict()
@@ -104,12 +178,12 @@ if df is not None:
         
         # Agrupamos por equipo
         clasificacion = partidos.groupby("equipo").agg({
-            "puntos": "sum",
-            "gf": "sum",
-            "gc": "sum",
-            "ganado": "sum",
-            "empatado": "sum",
-            "perdido": "sum"
+        "puntos": "sum",
+        "gf": "sum",
+        "gc": "sum",
+        "ganado": "sum",
+        "empatado": "sum",
+        "perdido": "sum"
         }).reset_index()
         
         clasificacion["dif"] = clasificacion["gf"] - clasificacion["gc"]
@@ -118,31 +192,66 @@ if df is not None:
         
         # Añadimos desglose local/visitante
         clasificacion = clasificacion.merge(
-            partidos[partidos["local"] == 1].groupby("equipo")["ganado"].sum().reset_index(name="locales_ganados"), on="equipo", how="left")
+        partidos[partidos["local"] == 1].groupby("equipo")["ganado"].sum().reset_index(name="locales_ganados"), on="equipo", how="left")
         clasificacion = clasificacion.merge(
-            partidos[partidos["visitante"] == 1].groupby("equipo")["ganado"].sum().reset_index(name="visitantes_ganados"), on="equipo", how="left")
+        partidos[partidos["visitante"] == 1].groupby("equipo")["ganado"].sum().reset_index(name="visitantes_ganados"), on="equipo", how="left")
         clasificacion = clasificacion.merge(
-            partidos[partidos["local"] == 1].groupby("equipo")["empatado"].sum().reset_index(name="locales_empatados"), on="equipo", how="left")
+        partidos[partidos["local"] == 1].groupby("equipo")["empatado"].sum().reset_index(name="locales_empatados"), on="equipo", how="left")
         clasificacion = clasificacion.merge(
-            partidos[partidos["visitante"] == 1].groupby("equipo")["empatado"].sum().reset_index(name="visitantes_empatados"), on="equipo", how="left")
+        partidos[partidos["visitante"] == 1].groupby("equipo")["empatado"].sum().reset_index(name="visitantes_empatados"), on="equipo", how="left")
         clasificacion = clasificacion.merge(
-            partidos[partidos["local"] == 1].groupby("equipo")["perdido"].sum().reset_index(name="locales_perdidos"), on="equipo", how="left")
+        partidos[partidos["local"] == 1].groupby("equipo")["perdido"].sum().reset_index(name="locales_perdidos"), on="equipo", how="left")
         clasificacion = clasificacion.merge(
-            partidos[partidos["visitante"] == 1].groupby("equipo")["perdido"].sum().reset_index(name="visitantes_perdidos"), on="equipo", how="left")
+        partidos[partidos["visitante"] == 1].groupby("equipo")["perdido"].sum().reset_index(name="visitantes_perdidos"), on="equipo", how="left")
         
         # Total de partidos jugados
         clasificacion["partidos_jugados"] = partidos.groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
         
-        # Mostramos
+        # === NUEVO BLOQUE: Tarjetas amarillas y expulsiones ===
+        
+        # Lógica personalizada para amarillas
+        def calcular_amarillas(row):
+        amarillas = row['num_tarjeta_amarilla']
+        if row['segunda_amarilla'] == 1 or row['num_tarjeta_amarilla'] == 2:
+        amarillas = 0
+        if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
+        amarillas += 1
+        return amarillas
+        
+        df['amarillas_totales'] = df.apply(calcular_amarillas, axis=1)
+        df.loc[df['num_tarjeta_amarilla'] == 2, 'segunda_amarilla'] = 1  # fuerza si hay 2 amarillas
+        
+        # Agregados por equipo
+        amarillas_equipo = df.groupby("equipo")["amarillas_totales"].sum().reset_index()
+        dobles_amarillas = df[df['segunda_amarilla'] > 0].groupby("equipo")["segunda_amarilla"].count().reset_index()
+        dobles_amarillas = dobles_amarillas.rename(columns={"segunda_amarilla": "dobles_amarillas"})
+        rojas_directas = df[df["num_tarjeta_roja"] > 0].groupby("equipo")["num_tarjeta_roja"].sum().reset_index()
+        rojas_directas = rojas_directas.rename(columns={"num_tarjeta_roja": "rojas_directas"})
+        
+        # Combinamos
+        disciplinario = pd.merge(amarillas_equipo, dobles_amarillas, on="equipo", how="left")
+        disciplinario = pd.merge(disciplinario, rojas_directas, on="equipo", how="left").fillna(0)
+        disciplinario["expulsiones"] = disciplinario["dobles_amarillas"] + disciplinario["rojas_directas"]
+        disciplinario = disciplinario[["equipo", "amarillas_totales", "expulsiones"]]
+        disciplinario = disciplinario.rename(columns={"amarillas_totales": "tarjetas_amarillas"})
+        
+        # Añadimos a la clasificación
+        clasificacion = clasificacion.merge(disciplinario, on="equipo", how="left")
+        
+        # Mostrar
         st.dataframe(clasificacion[[
-            "Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
-            "locales_ganados", "locales_empatados", "locales_perdidos",
-            "visitantes_ganados", "visitantes_empatados", "visitantes_perdidos"
+        "Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
+        "locales_ganados", "locales_empatados", "locales_perdidos",
+        "visitantes_ganados", "visitantes_empatados", "visitantes_perdidos",
+        "tarjetas_amarillas", "expulsiones"
         ]].rename(columns={
-            "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P",
-            "locales_ganados": "G_local", "locales_empatados" : "E_local", "locales_perdidos": "P_local",
-            "visitantes_ganados": "G_visitante", "visitantes_empatados" : "E_visitante", "visitantes_perdidos": "P_visitante"
+        "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P",
+        "locales_ganados": "G_local", "locales_empatados": "E_local", "locales_perdidos": "P_local",
+        "visitantes_ganados": "G_visitante", "visitantes_empatados": "E_visitante", "visitantes_perdidos": "P_visitante",
+        "tarjetas_amarillas": "🟨", "expulsiones": "🟥"
         }), use_container_width=True)
+
+        
         
 
         # Añadimos los equipos más en forma y menos en forma en la misma fila
