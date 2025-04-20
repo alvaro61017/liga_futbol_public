@@ -387,7 +387,7 @@ if df is not None:
         })
         
         # Añadimos fecha y resultado
-        partidos_equipo = partidos_equipo.merge(df[["codacta", "num_jornada"]].drop_duplicates(), on="codacta", how="left")
+        partidos_equipo = partidos_equipo.merge(df[["codacta", "numero_jornada"]].drop_duplicates(), on="codacta", how="left")
         partidos_equipo["resultado"] = partidos_equipo.apply(
             lambda row: "G" if row.gf > row.gc else "E" if row.gf == row.gc else "P", axis=1
         )
@@ -395,8 +395,8 @@ if df is not None:
         partidos_equipo["vs"] = "vs " + partidos_equipo["rival"]
         
         # Ordenamos por fecha y nos quedamos con los 3 últimos
-        ultimos_resultados = partidos_equipo.sort_values(by="num_jornada", ascending=False).head(3)[["num_jornada", "vs", "marcador", "resultado"]]
-        ultimos_resultados = ultimos_resultados.rename(columns={"num_jornada": "Jornada", "vs": "Rival", "marcador": "Marcador", "resultado": "Resultado"})
+        ultimos_resultados = partidos_equipo.sort_values(by="numero_jornada", ascending=False).head(3)[["numero_jornada", "vs", "marcador", "resultado"]]
+        ultimos_resultados = ultimos_resultados.rename(columns={"numero_jornada": "Jornada", "vs": "Rival", "marcador": "Marcador", "resultado": "Resultado"})
         
         # Mostramos
         st.dataframe(ultimos_resultados, use_container_width=True)
