@@ -425,24 +425,24 @@ if df is not None:
 
         with col5:
             # Jugadores más veces titulares
-            top_titulares = df_equipo[df_equipo["titular"] == 1].groupby(["nombre_jugador", "dorsal"]).size().reset_index(name="titularidades")
+            top_titulares = df_equipo[df_equipo["titular"] == 1].groupby(["nombre_jugador"]).size().reset_index(name="titularidades")
             top_titulares = top_titulares.sort_values(by="titularidades", ascending=False).head(5)
             st.markdown("**📍 Más veces titular**")
-            st.dataframe(top_titulares.rename(columns={"nombre_jugador": "Jugador", "dorsal": "Dorsal", "titularidades": "Titularidades"}), use_container_width=True)
+            st.dataframe(top_titulares.rename(columns={"nombre_jugador": "Jugador", "titularidades": "Titularidades"}), use_container_width=True)
        
         with col6:
             # Jugadores más veces sustituidos (minuto_cambio > 0 y jugador titular)
-            top_sustituidos = df_equipo[(df_equipo["titular"] == 1) & (df_equipo["minuto_cambio"] > 0)].groupby(["nombre_jugador", "dorsal"]).size().reset_index(name="sustituciones")
+            top_sustituidos = df_equipo[(df_equipo["titular"] == 1) & (df_equipo["minutos_jugados"] > 0)].groupby(["nombre_jugador"]).size().reset_index(name="sustituciones")
             top_sustituidos = top_sustituidos.sort_values(by="sustituciones", ascending=False).head(5)
             st.markdown("**⏳ Más veces sustituidos**")
-            st.dataframe(top_sustituidos.rename(columns={"nombre_jugador": "Jugador", "dorsal": "Dorsal", "sustituciones": "Sustituciones"}), use_container_width=True)
+            st.dataframe(top_sustituidos.rename(columns={"nombre_jugador": "Jugador", "sustituciones": "Sustituciones"}), use_container_width=True)
         
         with col7:
             # Jugadores que más han entrado desde el banquillo
-            top_suplentes = df_equipo[(df_equipo["titular"] == 0) & (df_equipo["minutos_jugados"] > 0)].groupby(["nombre_jugador", "dorsal"]).size().reset_index(name="entradas_desde_banquillo")
+            top_suplentes = df_equipo[(df_equipo["titular"] == 0) & (df_equipo["minutos_jugados"] > 0)].groupby(["nombre_jugador"]).size().reset_index(name="entradas_desde_banquillo")
             top_suplentes = top_suplentes.sort_values(by="entradas_desde_banquillo", ascending=False).head(5)
             st.markdown("**🔁 Más veces desde banquillo**")
-            st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "dorsal": "Dorsal", "entradas_desde_banquillo": "Entradas"}), use_container_width=True)
+            st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "entradas_desde_banquillo": "Entradas"}), use_container_width=True)
             
 
         def goles_por_tramo(lista_minutos):
