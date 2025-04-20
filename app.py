@@ -389,15 +389,24 @@ if df is not None:
             title="📈 Evolución de la Clasificación por Jornada",
             xaxis_title="Jornada",
             yaxis_title="Posición en la Clasificación",
-            yaxis_autorange="reversed",
+            xaxis=dict(
+                tickmode='linear',
+                tick0=1,
+                dtick=1,
+                range=[1, clasificaciones_df["jornada"].max() + 2],  # Deja espacio para las etiquetas al final
+            ),
+            yaxis=dict(
+                autorange='reversed',
+                tickmode='linear',
+                tick0=1,
+                dtick=1,
+                range=[1, clasificaciones_df["posicion"].max() + 1]  # Asegura mostrar todas las posiciones
+            ),
             template="plotly_dark",
-            height=650,
+            height=600,
             hovermode="x unified",
             legend_title="Equipos",
-            margin=dict(t=60, b=40, l=10, r=10)
-        )
-        fig.update_layout(
-            xaxis=dict(range=[1, clasificaciones_df["jornada"].max() + 2])  # Deja más espacio al final
+            margin=dict(t=60, b=40, l=10, r=100),  # margen derecho amplio para etiquetas
         )
         
         st.plotly_chart(fig, use_container_width=True)
