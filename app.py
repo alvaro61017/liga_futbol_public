@@ -256,7 +256,33 @@ if df is not None:
         cols[3].metric("🧱 Partidos con portería 0", partidos_porteria_0)
 
         st.subheader("🏅 Jugadores destacados")
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)  # Añadimos una cuarta columna
+
+        # Lógica de tarjetas amarillas y expulsiones
+        def calcular_amarillas(row):
+            amarillas = row['num_tarjeta_amarilla']
+            if row['segunda_amarilla'] == 1:
+                amarillas = 0  # Si hay segunda amarilla, no sumamos las amarillas
+            if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
+                amarillas += 1  # Si hay tarjeta roja, sumamos 1 amarilla adicional
+            return amarillas
+            
+        df_equipo['amarillas_totales'] = df_equipo.apply(calcular_amarillas, axis=1)
+
+        # Expulsiones
+        expulsiones = df_equipo[df_equipo["segunda_amarilla"] > 0].groupby(["nombre_jugador", "equipo"])["segunda_amarilla"].sum().reset_index()
+        expulsiones = expulsiones.rename(columns={"segunda_amarilla": "Dobles Amarillas"})
+        
+        # Agrupar por jugador y sumar las tarjetas rojas directas
+        roja_directa = df_equipo[df_equipo["num_tarjeta_roja"] > 0].groupby(["nombre_jugador", "equipo"])["num_tarjeta_roja"].sum().reset_index()
+        roja_directa = roja_directa.rename(columns={"num_tarjeta_roja": "Tarjetas Rojas Directas"})
+        
+        # Combinar los dos DataFrames de expulsiones
+        expulsiones_totales = pd.merge(expulsiones, roja_directa, on=["nombre_jugador", "equipo"], how="outer").fillna(0)
+        
+        # Calcular las expulsiones totales sumando las dobles amarillas y las rojas directas
+        expulsiones_totales["Expulsiones"] = expulsiones_totales["Dobles Amarillas"] + expulsiones_totales["Tarjetas Rojas Directas"]
+    
         with col1:
             top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
             st.markdown("**Goleadores**")
@@ -265,10 +291,19 @@ if df is not None:
             top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
             st.markdown("**Más minutos jugados**")
             st.dataframe(top_minutos)
+        # with col3:
+        #     top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
+        #     st.markdown("**Más amarillas**")
+        #     st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
         with col3:
-            top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
+            top_amarillas = df_equipo.groupby("nombre_jugador")["amarillas_totales"].sum().reset_index().sort_values(by="amarillas_totales", ascending=False).head(5)
             st.markdown("**Más amarillas**")
-            st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
+            st.dataframe(top_amarillas.rename(columns={"amarillas_totales": "Amarillas"}))
+        
+        with col4:
+            top_expulsiones = expulsiones_totales.groupby("nombre_jugador")["Expulsiones"].sum().reset_index().sort_values(by="Expulsiones", ascending=False).head(5)
+            st.markdown("**Más expulsiones**")
+            st.dataframe(top_expulsiones)
 
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
