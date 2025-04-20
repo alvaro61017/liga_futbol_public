@@ -421,7 +421,7 @@ if df is not None:
             st.dataframe(top_expulsiones)
 
         # Fila inferior para titulares y suplentes
-        col5, col6 = st.columns(2)
+        col5, col6, col7 = st.columns(3)
 
         with col5:
             # Jugadores más veces titulares
