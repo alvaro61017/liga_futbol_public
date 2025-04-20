@@ -73,79 +73,6 @@ if df is not None:
     menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Equipos"))
 
     if menu == "🏆 General":
-        # st.header("🏆 Clasificación")
-
-        # # Obtener goles por equipo y partido
-        # goles = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
-        
-        # # Asegurarse de que hay 2 equipos por partido
-        # conteo_equipos = goles.groupby("codacta")["equipo"].nunique()
-        # codactas_validos = conteo_equipos[conteo_equipos == 2].index
-        # goles = goles[goles["codacta"].isin(codactas_validos)]
-        
-        # # Hacemos un merge para que cada fila tenga equipo, rival, goles a favor y goles en contra
-        # partidos = goles.merge(goles, on="codacta")
-        # partidos = partidos[partidos["equipo_x"] != partidos["equipo_y"]].copy()
-        # partidos = partidos.rename(columns={
-        #     "equipo_x": "equipo",
-        #     "equipo_y": "rival",
-        #     "num_goles_x": "gf",
-        #     "num_goles_y": "gc"
-        # })
-        
-        # # Marcamos resultado
-        # partidos["puntos"] = partidos.apply(lambda row: 3 if row.gf > row.gc else 1 if row.gf == row.gc else 0, axis=1)
-        # partidos["ganado"] = partidos.gf > partidos.gc
-        # partidos["empatado"] = partidos.gf == partidos.gc
-        # partidos["perdido"] = partidos.gf < partidos.gc
-        
-        # # Determinar local o visitante
-        # local_dict = df[df["local"] == 1].groupby("codacta")["equipo"].first().to_dict()
-        # partidos["local"] = partidos.apply(lambda x: 1 if x["equipo"] == local_dict.get(x["codacta"], "") else 0, axis=1)
-        # partidos["visitante"] = 1 - partidos["local"]
-        
-        # # Agrupamos por equipo
-        # clasificacion = partidos.groupby("equipo").agg({
-        #     "puntos": "sum",
-        #     "gf": "sum",
-        #     "gc": "sum",
-        #     "ganado": "sum",
-        #     "empatado": "sum",
-        #     "perdido": "sum"
-        # }).reset_index()
-        
-        # clasificacion["dif"] = clasificacion["gf"] - clasificacion["gc"]
-        # clasificacion = clasificacion.sort_values(by=["puntos", "dif"], ascending=False)
-        # clasificacion["Pos"] = range(1, len(clasificacion)+1)
-        
-        # # Añadimos desglose local/visitante
-        # clasificacion = clasificacion.merge(
-        #     partidos[partidos["local"] == 1].groupby("equipo")["ganado"].sum().reset_index(name="locales_ganados"), on="equipo", how="left")
-        # clasificacion = clasificacion.merge(
-        #     partidos[partidos["visitante"] == 1].groupby("equipo")["ganado"].sum().reset_index(name="visitantes_ganados"), on="equipo", how="left")
-        # clasificacion = clasificacion.merge(
-        #     partidos[partidos["local"] == 1].groupby("equipo")["empatado"].sum().reset_index(name="locales_empatados"), on="equipo", how="left")
-        # clasificacion = clasificacion.merge(
-        #     partidos[partidos["visitante"] == 1].groupby("equipo")["empatado"].sum().reset_index(name="visitantes_empatados"), on="equipo", how="left")
-        # clasificacion = clasificacion.merge(
-        #     partidos[partidos["local"] == 1].groupby("equipo")["perdido"].sum().reset_index(name="locales_perdidos"), on="equipo", how="left")
-        # clasificacion = clasificacion.merge(
-        #     partidos[partidos["visitante"] == 1].groupby("equipo")["perdido"].sum().reset_index(name="visitantes_perdidos"), on="equipo", how="left")
-        
-        # # Total de partidos jugados
-        # clasificacion["partidos_jugados"] = partidos.groupby("equipo")["codacta"].nunique().reset_index()["codacta"]
-        
-        # # Mostramos
-        # st.dataframe(clasificacion[[
-        #     "Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
-        #     "locales_ganados", "locales_empatados", "locales_perdidos",
-        #     "visitantes_ganados", "visitantes_empatados", "visitantes_perdidos"
-        # ]].rename(columns={
-        #     "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P",
-        #     "locales_ganados": "G_local", "locales_empatados" : "E_local", "locales_perdidos": "P_local",
-        #     "visitantes_ganados": "G_visitante", "visitantes_empatados" : "E_visitante", "visitantes_perdidos": "P_visitante"
-        # }), use_container_width=True)
-
 
         st.header("🏆 Clasificación")
 
@@ -353,7 +280,7 @@ if df is not None:
         st.dataframe(expulsiones_totales[["nombre_jugador", "equipo", "Expulsiones", "Dobles Amarillas", "Tarjetas Rojas Directas"]], use_container_width=True)
 
 
-
+        # Evolucion clasificacion por jornada
         clasificaciones_por_jornada = []
 
         for jornada in sorted(df["numero_jornada"].unique()):
@@ -400,21 +327,49 @@ if df is not None:
         
         fig = go.Figure()
         
-        # Puedes definir colores por equipo si quieres personalizar más
-        colores_personalizados = {
-            equipo: color for equipo, color in zip(equipos_unicos, px.colors.qualitative.Set3)
-        }
         
+        # Colores personalizados para equipos clave
+        colores_personalizados = {
+            "getafe city": "#800000",          # granate
+            "ciudad de getafe": "#FFD700",     # amarillo
+            "fepe": "#0000FF",                 # azul
+            "norte": "#87CEFA",                # azul clarito
+            "brunete": "#FFA500",              # naranja
+            "juventud canario": "#008000",     # verde
+            "honduras": "#00008B",             # azul oscuro
+            "socios": "#FF0000",               # rojo
+            "santa barbara": "#FFFFFF",        # blanco
+        }
+        # Paleta para equipos no definidos
+        colores_extra = px.colors.qualitative.Set3 + px.colors.qualitative.Set1 + px.colors.qualitative.Pastel1
+        colores_disponibles = iter(colores_extra)
+
         for equipo in equipos_seleccionados:
+            equipo_key = equipo.lower()
+            if equipo_key not in colores_personalizados:
+                # Asignamos el siguiente color disponible
+                colores_personalizados[equipo_key] = next(colores_disponibles)
+        
             data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
             fig.add_trace(go.Scatter(
                 x=data["jornada"],
                 y=data["posicion"],
                 mode='lines+markers',
                 name=equipo,
-                line=dict(width=3, color=colores_personalizados.get(equipo, None)),
+                line=dict(width=3, color=colores_personalizados[equipo_key]),
                 hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
             ))
+                
+        # for equipo in equipos_seleccionados:
+        #     data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
+        #     fig.add_trace(go.Scatter(
+        #         x=data["jornada"],
+        #         y=data["posicion"],
+        #         mode='lines+markers',
+        #         name=equipo,
+        #         line=dict(width=3, color=colores_personalizados.get(equipo, None)),
+        #         hovertemplate=f"<b>{equipo}</b><br>Jornada: %{{x}}<br>Posición: %{{y}}<extra></extra>"
+        #     ))
         
         fig.update_layout(
             title="📈 Evolución de la Clasificación por Jornada",
