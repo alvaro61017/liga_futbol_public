@@ -5,6 +5,7 @@ import plotly.express as px
 import ast
 import requests
 import io
+import altair as alt
 
 st.set_page_config(page_title="Temporada 24/25", layout="wide")
 st.title("⚽ Grupo 7 Segunda Regional")
@@ -258,11 +259,11 @@ if df is not None:
         # Definir color para Getafe City (granate)
         getafe_color = "#9B1B30"  # Granate
         
-        # Crear un gráfico con Altair
-        chart = alt.Chart(promedio_goles).mark_bar().encode(
+        # Crear gráfico con Altair de forma segura
+        chart = alt.Chart(promedio_goles.dropna()).mark_bar().encode(
             x=alt.X('equipo:N', title='Equipo'),
             y=alt.Y('num_goles:Q', title='Promedio de Goles por Partido'),
-            color=alt.Color('equipo:N', scale=alt.Scale(domain=['Getafe City', 'Otro equipo 1', 'Otro equipo 2'], range=[getafe_color, 'lightblue', 'lightgreen'])),
+            color=alt.Color('equipo:N', scale=alt.Scale(domain=promedio_goles['equipo'].unique(), range=['#9B1B30', 'lightblue', 'lightgreen'])),
             tooltip=['equipo:N', 'num_goles:Q']
         ).properties(
             title="⚽ Promedio de Goles por Partido",
@@ -270,7 +271,7 @@ if df is not None:
             height=400
         )
         
-        # Mostrar el gráfico en Streamlit
+        # Mostrar el gráfico
         st.subheader("⚽ Promedio de Goles por Partido")
         st.altair_chart(chart, use_container_width=True)
 
