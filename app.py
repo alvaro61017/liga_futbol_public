@@ -432,7 +432,7 @@ if df is not None:
        
         with col6:
             # Jugadores más veces sustituidos (minuto_cambio > 0 y jugador titular)
-            top_sustituidos = df_equipo[(df_equipo["titular"] == 1) & (df_equipo["minutos_jugados"] > 0)].groupby(["nombre_jugador"]).size().reset_index(name="sustituciones")
+            top_sustituidos = df_equipo[(df_equipo["titular"] == 1) & (df_equipo["minuto_sustitucion_salida"] > 0)].groupby(["nombre_jugador"]).size().reset_index(name="sustituciones")
             top_sustituidos = top_sustituidos.sort_values(by="sustituciones", ascending=False).head(5)
             st.markdown("**⏳ Más veces sustituidos**")
             st.dataframe(top_sustituidos.rename(columns={"nombre_jugador": "Jugador", "sustituciones": "Sustituciones"}), use_container_width=True)
