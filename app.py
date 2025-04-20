@@ -341,17 +341,17 @@ if df is not None:
             "santa barbara": "#FFFFFF",        # blanco
         }
         
-        # Paleta para equipos adicionales (que no estén ya en el diccionario)
-        colores_extra = [
-            c for c in px.colors.qualitative.Alphabet +
-                       px.colors.qualitative.Set3 +
-                       px.colors.qualitative.Set2 +
-                       px.colors.qualitative.Dark2
-            if c.lower() not in [v.lower() for v in colores_personalizados.values()]
-        ]
-        colores_disponibles = iter(colores_extra)
+        # # Paleta para equipos adicionales (que no estén ya en el diccionario)
+        # colores_extra = [
+        #     c for c in px.colors.qualitative.Alphabet +
+        #                px.colors.qualitative.Set3 +
+        #                px.colors.qualitative.Set2 +
+        #                px.colors.qualitative.Dark2
+        #     if c.lower() not in [v.lower() for v in colores_personalizados.values()]
+        # ]
+        # colores_disponibles = iter(colores_extra)
         
-        fig = go.Figure()
+        # fig = go.Figure()
         
         for equipo in equipos_seleccionados:
             equipo_key = equipo.lower()
