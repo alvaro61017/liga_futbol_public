@@ -328,26 +328,35 @@ if df is not None:
         fig = go.Figure()
         
         
-        # Colores personalizados para equipos clave
+        # Tu diccionario personalizado
         colores_personalizados = {
             "getafe city": "#800000",          # granate
             "ciudad de getafe": "#FFD700",     # amarillo
             "fepe": "#0000FF",                 # azul
-            "norte": "#87CEFA",                # azul clarito
+            "norte": "#ADD8E6",                # azul clarito
             "brunete": "#FFA500",              # naranja
             "juventud canario": "#008000",     # verde
             "honduras": "#00008B",             # azul oscuro
             "socios": "#FF0000",               # rojo
             "santa barbara": "#FFFFFF",        # blanco
         }
-        # Paleta para equipos no definidos
-        colores_extra = px.colors.qualitative.Set3 + px.colors.qualitative.Set1 + px.colors.qualitative.Pastel1
+        
+        # Paleta para equipos adicionales (que no estén ya en el diccionario)
+        colores_extra = [
+            c for c in px.colors.qualitative.Alphabet +
+                       px.colors.qualitative.Set3 +
+                       px.colors.qualitative.Set2 +
+                       px.colors.qualitative.Dark2
+            if c.lower() not in [v.lower() for v in colores_personalizados.values()]
+        ]
         colores_disponibles = iter(colores_extra)
-
+        
+        fig = go.Figure()
+        
         for equipo in equipos_seleccionados:
             equipo_key = equipo.lower()
             if equipo_key not in colores_personalizados:
-                # Asignamos el siguiente color disponible
+                # Asignar color de forma dinámica si no está definido
                 colores_personalizados[equipo_key] = next(colores_disponibles)
         
             data = clasificaciones_df[clasificaciones_df["equipo"] == equipo]
