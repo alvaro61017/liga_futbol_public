@@ -660,10 +660,29 @@ if df is not None:
         # )
         # st.plotly_chart(fig2, use_container_width=True)
 
-        # Goles en contra por tramo
-        st.subheader("📊 Goles en contra por tramo")
+        # Goles en contra
+        goles_partidos = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+        rivales = goles_partidos.merge(goles_partidos, on="codacta")
+        rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
+        
+        goles_contra = rivales[rivales["equipo_x"] == equipo_seleccionado][["codacta", "num_goles_y"]]
+        goles_contra_listas = df[df["equipo"] != equipo_seleccionado]
+        goles_contra_listas = goles_contra_listas[goles_contra_listas["codacta"].isin(goles_contra["codacta"])]
+        minutos_contra = goles_contra_listas["minutos_goles"].sum()
+        
+        # Usamos la versión extendida que devuelve porcentaje y valor absoluto
+        def goles_por_tramo(lista_minutos):
+            tramos = [0]*6
+            for m in lista_minutos:
+                idx = min(m // 15, 5)
+                tramos[idx] += 1
+            total = sum(tramos)
+            porcentajes = [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
+            return porcentajes, tramos
+        
         tramos_contra_porcentaje, tramos_contra_valores = goles_por_tramo(minutos_contra)
         
+        st.subheader("📊 Goles en contra por tramo")
         fig2 = px.bar(
             x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
             y=tramos_contra_porcentaje,
