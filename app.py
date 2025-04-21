@@ -464,7 +464,10 @@ if df is not None:
     elif menu == "📋 Equipos":
         st.header("📋 Estadísticas por equipo")
         equipos = sorted(df["equipo"].unique())
-        equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
+        equipo_default = "C.D. GETAFE CITY 'A'"
+        index_default = equipos.index(equipo_default) if equipo_default in equipos else 0
+        equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos, index=index_default) # selecciono por defecto el getafe city
+        # equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos)
         df_equipo = df[df["equipo"] == equipo_seleccionado]
 
         racha_actual, mayor_racha, victorias_porteria_0, partidos_porteria_0 = calcular_estadisticas_equipo(df, equipo_seleccionado)
