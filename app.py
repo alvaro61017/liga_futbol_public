@@ -636,7 +636,7 @@ if df is not None:
             title="Distribución de goles a favor por tramo",
             color_discrete_sequence=["green"]
         )
-        fig1.update_traces(textposition="inside")
+        fig1.update_traces(textposition="inside", insidetextanchor="middle")
         st.plotly_chart(fig1, use_container_width=True)
 
         # Goles en contra
@@ -691,7 +691,7 @@ if df is not None:
             title="Distribución de goles en contra por tramo",
             color_discrete_sequence=["red"]
         )
-        fig2.update_traces(textposition="inside")
+        fig2.update_traces(textposition="inside", insidetextanchor="middle")
         st.plotly_chart(fig2, use_container_width=True)
 
         
