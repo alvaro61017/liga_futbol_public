@@ -592,47 +592,87 @@ if df is not None:
             st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "entradas_desde_banquillo": "Entradas"}), use_container_width=True)
             
 
+        # def goles_por_tramo(lista_minutos):
+        #     tramos = [0]*6
+        #     for m in lista_minutos:
+        #         idx = min(m // 15, 5)
+        #         tramos[idx] += 1
+        #     total = sum(tramos)
+        #     return [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
+
+        # # Goles a favor por tramo
+        # st.subheader("📊 Goles a favor por tramo")
+        # todos_goles = df_equipo["minutos_goles"].sum()
+        # tramos_favor = goles_por_tramo(todos_goles)
+
+        # fig1 = px.bar(
+        #     x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
+        #     y=tramos_favor,
+        #     labels={"x": "Tramo", "y": "% Goles a favor"},
+        #     title="Distribución de goles a favor por tramo",
+        #     color_discrete_sequence=["green"]
+        # )
+        # st.plotly_chart(fig1, use_container_width=True)
+
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
             for m in lista_minutos:
                 idx = min(m // 15, 5)
                 tramos[idx] += 1
             total = sum(tramos)
-            return [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
-
+            porcentajes = [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
+            return porcentajes, tramos
+        
         # Goles a favor por tramo
         st.subheader("📊 Goles a favor por tramo")
         todos_goles = df_equipo["minutos_goles"].sum()
-        tramos_favor = goles_por_tramo(todos_goles)
-
+        tramos_favor_porcentaje, tramos_favor_valores = goles_por_tramo(todos_goles)
+        
         fig1 = px.bar(
             x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
-            y=tramos_favor,
+            y=tramos_favor_porcentaje,
+            text=tramos_favor_valores,
             labels={"x": "Tramo", "y": "% Goles a favor"},
             title="Distribución de goles a favor por tramo",
             color_discrete_sequence=["green"]
         )
+        fig1.update_traces(textposition="inside")
         st.plotly_chart(fig1, use_container_width=True)
 
         # Goles en contra
-        goles_partidos = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
-        rivales = goles_partidos.merge(goles_partidos, on="codacta")
-        rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
+        # goles_partidos = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+        # rivales = goles_partidos.merge(goles_partidos, on="codacta")
+        # rivales = rivales[rivales["equipo_x"] != rivales["equipo_y"]]
 
-        goles_contra = rivales[rivales["equipo_x"] == equipo_seleccionado][["codacta", "num_goles_y"]]
-        goles_contra_listas = df[df["equipo"] != equipo_seleccionado]
-        goles_contra_listas = goles_contra_listas[goles_contra_listas["codacta"].isin(goles_contra["codacta"])]
-        minutos_contra = goles_contra_listas["minutos_goles"].sum()
-        tramos_contra = goles_por_tramo(minutos_contra)
+        # goles_contra = rivales[rivales["equipo_x"] == equipo_seleccionado][["codacta", "num_goles_y"]]
+        # goles_contra_listas = df[df["equipo"] != equipo_seleccionado]
+        # goles_contra_listas = goles_contra_listas[goles_contra_listas["codacta"].isin(goles_contra["codacta"])]
+        # minutos_contra = goles_contra_listas["minutos_goles"].sum()
+        # tramos_contra = goles_por_tramo(minutos_contra)
 
+        # st.subheader("📊 Goles en contra por tramo")
+        # fig2 = px.bar(
+        #     x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
+        #     y=tramos_contra,
+        #     labels={"x": "Tramo", "y": "% Goles en contra"},
+        #     title="Distribución de goles en contra por tramo",
+        #     color_discrete_sequence=["red"]
+        # )
+        # st.plotly_chart(fig2, use_container_width=True)
+
+        # Goles en contra por tramo
         st.subheader("📊 Goles en contra por tramo")
+        tramos_contra_porcentaje, tramos_contra_valores = goles_por_tramo(minutos_contra)
+        
         fig2 = px.bar(
             x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
-            y=tramos_contra,
+            y=tramos_contra_porcentaje,
+            text=tramos_contra_valores,
             labels={"x": "Tramo", "y": "% Goles en contra"},
             title="Distribución de goles en contra por tramo",
             color_discrete_sequence=["red"]
         )
+        fig2.update_traces(textposition="inside")
         st.plotly_chart(fig2, use_container_width=True)
 
         
