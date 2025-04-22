@@ -592,27 +592,6 @@ if df is not None:
             st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "entradas_desde_banquillo": "Entradas"}), use_container_width=True)
             
 
-        # def goles_por_tramo(lista_minutos):
-        #     tramos = [0]*6
-        #     for m in lista_minutos:
-        #         idx = min(m // 15, 5)
-        #         tramos[idx] += 1
-        #     total = sum(tramos)
-        #     return [round((g/total)*100, 1) if total > 0 else 0 for g in tramos]
-
-        # # Goles a favor por tramo
-        # st.subheader("📊 Goles a favor por tramo")
-        # todos_goles = df_equipo["minutos_goles"].sum()
-        # tramos_favor = goles_por_tramo(todos_goles)
-
-        # fig1 = px.bar(
-        #     x=["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"],
-        #     y=tramos_favor,
-        #     labels={"x": "Tramo", "y": "% Goles a favor"},
-        #     title="Distribución de goles a favor por tramo",
-        #     color_discrete_sequence=["green"]
-        # )
-        # st.plotly_chart(fig1, use_container_width=True)
 
         def goles_por_tramo(lista_minutos):
             tramos = [0]*6
@@ -636,7 +615,8 @@ if df is not None:
             title="Distribución de goles a favor por tramo",
             color_discrete_sequence=["green"]
         )
-        fig1.update_traces(textposition="inside", insidetextanchor="middle")
+        # fig1.update_traces(textposition="inside", insidetextanchor="middle")
+        fig1.update_traces(textposition="inside")
         st.plotly_chart(fig1, use_container_width=True)
 
         # Goles en contra
