@@ -695,7 +695,7 @@ if df is not None:
         st.plotly_chart(fig2, use_container_width=True)
 
 
-        # Tramos en eje X
+       # Tramos
         tramos = ["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"]
         
         st.subheader("⚔️ Comparativa de goles a favor y en contra por tramo (valores absolutos)")
@@ -721,9 +721,15 @@ if df is not None:
             xaxis_title='Tramo del partido',
             yaxis_title='Número de goles',
             title='Comparativa de goles a favor y en contra por tramo',
-            height=400,
-            margin=dict(l=20, r=20, t=40, b=20),
-            legend=dict(x=0.75, y=0.95)
+            height=450,
+            margin=dict(l=20, r=20, t=40, b=60),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.3,
+                xanchor="center",
+                x=0.5
+            )
         )
         
         st.plotly_chart(fig_comparativa, use_container_width=True)
