@@ -695,37 +695,31 @@ if df is not None:
         st.plotly_chart(fig2, use_container_width=True)
 
 
-        # Ejes comunes
+        # Tramos en eje X
         tramos = ["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"]
-        
-        # Ya tienes esto calculado arriba
-        # tramos_favor_valores -> goles a favor por tramo
-        # tramos_contra_valores -> goles en contra por tramo
         
         st.subheader("⚔️ Comparativa de goles a favor y en contra por tramo (valores absolutos)")
         
         fig_comparativa = go.Figure()
         
         fig_comparativa.add_trace(go.Bar(
-            y=tramos,
-            x=tramos_favor_valores,
+            x=tramos,
+            y=tramos_favor_valores,
             name='Goles a favor',
-            orientation='h',
             marker_color='green'
         ))
         
         fig_comparativa.add_trace(go.Bar(
-            y=tramos,
-            x=tramos_contra_valores,
+            x=tramos,
+            y=tramos_contra_valores,
             name='Goles en contra',
-            orientation='h',
             marker_color='red'
         ))
         
         fig_comparativa.update_layout(
             barmode='group',
-            xaxis_title='Número de goles',
-            yaxis_title='Tramo del partido',
+            xaxis_title='Tramo del partido',
+            yaxis_title='Número de goles',
             title='Comparativa de goles a favor y en contra por tramo',
             height=400,
             margin=dict(l=20, r=20, t=40, b=20),
