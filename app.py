@@ -694,6 +694,46 @@ if df is not None:
         fig2.update_traces(textposition="inside", insidetextanchor="middle")
         st.plotly_chart(fig2, use_container_width=True)
 
+
+        # Ejes comunes
+        tramos = ["0-15", "16-30", "31-45", "46-60", "61-75", "76-90"]
+        
+        # Ya tienes esto calculado arriba
+        # tramos_favor_valores -> goles a favor por tramo
+        # tramos_contra_valores -> goles en contra por tramo
+        
+        st.subheader("⚔️ Comparativa de goles a favor y en contra por tramo (valores absolutos)")
+        
+        fig_comparativa = go.Figure()
+        
+        fig_comparativa.add_trace(go.Bar(
+            y=tramos,
+            x=tramos_favor_valores,
+            name='Goles a favor',
+            orientation='h',
+            marker_color='green'
+        ))
+        
+        fig_comparativa.add_trace(go.Bar(
+            y=tramos,
+            x=tramos_contra_valores,
+            name='Goles en contra',
+            orientation='h',
+            marker_color='red'
+        ))
+        
+        fig_comparativa.update_layout(
+            barmode='group',
+            xaxis_title='Número de goles',
+            yaxis_title='Tramo del partido',
+            title='Comparativa de goles a favor y en contra por tramo',
+            height=400,
+            margin=dict(l=20, r=20, t=40, b=20),
+            legend=dict(x=0.75, y=0.95)
+        )
+        
+        st.plotly_chart(fig_comparativa, use_container_width=True)
+
         
 
         st.subheader("📈 Tendencia de minutos jugados (últimas 5 jornadas vs 5 anteriores)")
