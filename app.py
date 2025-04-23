@@ -827,22 +827,22 @@ if df is not None:
             }
             
             for _, row in df_11.iterrows():
-            pos_num = row["posicion_numerico"]
-            nombre = row["nombre_jugador"]
-            dorsal = row["dorsal"]
-            if pos_num not in posiciones:
-                continue
-            x, y = posiciones[pos_num]
-            
-            # Camiseta (círculo)
-            camiseta = Circle((x, y), 4, color='white')
-            ax.add_patch(camiseta)
-            
-            # Dorsal dentro
-            plt.text(x, y, str(dorsal), ha='center', va='center', fontsize=9, fontweight='bold', color='black')
-            
-            # Nombre debajo
-            plt.text(x, y - 6, nombre, ha='center', va='top', fontsize=8, color='white')
+                pos_num = row["posicion_numerico"]
+                nombre = row["nombre_jugador"]
+                dorsal = row["dorsal"]
+                if pos_num not in posiciones:
+                    continue
+                x, y = posiciones[pos_num]
+                
+                # Camiseta (círculo)
+                camiseta = Circle((x, y), 4, color='white')
+                ax.add_patch(camiseta)
+                
+                # Dorsal dentro
+                plt.text(x, y, str(dorsal), ha='center', va='center', fontsize=9, fontweight='bold', color='black')
+                
+                # Nombre debajo
+                plt.text(x, y - 6, nombre, ha='center', va='top', fontsize=8, color='white')
             
             ax.set_xlim(0, 100)
             ax.set_ylim(0, 100)
