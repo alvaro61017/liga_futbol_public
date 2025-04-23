@@ -826,7 +826,7 @@ if df is not None:
                     camiseta = Circle((x, y), 3.5, color=color_camiseta, zorder=2)
                     ax.add_patch(camiseta)
                     
-                    ax.text(x, y, str(dorsal), ha='center', va='center', fontsize=9, fontweight='bold', color='white', zorder=3)
+                    ax.text(x, y, str(dorsal), ha='center', va='center', fontsize=7, fontweight='bold', color='white', zorder=3)
             
                     # Desplazar los nombres para evitar solapamiento
                     ax.text(x, y - 5, nombre, ha='center', va='top', fontsize=6.5, color='white', zorder=3)
