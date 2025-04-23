@@ -736,5 +736,80 @@ if df is not None:
             st.markdown("**Jugadores perdiendo protagonismo**")
             st.dataframe(tendencia.tail(5).sort_values(by="variacion").rename(columns={"variacion": "+/- minutos"}))
 
+
+        # pinto los 11
+        # Sumar minutos por jugador y posición
+        df_min = (
+            df.groupby(["posicion_numerico", "nombre_jugador"], as_index=False)["minutos_jugados"]
+            .sum()
+            .sort_values(["posicion_numerico", "minutos_jugados"], ascending=[True, False])
+            .drop_duplicates("posicion_numerico")
+        )
+
+        # Sumar titularidades por jugador y posición
+        df_tit = (
+            df.groupby(["posicion_numerico", "nombre_jugador"], as_index=False)["titular"]
+            .sum()
+            .sort_values(["posicion_numerico", "titular"], ascending=[True, False])
+            .drop_duplicates("posicion_numerico")
+        )
+
+        # Dorsal más frecuente por jugador
+        dorsales_mas_comunes = (
+            df.groupby(["nombre_jugador", "dorsal"])
+            .size()
+            .reset_index(name="cuenta")
+            .sort_values(["nombre_jugador", "cuenta"], ascending=[True, False])
+            .drop_duplicates("nombre_jugador")
+        )
+        
+        # Cruzar con los 11 ideales
+        df_min_con_dorsal = df_min.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
+        df_tit_con_dorsal = df_tit.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
+
+        def dibujar_campo_con_11(df_11, titulo):
+            fig, ax = plt.subplots(figsize=(10, 7))
+            ax.set_xlim(0, 100)
+            ax.set_ylim(0, 100)
+            ax.set_facecolor("green")
+            ax.axis('off')
+        
+            # Posiciones aproximadas para 1-4-3-3
+            posiciones_campo = {
+                1: (50, 5),
+                2: (20, 25), 3: (35, 25), 4: (65, 25), 5: (80, 25),
+                6: (30, 50), 8: (50, 55), 10: (70, 50),
+                7: (25, 80), 9: (50, 85), 11: (75, 80),
+            }
+        
+            for _, fila in df_11.iterrows():
+                pos = fila["posicion_numerico"]
+                if pos in posiciones_campo:
+                    x, y = posiciones_campo[pos]
+        
+                    # Camiseta (rectángulo)
+                    camiseta = Rectangle((x-4, y-4), 8, 8, linewidth=1, edgecolor='white', facecolor='maroon')
+                    ax.add_patch(camiseta)
+        
+                    # Dorsal dentro de la camiseta
+                    ax.text(x, y, str(fila["dorsal"]), color='white', ha='center', va='center', fontsize=12, fontweight='bold')
+        
+                    # Nombre debajo
+                    ax.text(x, y - 7, fila["nombre_jugador"], color='white', ha='center', va='top', fontsize=8)
+        
+            st.pyplot(fig)
+            st.markdown(f"### {titulo}")
+
+
+
+
+        st.title("11 Ideal - Sistema 1-4-3-3")
+
+        dibujar_campo_con_11(df_min_con_dorsal, "11 con más minutos por posición")
+        dibujar_campo_con_11(df_tit_con_dorsal, "11 con más titularidades por posición")
+
+
+
+
 else:
     st.warning("❌ No se pudieron cargar los datos desde Google Drive.")
