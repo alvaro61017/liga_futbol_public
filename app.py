@@ -790,8 +790,9 @@ if df is not None:
             ax.add_patch(Rectangle((40, 100 - 5.5), 20, 5.5, fill=False, color=color_lineas))
             ax.plot(50, 11, 'wo')
             ax.plot(50, 89, 'wo')
-            ax.add_patch(Arc((50, 11), 18.3, 18.3, 0, 220, 320, color=color_lineas))
-            ax.add_patch(Arc((50, 89), 18.3, 18.3, 0, 40, 140, color=color_lineas))
+            ax.add_patch(Arc((50, 11), width=18.3, height=18.3, angle=0, theta1=220, theta2=320, color=color_lineas))
+            ax.add_patch(Arc((50, 89), width=18.3, height=18.3, angle=0, theta1=40, theta2=140, color=color_lineas))
+
         
             # Posiciones (1-4-3-3)
             posiciones = {
