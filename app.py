@@ -772,36 +772,83 @@ if df is not None:
 
         def dibujar_campo_con_11(df_11, titulo):
             fig, ax = plt.subplots(figsize=(10, 7))
+            
+            # Fondo verde del campo
+            ax.set_facecolor('#006400')  # Verde oscuro
+            
+            # Dibujar líneas del campo (campo horizontal)
+            # Límites
+            plt.plot([0, 100], [0, 0], color='white')
+            plt.plot([0, 100], [100, 100], color='white')
+            plt.plot([0, 0], [0, 100], color='white')
+            plt.plot([100, 100], [0, 100], color='white')
+            
+            # Línea de medio campo
+            plt.plot([50, 50], [0, 100], color='white')
+            
+            # Círculo central
+            centro_circulo = Circle((50, 50), 9.15, color='white', fill=False)
+            ax.add_patch(centro_circulo)
+            
+            # Punto central
+            ax.plot(50, 50, 'wo')
+            
+            # Áreas grandes
+            ax.add_patch(Rectangle((0, 30), 16.5, 40, fill=False, color='white'))
+            ax.add_patch(Rectangle((100 - 16.5, 30), 16.5, 40, fill=False, color='white'))
+            
+            # Áreas pequeñas
+            ax.add_patch(Rectangle((0, 40), 5.5, 20, fill=False, color='white'))
+            ax.add_patch(Rectangle((100 - 5.5, 40), 5.5, 20, fill=False, color='white'))
+            
+            # Punto de penalti
+            ax.plot(11, 50, 'wo')
+            ax.plot(100 - 11, 50, 'wo')
+            
+            # Arcos
+            arco_izq = Arc((11, 50), height=18.3, width=18.3, angle=0, theta1=308, theta2=52, color="white")
+            arco_der = Arc((100 - 11, 50), height=18.3, width=18.3, angle=0, theta1=128, theta2=232, color="white")
+            ax.add_patch(arco_izq)
+            ax.add_patch(arco_der)
+            
+            # Mapa de posiciones (coordenadas aproximadas para 1-4-3-3)
+            posiciones = {
+            1: (10, 50),    # Portero
+            2: (30, 20),    # LD
+            3: (30, 80),    # LI
+            4: (30, 35),    # DCD
+            5: (30, 65),    # DCI
+            6: (55, 50),    # MCD
+            8: (60, 30),    # INT derecho
+            10: (60, 70),   # INT izquierdo
+            7: (80, 20),    # ED
+            9: (85, 50),    # DC
+            11: (80, 80),   # EI
+            }
+            
+            for _, row in df_11.iterrows():
+            pos_num = row["posicion_numerico"]
+            nombre = row["nombre_jugador"]
+            dorsal = row["dorsal"]
+            if pos_num not in posiciones:
+                continue
+            x, y = posiciones[pos_num]
+            
+            # Camiseta (círculo)
+            camiseta = Circle((x, y), 4, color='white')
+            ax.add_patch(camiseta)
+            
+            # Dorsal dentro
+            plt.text(x, y, str(dorsal), ha='center', va='center', fontsize=9, fontweight='bold', color='black')
+            
+            # Nombre debajo
+            plt.text(x, y - 6, nombre, ha='center', va='top', fontsize=8, color='white')
+            
             ax.set_xlim(0, 100)
             ax.set_ylim(0, 100)
-            ax.set_facecolor("green")
-            ax.axis('off')
-        
-            # Posiciones aproximadas para 1-4-3-3
-            posiciones_campo = {
-                1: (50, 5),
-                2: (20, 25), 3: (35, 25), 4: (65, 25), 5: (80, 25),
-                6: (30, 50), 8: (50, 55), 10: (70, 50),
-                7: (25, 80), 9: (50, 85), 11: (75, 80),
-            }
-        
-            for _, fila in df_11.iterrows():
-                pos = fila["posicion_numerico"]
-                if pos in posiciones_campo:
-                    x, y = posiciones_campo[pos]
-        
-                    # Camiseta (rectángulo)
-                    camiseta = Rectangle((x-4, y-4), 8, 8, linewidth=1, edgecolor='white', facecolor='maroon')
-                    ax.add_patch(camiseta)
-        
-                    # Dorsal dentro de la camiseta
-                    ax.text(x, y, str(fila["dorsal"]), color='white', ha='center', va='center', fontsize=12, fontweight='bold')
-        
-                    # Nombre debajo
-                    ax.text(x, y - 7, fila["nombre_jugador"], color='white', ha='center', va='top', fontsize=8)
-        
+            ax.axis("off")
+            plt.title(titulo, fontsize=14, fontweight="bold", color='white')
             st.pyplot(fig)
-            st.markdown(f"### {titulo}")
 
 
 
