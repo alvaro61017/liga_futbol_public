@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 import streamlit as st
 import random
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Circle, Rectangle, Arc
 
 st.set_page_config(page_title="Temporada 24/25", layout="wide")
 st.title("⚽ Grupo 7 Segunda Regional")
