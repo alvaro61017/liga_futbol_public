@@ -770,58 +770,42 @@ if df is not None:
         df_min_con_dorsal = df_min.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
         df_tit_con_dorsal = df_tit.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
 
-        def dibujar_campo_con_11(df_11, titulo):
-            fig, ax = plt.subplots(figsize=(6, 9), facecolor='#006400')  # fondo verde
+        def dibujar_campo_con_11(df_11, titulo, sistema_tactico="1-4-3-3"):
+            fig, ax = plt.subplots(figsize=(6, 9), facecolor='#006400')  # fondo verde oscuro
         
-            # Dibujar líneas del campo (vertical)
-            ax.set_facecolor('#006400')  # fondo verde
+            ax.set_facecolor('#006400')
             color_lineas = 'white'
         
-            # Límites
+            # Líneas y áreas
             ax.plot([0, 100], [0, 0], color=color_lineas)
             ax.plot([0, 100], [100, 100], color=color_lineas)
             ax.plot([0, 0], [0, 100], color=color_lineas)
             ax.plot([100, 100], [0, 100], color=color_lineas)
-        
-            # Línea de medio campo
             ax.plot([0, 100], [50, 50], color=color_lineas)
-        
-            # Círculo central y punto
-            centro_circulo = Circle((50, 50), 9.15, color=color_lineas, fill=False, linewidth=1.5)
-            ax.add_patch(centro_circulo)
+            ax.add_patch(Circle((50, 50), 9.15, color=color_lineas, fill=False, linewidth=1.5))
             ax.plot(50, 50, 'wo')
-        
-            # Áreas grandes
             ax.add_patch(Rectangle((30, 0), 40, 16.5, fill=False, color=color_lineas, linewidth=1.5))
             ax.add_patch(Rectangle((30, 100 - 16.5), 40, 16.5, fill=False, color=color_lineas, linewidth=1.5))
-        
-            # Áreas pequeñas
             ax.add_patch(Rectangle((40, 0), 20, 5.5, fill=False, color=color_lineas))
             ax.add_patch(Rectangle((40, 100 - 5.5), 20, 5.5, fill=False, color=color_lineas))
-        
-            # Puntos de penalti
             ax.plot(50, 11, 'wo')
-            ax.plot(50, 100 - 11, 'wo')
+            ax.plot(50, 89, 'wo')
+            ax.add_patch(Arc((50, 11), 18.3, 18.3, 0, 220, 320, color=color_lineas))
+            ax.add_patch(Arc((50, 89), 18.3, 18.3, 0, 40, 140, color=color_lineas))
         
-            # Arcos del área
-            arco_inf = Arc((50, 11), height=18.3, width=18.3, angle=0, theta1=220, theta2=320, color=color_lineas)
-            arco_sup = Arc((50, 100 - 11), height=18.3, width=18.3, angle=0, theta1=40, theta2=140, color=color_lineas)
-            ax.add_patch(arco_inf)
-            ax.add_patch(arco_sup)
-        
-            # Posiciones verticales 1-4-3-3 (x, y)
+            # Posiciones (1-4-3-3)
             posiciones = {
-                1: (50, 10),    # Portero
-                2: (25, 25),    # LD
-                3: (75, 25),    # LI
-                4: (40, 25),    # DCD
-                5: (60, 25),    # DCI
-                6: (50, 45),    # MCD
-                8: (35, 55),    # INT derecho
-                10: (65, 55),   # INT izquierdo
-                7: (25, 75),    # ED
-                9: (50, 80),    # DC
-                11: (75, 75),   # EI
+                1: (50, 10),
+                2: (25, 25),
+                3: (75, 25),
+                4: (40, 25),
+                5: (60, 25),
+                6: (50, 45),
+                8: (35, 55),
+                10: (65, 55),
+                7: (25, 75),
+                9: (50, 80),
+                11: (75, 75),
             }
         
             for _, row in df_11.iterrows():
@@ -832,26 +816,29 @@ if df is not None:
                     continue
                 x, y = posiciones[pos_num]
         
-                # Camiseta granate
-                camiseta = Circle((x, y), 4, color='#800000')
+                color_camiseta = "#800000"  # granate
+                if pos_num == 1:
+                    color_camiseta = "black"  # portero
+        
+                camiseta = Circle((x, y), 3.5, color=color_camiseta, zorder=2)
                 ax.add_patch(camiseta)
         
-                # Dorsal en blanco dentro
-                ax.text(x, y, str(dorsal), ha='center', va='center', fontsize=10, fontweight='bold', color='white')
+                ax.text(x, y, str(dorsal), ha='center', va='center', fontsize=9, fontweight='bold', color='white', zorder=3)
+                ax.text(x, y - 5, nombre, ha='center', va='top', fontsize=6.5, color='white', zorder=3)
         
-                # Nombre debajo en blanco
-                ax.text(x, y - 5.5, nombre, ha='center', va='top', fontsize=7, color='white')
+            # Mostrar sistema táctico en la esquina inferior derecha
+            ax.text(95, 5, sistema_tactico, fontsize=8, color='white', ha='right', va='bottom', fontweight='bold')
         
             ax.set_xlim(0, 100)
             ax.set_ylim(0, 100)
             ax.axis("off")
-            plt.title(titulo, fontsize=14, fontweight="bold", color='white')
+            plt.title(titulo, fontsize=13, fontweight="bold", color='white', pad=15)
             st.pyplot(fig)
 
 
 
 
-        st.title("11 Ideal - Sistema 1-4-3-3")
+        st.title("11 Ideal")
 
         dibujar_campo_con_11(df_min_con_dorsal, "11 con más minutos por posición")
         dibujar_campo_con_11(df_tit_con_dorsal, "11 con más titularidades por posición")
