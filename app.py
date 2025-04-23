@@ -772,10 +772,10 @@ if df is not None:
 
         def dibujar_campo_con_11(df_11, titulo, sistema_tactico="1-4-3-3"):
             fig, ax = plt.subplots(figsize=(6, 9), facecolor='#006400')  # fondo verde oscuro
-        
+            
             ax.set_facecolor('#006400')
             color_lineas = 'white'
-        
+            
             # Líneas y áreas
             ax.plot([0, 100], [0, 0], color=color_lineas)
             ax.plot([0, 100], [100, 100], color=color_lineas)
@@ -792,7 +792,6 @@ if df is not None:
             ax.plot(50, 89, 'wo')
             ax.add_patch(Arc((50, 11), width=18.3, height=18.3, angle=0, theta1=220, theta2=320, color=color_lineas))
             ax.add_patch(Arc((50, 89), width=18.3, height=18.3, angle=0, theta1=40, theta2=140, color=color_lineas))
-
         
             # Posiciones (1-4-3-3)
             posiciones = {
@@ -808,7 +807,7 @@ if df is not None:
                 9: (50, 80),
                 11: (75, 75),
             }
-        
+            
             for _, row in df_11.iterrows():
                 pos_num = row["posicion_numerico"]
                 nombre = row["nombre_jugador"]
@@ -816,20 +815,22 @@ if df is not None:
                 if pos_num not in posiciones:
                     continue
                 x, y = posiciones[pos_num]
-        
+                
                 color_camiseta = "#800000"  # granate
                 if pos_num == 1:
                     color_camiseta = "black"  # portero
-        
+                
                 camiseta = Circle((x, y), 3.5, color=color_camiseta, zorder=2)
                 ax.add_patch(camiseta)
-        
+                
                 ax.text(x, y, str(dorsal), ha='center', va='center', fontsize=9, fontweight='bold', color='white', zorder=3)
+        
+                # Desplazar los nombres para evitar solapamiento
                 ax.text(x, y - 5, nombre, ha='center', va='top', fontsize=6.5, color='white', zorder=3)
         
             # Mostrar sistema táctico en la esquina inferior derecha
             ax.text(95, 5, sistema_tactico, fontsize=8, color='white', ha='right', va='bottom', fontweight='bold')
-        
+            
             ax.set_xlim(0, 100)
             ax.set_ylim(0, 100)
             ax.axis("off")
