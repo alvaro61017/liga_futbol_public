@@ -771,61 +771,59 @@ if df is not None:
         df_tit_con_dorsal = df_tit.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
 
         def dibujar_campo_con_11(df_11, titulo):
-            fig, ax = plt.subplots(figsize=(10, 7))
-            
-            # Fondo verde del campo
-            ax.set_facecolor('#006400')  # Verde oscuro
-            
-            # Dibujar líneas del campo (campo horizontal)
+            fig, ax = plt.subplots(figsize=(6, 9), facecolor='#006400')  # fondo verde
+        
+            # Dibujar líneas del campo (vertical)
+            ax.set_facecolor('#006400')  # fondo verde
+            color_lineas = 'white'
+        
             # Límites
-            plt.plot([0, 100], [0, 0], color='white')
-            plt.plot([0, 100], [100, 100], color='white')
-            plt.plot([0, 0], [0, 100], color='white')
-            plt.plot([100, 100], [0, 100], color='white')
-            
+            ax.plot([0, 100], [0, 0], color=color_lineas)
+            ax.plot([0, 100], [100, 100], color=color_lineas)
+            ax.plot([0, 0], [0, 100], color=color_lineas)
+            ax.plot([100, 100], [0, 100], color=color_lineas)
+        
             # Línea de medio campo
-            plt.plot([50, 50], [0, 100], color='white')
-            
-            # Círculo central
-            centro_circulo = Circle((50, 50), 9.15, color='white', fill=False)
+            ax.plot([0, 100], [50, 50], color=color_lineas)
+        
+            # Círculo central y punto
+            centro_circulo = Circle((50, 50), 9.15, color=color_lineas, fill=False, linewidth=1.5)
             ax.add_patch(centro_circulo)
-            
-            # Punto central
             ax.plot(50, 50, 'wo')
-            
+        
             # Áreas grandes
-            ax.add_patch(Rectangle((0, 30), 16.5, 40, fill=False, color='white'))
-            ax.add_patch(Rectangle((100 - 16.5, 30), 16.5, 40, fill=False, color='white'))
-            
+            ax.add_patch(Rectangle((30, 0), 40, 16.5, fill=False, color=color_lineas, linewidth=1.5))
+            ax.add_patch(Rectangle((30, 100 - 16.5), 40, 16.5, fill=False, color=color_lineas, linewidth=1.5))
+        
             # Áreas pequeñas
-            ax.add_patch(Rectangle((0, 40), 5.5, 20, fill=False, color='white'))
-            ax.add_patch(Rectangle((100 - 5.5, 40), 5.5, 20, fill=False, color='white'))
-            
-            # Punto de penalti
-            ax.plot(11, 50, 'wo')
-            ax.plot(100 - 11, 50, 'wo')
-            
-            # Arcos
-            arco_izq = Arc((11, 50), height=18.3, width=18.3, angle=0, theta1=308, theta2=52, color="white")
-            arco_der = Arc((100 - 11, 50), height=18.3, width=18.3, angle=0, theta1=128, theta2=232, color="white")
-            ax.add_patch(arco_izq)
-            ax.add_patch(arco_der)
-            
-            # Mapa de posiciones (coordenadas aproximadas para 1-4-3-3)
+            ax.add_patch(Rectangle((40, 0), 20, 5.5, fill=False, color=color_lineas))
+            ax.add_patch(Rectangle((40, 100 - 5.5), 20, 5.5, fill=False, color=color_lineas))
+        
+            # Puntos de penalti
+            ax.plot(50, 11, 'wo')
+            ax.plot(50, 100 - 11, 'wo')
+        
+            # Arcos del área
+            arco_inf = Arc((50, 11), height=18.3, width=18.3, angle=0, theta1=220, theta2=320, color=color_lineas)
+            arco_sup = Arc((50, 100 - 11), height=18.3, width=18.3, angle=0, theta1=40, theta2=140, color=color_lineas)
+            ax.add_patch(arco_inf)
+            ax.add_patch(arco_sup)
+        
+            # Posiciones verticales 1-4-3-3 (x, y)
             posiciones = {
-            1: (10, 50),    # Portero
-            2: (30, 20),    # LD
-            3: (30, 80),    # LI
-            4: (30, 35),    # DCD
-            5: (30, 65),    # DCI
-            6: (55, 50),    # MCD
-            8: (60, 30),    # INT derecho
-            10: (60, 70),   # INT izquierdo
-            7: (80, 20),    # ED
-            9: (85, 50),    # DC
-            11: (80, 80),   # EI
+                1: (50, 10),    # Portero
+                2: (25, 25),    # LD
+                3: (75, 25),    # LI
+                4: (40, 25),    # DCD
+                5: (60, 25),    # DCI
+                6: (50, 45),    # MCD
+                8: (35, 55),    # INT derecho
+                10: (65, 55),   # INT izquierdo
+                7: (25, 75),    # ED
+                9: (50, 80),    # DC
+                11: (75, 75),   # EI
             }
-            
+        
             for _, row in df_11.iterrows():
                 pos_num = row["posicion_numerico"]
                 nombre = row["nombre_jugador"]
@@ -833,17 +831,17 @@ if df is not None:
                 if pos_num not in posiciones:
                     continue
                 x, y = posiciones[pos_num]
-                
-                # Camiseta (círculo)
-                camiseta = Circle((x, y), 4, color='white')
+        
+                # Camiseta granate
+                camiseta = Circle((x, y), 4, color='#800000')
                 ax.add_patch(camiseta)
-                
-                # Dorsal dentro
-                plt.text(x, y, str(dorsal), ha='center', va='center', fontsize=9, fontweight='bold', color='black')
-                
-                # Nombre debajo
-                plt.text(x, y - 6, nombre, ha='center', va='top', fontsize=8, color='white')
-            
+        
+                # Dorsal en blanco dentro
+                ax.text(x, y, str(dorsal), ha='center', va='center', fontsize=10, fontweight='bold', color='white')
+        
+                # Nombre debajo en blanco
+                ax.text(x, y - 5.5, nombre, ha='center', va='top', fontsize=7, color='white')
+        
             ax.set_xlim(0, 100)
             ax.set_ylim(0, 100)
             ax.axis("off")
