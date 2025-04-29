@@ -20,7 +20,7 @@ def cargar_datos_desde_drive():
     # file_id = "164ZFaOh3u-V6eAGPDTEvSvgP2Kb2FJKL" # fichero original, jornada_25
     # file_id = "1U0Xzxi6XMHLofyef6SFfNFW1z23B3ycK" # fichero jornada 30, añadiendo local visitante y doble amarilla
     # file_id = "157Qrw0rrlgM1I4Mk2k_SCZ28Vgxg2Q4N" # fichero jornada 30, añadiendo posiciones
-    file_id = "18jbYDOiHzWn_uvhDw8XmxQHlktofGEVV" # fichero jornada 26, añadiendo posiciones
+    file_id = "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3" # fichero jornada 26, añadiendo posiciones
     url = f"https://drive.google.com/uc?id={file_id}"
     response = requests.get(url)
     if response.status_code != 200:
