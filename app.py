@@ -17,7 +17,7 @@ st.set_page_config(page_title="City", layout="wide")
 
 CATEGORIAS = {
     "Senior city": "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3",
-    "Juvenil city": "",
+    "Juvenil city": "17NhYQ1obx0sNC3sfDEYA7D0M9rnE8hxW",
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
