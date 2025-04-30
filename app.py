@@ -38,44 +38,48 @@ CATEGORIAS = {
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# ————— 2) Splash inicial: si no hay categoría elegida —————
-if "categoria" not in st.session_state:
+# ————— 1) Splash inicial —————
+if not st.session_state.get("initialized", False):
+    # Solo categorías con datos
     disponibles = [e for e,fid in CATEGORIAS.items() if fid.strip()]
     opciones    = ["Elige un equipo…"] + disponibles
 
+    # Select escribe en session_state["categoria_init"]
     st.selectbox(
         "📢 ¿Qué equipo quieres cargar?",
         opciones,
         key="categoria_init"
     )
 
-    # Al elegir distinto del placeholder, trasladamos el valor y forzamos rerun
+    # Si ya no es placeholder, marcamos inicializado y fijamos la categoría final
     if st.session_state["categoria_init"] != opciones[0]:
-        st.session_state["categoria"] = st.session_state["categoria_init"]
-        st.experimental_rerun()
+        st.session_state["categoria_final"]   = st.session_state["categoria_init"]
+        st.session_state["initialized"]       = True
 
+    # Hasta escoger un equipo válido, no renderizamos el resto
     st.stop()
 
-# ————— 3) Layout principal —————
-# at this point st.session_state["categoria"] is set
+# ————— 2) Layout principal —————
+# Ahora session_state["initialized"] == True y tenemos categoria_final
 
-# Sidebar: título y select de equipo (clave única)
 st.sidebar.title("🛠 Configuración")
+
+# Permitimos cambiar el equipo en el sidebar: escribe en categoria_final
 categoria = st.sidebar.selectbox(
     "Equipo seleccionado",
     list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(st.session_state["categoria"]),
-    key="categoria"
+    index=list(CATEGORIAS.keys()).index(st.session_state["categoria_final"]),
+    key="categoria_final"
 )
 
-# Vista: General vs Detalle Equipos
+# Vista
 vista = st.sidebar.radio(
     "Vista",
     ("🏆 General", "📋 Detalle Equipos"),
     key="vista"
 )
 
-# ————— 4) Carga de datos —————
+# ————— 3) Carga de datos y renderizado —————
 file_id = CATEGORIAS.get(categoria, "")
 if not file_id:
     st.warning(f"⚠️ No hay datos para **{categoria}**.")
