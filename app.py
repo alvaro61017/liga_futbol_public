@@ -23,8 +23,8 @@ CATEGORIAS = {
 
 # 2) Pantalla inicial: solo selector
 if "categoria" not in st.session_state:
-    opciones = ["📢 Elige un equipo"] + list(CATEGORIAS.keys())
-    seleccion = st.selectbox("¿Qué equipo quieres cargar?", opciones)
+    opciones = ["Elige un equipo"] + list(CATEGORIAS.keys())
+    seleccion = st.selectbox("📢  ¿Qué equipo quieres cargar?", opciones)
 
     # Cuando elige algo que no sea el placeholder, guardamos y rerunneamos
     if seleccion != opciones[0]:
