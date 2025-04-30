@@ -21,30 +21,28 @@ CATEGORIAS = {
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# 1) Filtramos sólo los equipos que tienen file_id definido
-equipos_disponibles = [e for e, fid in CATEGORIAS.items() if fid.strip()]
-    
-# 2) Pantalla inicial “limpia”
-opciones = ["Elige un equipo…"] + equipos_disponibles
-seleccion = st.selectbox("📢 ¿Qué equipo quieres cargar?", opciones)
+# ————— 1) BLOQUE INICIAL (solo si aún no hemos guardado la categoría) —————
+if "categoria" not in st.session_state:
+    # filtra solo los que tengan file_id
+    equipos_disponibles = [e for e, fid in CATEGORIAS.items() if fid.strip()]
+    opciones = ["Elige un equipo…"] + equipos_disponibles
 
-# 3) Si no ha escogido, detenemos aquí
-if seleccion == opciones[0]:
+    seleccion = st.selectbox("📢 ¿Qué equipo quieres cargar?", opciones)
+    if seleccion != opciones[0]:
+        # guardamos la selección y detenemos aquí
+        st.session_state["categoria"] = seleccion
     st.stop()
 
-# 4) Ya tenemos selección válida
-st.session_state["categoria_inicial"] = seleccion
+# ————— 2) BLOQUE PRINCIPAL (ya con st.session_state["categoria"] definido) —————
+st.sidebar.title("🛠 Equipos")
 
-# 5) Sidebar para cambiar equipo o elegir vista
-# st.sidebar.title("🛠 Equipos")
-
-# Permitimos cambiar la categoría en el sidebar, pero mostramos todas
-# (si quieres también aquí filtrar podrías usar 'equipos_disponibles' en vez de `list(CATEGORIAS.keys())`)
+# En el sidebar permitimos cambiar de equipo
 categoria = st.sidebar.selectbox(
     "Equipo seleccionado",
     list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(st.session_state["categoria_inicial"])
+    index=list(CATEGORIAS.keys()).index(st.session_state["categoria"])
 )
+st.session_state["categoria"] = categoria
 
 file_id = CATEGORIAS[categoria]
 if not file_id:
