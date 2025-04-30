@@ -52,6 +52,12 @@ categoria = st.sidebar.selectbox(
     index=list(CATEGORIAS.keys()).index(st.session_state["categoria"]),
     key="categoria"
 )
+# Vista: General vs Equipos
+vista = st.sidebar.radio(
+    "Vista",
+    ("🏆 General", "📋 Detalle Equipos"),
+    key="vista"
+)
 
 # ————— 3) Carga de datos y renderizado —————
 file_id = CATEGORIAS[categoria]
@@ -127,7 +133,7 @@ def calcular_estadisticas_equipo(df, equipo):
     
 
 if df is not None:
-    menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Equipos detalle"))
+    # menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Detalle Equipos"))
 
     if menu == "🏆 General":
 
@@ -529,7 +535,7 @@ if df is not None:
     
 
 
-    elif menu == "📋 Equipos detalle":
+    elif menu == "📋 Detalle Equipos":
         st.header("📋 Estadísticas por equipo")
         equipos = sorted(df["equipo"].unique())
         if categoria == "Senior city":
