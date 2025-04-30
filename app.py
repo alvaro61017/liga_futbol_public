@@ -21,26 +21,35 @@ CATEGORIAS = {
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# ————— Pantalla inicial “limpia” —————
-opciones = ["Elige un equipo"] + list(CATEGORIAS.keys())
-seleccion = st.selectbox("📢  ¿Qué equipo quieres cargar?", opciones)
+# 1) Filtramos sólo los equipos que tienen file_id definido
+equipos_disponibles = [e for e, fid in CATEGORIAS.items() if fid.strip()]
+    
+# 2) Pantalla inicial “limpia”
+opciones = ["Elige un equipo…"] + equipos_disponibles
+seleccion = st.selectbox("📢 ¿Qué equipo quieres cargar?", opciones)
 
-# Si sigue en el placeholder, detenemos aquí
+# 3) Si no ha escogido, detenemos aquí
 if seleccion == opciones[0]:
     st.stop()
 
-# Ya tenemos categoría válida
-categoria = seleccion
+# 4) Ya tenemos selección válida
+st.session_state["categoria_inicial"] = seleccion
 
-# ————— Sidebar con opción de cambiar categoría y elegir vista —————
-st.sidebar.title("🛠 Equipos")
+# 5) Sidebar para cambiar equipo o elegir vista
+# st.sidebar.title("🛠 Equipos")
 
-# Permitimos cambiar la categoría en el sidebar
+# Permitimos cambiar la categoría en el sidebar, pero mostramos todas
+# (si quieres también aquí filtrar podrías usar 'equipos_disponibles' en vez de `list(CATEGORIAS.keys())`)
 categoria = st.sidebar.selectbox(
-    "Categoría",
+    "Equipo seleccionado",
     list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(categoria)
+    index=list(CATEGORIAS.keys()).index(st.session_state["categoria_inicial"])
 )
+
+file_id = CATEGORIAS[categoria]
+if not file_id:
+    st.warning(f"⚠️ No hay datos disponibles para **{categoria}**.")
+    st.stop()
 
 
 @st.cache_data
@@ -61,7 +70,6 @@ def cargar_datos_desde_drive(file_id):
     return df
 
 
-file_id = CATEGORIAS[categoria]
 
 df = cargar_datos_desde_drive(file_id)
 if df is None:
@@ -111,7 +119,7 @@ def calcular_estadisticas_equipo(df, equipo):
     
 
 if df is not None:
-    menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Equipos"))
+    menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Equipos detalle"))
 
     if menu == "🏆 General":
 
@@ -513,7 +521,7 @@ if df is not None:
     
 
 
-    elif menu == "📋 Equipos":
+    elif menu == "📋 Equipos detalle":
         st.header("📋 Estadísticas por equipo")
         equipos = sorted(df["equipo"].unique())
         if categoria == "Senior city":
