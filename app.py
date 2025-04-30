@@ -392,7 +392,19 @@ if df is not None:
         asignados = list(colores_personalizados.values())
         for equipo in equipos_unicos:
             if equipo not in colores_personalizados:
-                nuevo_color = random.choice([c for c in colores_extra if c not in asignados])
+                # nuevo_color = random.choice([c for c in colores_extra if c not in asignados])
+                disponibles = [c for c in colores_extra if c not in asignados]
+                if disponibles:
+                    # si quedan, elige uno al azar
+                    nuevo_color = random.choice(disponibles)
+                else:
+                    # si no quedan, genera un hex aleatorio que no colisione
+                    while True:
+                        candidato = "#{:06x}".format(random.randint(0, 0xFFFFFF))
+                        if candidato not in asignados:
+                            nuevo_color = candidato
+                            break
+                
                 colores_personalizados[equipo] = nuevo_color
                 asignados.append(nuevo_color)
         
