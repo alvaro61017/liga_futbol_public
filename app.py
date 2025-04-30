@@ -21,32 +21,39 @@ CATEGORIAS = {
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# 1) Bloque inicial: solo se muestra si no hay 'categoria_init'
-if "categoria_init" not in st.session_state:
-    equipos_disponibles = [e for e, fid in CATEGORIAS.items() if fid]
-    opciones = ["Elige un equipo…"] + equipos_disponibles
+# ————— 1) Bloque inicial: sólo aparece si no hay 'categoria' en sesión —————
+if "categoria" not in st.session_state:
+    # Sólo mostramos las categorías con file_id definido
+    disponibles = [e for e, fid in CATEGORIAS.items() if fid.strip()]
+    opciones = ["Elige un equipo…"] + disponibles
 
+    # Este selectbox escribe en session_state["categoria_init"]
     st.selectbox(
-        "📢 ¿Qué equipo quieres cargar?", 
-        opciones, 
+        "📢 ¿Qué equipo quieres cargar?",
+        opciones,
         key="categoria_init"
     )
-    # Si sigue en el placeholder, detenemos
-    if st.session_state["categoria_init"] == opciones[0]:
-        st.stop()
 
-# 2) Dentro de la app: sidebar
+    # Al elegir algo distinto del placeholder, lo movemos a session_state["categoria"] y forzamos rerun
+    if st.session_state["categoria_init"] != opciones[0]:
+        st.session_state["categoria"] = st.session_state["categoria_init"]
+        st.experimental_rerun()
+
+    # Hasta que no elija algo válido, detenemos la ejecución
+    st.stop()
+
+# ————— 2) Layout principal (ya con session_state["categoria"]) —————
 st.sidebar.title("🛠 Equipos")
 
-# Sidebar usa la otra clave
+# Sidebar: selector que escribe directamente en session_state["categoria"]
 categoria = st.sidebar.selectbox(
     "Equipo seleccionado",
     list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(st.session_state["categoria_init"]),
+    index=list(CATEGORIAS.keys()).index(st.session_state["categoria"]),
     key="categoria"
 )
 
-# 3) Carga de datos
+# ————— 3) Carga de datos y renderizado —————
 file_id = CATEGORIAS[categoria]
 if not file_id:
     st.warning(f"⚠️ No hay datos para **{categoria}**.")
