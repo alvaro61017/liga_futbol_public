@@ -31,7 +31,7 @@ categoria_sel = st.sidebar.selectbox(
 file_id_sel = CATEGORIAS[categoria_sel]
 
 # st.title("⚽ Grupo 7 Segunda Regional")
-st.title("⚽ {categoria_sel}")
+st.title(f"⚽ {categoria_sel}")
 
 
 @st.cache_data
@@ -98,7 +98,7 @@ if df is not None:
 
     if menu == "🏆 General":
 
-        st.header("🏆 Clasificación – {categoria_sel}")
+        st.header("🏆 Clasificación")
 
         # Obtener goles por equipo y partido
         goles = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
