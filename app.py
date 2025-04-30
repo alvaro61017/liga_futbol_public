@@ -21,31 +21,32 @@ CATEGORIAS = {
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# ————— 1) BLOQUE INICIAL —————
-# Creamos la lista con placeholder + equipos válidos
-equipos_disponibles = [e for e, fid in CATEGORIAS.items() if fid]
-opciones = ["Elige un equipo…"] + equipos_disponibles
+# 1) Bloque inicial: solo se muestra si no hay 'categoria_init'
+if "categoria_init" not in st.session_state:
+    equipos_disponibles = [e for e, fid in CATEGORIAS.items() if fid]
+    opciones = ["Elige un equipo…"] + equipos_disponibles
 
-# El selectbox escribe directamente a st.session_state["categoria"]
-st.selectbox("📢 ¿Qué equipo quieres cargar?", opciones, key="categoria")
+    st.selectbox(
+        "📢 ¿Qué equipo quieres cargar?", 
+        opciones, 
+        key="categoria_init"
+    )
+    # Si sigue en el placeholder, detenemos
+    if st.session_state["categoria_init"] == opciones[0]:
+        st.stop()
 
-# Si aún es el placeholder, detenemos aquí
-if st.session_state["categoria"] == opciones[0]:
-    st.stop()
+# 2) Dentro de la app: sidebar
+st.sidebar.title("🛠 Equipos")
 
-# ————— 2) BLOQUE PRINCIPAL —————
-# Ya tenemos st.session_state["categoria"] != placeholder
-categoria = st.session_state["categoria"]
-
-# Sidebar
-# st.sidebar.title("🛠 Equipos")
+# Sidebar usa la otra clave
 categoria = st.sidebar.selectbox(
     "Equipo seleccionado",
     list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(categoria),
+    index=list(CATEGORIAS.keys()).index(st.session_state["categoria_init"]),
     key="categoria"
 )
 
+# 3) Carga de datos
 file_id = CATEGORIAS[categoria]
 if not file_id:
     st.warning(f"⚠️ No hay datos para **{categoria}**.")
