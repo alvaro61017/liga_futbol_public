@@ -38,54 +38,54 @@ CATEGORIAS = {
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# ————— 1) Splash inicial —————
-# Filtramos solo las categorías con datos
-disponibles = [e for e, fid in CATEGORIAS.items() if fid.strip()]
-opciones = ["Elige un equipo…"] + disponibles
+# ————— 2) Splash inicial: si no hay categoría elegida —————
+if "categoria" not in st.session_state:
+    disponibles = [e for e,fid in CATEGORIAS.items() if fid.strip()]
+    opciones    = ["Elige un equipo…"] + disponibles
 
-# Este selectbox escribe directamente en session_state["categoria"]
-st.selectbox(
-    "📢 ¿Qué equipo quieres cargar?",
-    opciones,
-    key="categoria"
-)
+    st.selectbox(
+        "📢 ¿Qué equipo quieres cargar?",
+        opciones,
+        key="categoria_init"
+    )
 
-# Mientras siga en el placeholder, detenemos la app aquí
-if st.session_state["categoria"] == opciones[0]:
+    # Al elegir distinto del placeholder, trasladamos el valor y forzamos rerun
+    if st.session_state["categoria_init"] != opciones[0]:
+        st.session_state["categoria"] = st.session_state["categoria_init"]
+        st.experimental_rerun()
+
     st.stop()
 
-# ————— 2) Layout principal —————
-# Ya tenemos st.session_state["categoria"] != placeholder
-categoria = st.session_state["categoria"]
+# ————— 3) Layout principal —————
+# at this point st.session_state["categoria"] is set
 
-# Sidebar
-st.sidebar.title("🛠 Equipos")
-# Permite cambiar de categoría aquí y actualiza la misma key
-st.sidebar.selectbox(
+# Sidebar: título y select de equipo (clave única)
+st.sidebar.title("🛠 Configuración")
+categoria = st.sidebar.selectbox(
     "Equipo seleccionado",
     list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(categoria),
+    index=list(CATEGORIAS.keys()).index(st.session_state["categoria"]),
     key="categoria"
 )
 
-# Vista
+# Vista: General vs Detalle Equipos
 vista = st.sidebar.radio(
     "Vista",
     ("🏆 General", "📋 Detalle Equipos"),
     key="vista"
 )
 
-# ————— 3) Carga de datos y renderizado —————
-file_id = CATEGORIAS[categoria]
+# ————— 4) Carga de datos —————
+file_id = CATEGORIAS.get(categoria, "")
 if not file_id:
     st.warning(f"⚠️ No hay datos para **{categoria}**.")
     st.stop()
 
-
-
 df = cargar_datos_desde_drive(file_id)
 if df is None:
     st.stop()
+
+
 
 # st.title("⚽ Grupo 7 Segunda Regional")
 st.title(f"⚽ {categoria}")
