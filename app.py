@@ -13,14 +13,33 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle, Arc
 
 st.set_page_config(page_title="Temporada 24/25", layout="wide")
-st.title("⚽ Grupo 7 Segunda Regional")
+
+
+CATEGORIAS = {
+    "senior": "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3",
+    "juvenil": "",
+    "chicas garci": ""
+}
+
+st.sidebar.title("Elige equipo:")
+
+# 2) Selector de categoría
+categoria_sel = st.sidebar.selectbox(
+    "Selecciona una categoría:",
+    list(CATEGORIAS.keys())
+)
+file_id_sel = CATEGORIAS[categoria_sel]
+
+# st.title("⚽ Grupo 7 Segunda Regional")
+st.title("⚽ {categoria_sel}")
+
 
 @st.cache_data
-def cargar_datos_desde_drive():
+def cargar_datos_desde_drive(file_id):
     # file_id = "164ZFaOh3u-V6eAGPDTEvSvgP2Kb2FJKL" # fichero original, jornada_25
     # file_id = "1U0Xzxi6XMHLofyef6SFfNFW1z23B3ycK" # fichero jornada 30, añadiendo local visitante y doble amarilla
     # file_id = "157Qrw0rrlgM1I4Mk2k_SCZ28Vgxg2Q4N" # fichero jornada 30, añadiendo posiciones
-    file_id = "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3" # fichero jornada 26, añadiendo posiciones
+    # file_id = "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3" # fichero jornada 26, añadiendo posiciones
     url = f"https://drive.google.com/uc?id={file_id}"
     response = requests.get(url)
     if response.status_code != 200:
@@ -32,7 +51,7 @@ def cargar_datos_desde_drive():
     df["minutos_goles_propia"] = df["minutos_goles_propia"].apply(ast.literal_eval)
     return df
 
-df = cargar_datos_desde_drive()
+df = cargar_datos_desde_drive(file_id_sel)
 
 def calcular_estadisticas_equipo(df, equipo):
      df_equipo = df[df["equipo"] == equipo]
@@ -79,7 +98,7 @@ if df is not None:
 
     if menu == "🏆 General":
 
-        st.header("🏆 Clasificación")
+        st.header("🏆 Clasificación – {categoria_sel}")
 
         # Obtener goles por equipo y partido
         goles = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
