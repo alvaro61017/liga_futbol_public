@@ -23,25 +23,24 @@ CATEGORIAS = {
 
 # 2) Pantalla inicial: solo selector
 if "categoria" not in st.session_state:
-    st.title("📂 Elige un equipo")
-    cat = st.selectbox("¿Qué equipo quieres cargar?", list(CATEGORIAS.keys()))
-    if st.button("Cargar equipo"):
-        st.session_state["categoria"] = cat
+    opciones = ["📢 Elige un equipo"] + list(CATEGORIAS.keys())
+    seleccion = st.selectbox("¿Qué equipo quieres cargar?", opciones)
+
+    # Cuando elige algo que no sea el placeholder, guardamos y rerunneamos
+    if seleccion != opciones[0]:
+        st.session_state["categoria"] = seleccion
+        st.experimental_rerun()
     
     st.stop()
 
-# 3) Una vez seleccionada, ya mostramos sidebar y contenido
-else:
-    # Sidebar con opción de cambiar categoría y vista
-    st.sidebar.title("🛠 Equipos")
-    # Permitimos cambiar la categoría en cualquier momento
-    cat = st.sidebar.selectbox(
-        "Equipo",
-        list(CATEGORIAS.keys()),
-        index=list(CATEGORIAS.keys()).index(st.session_state["categoria"])
-    )
-    st.session_state["categoria"] = cat
-    file_id = CATEGORIAS[cat]
+cat = st.sidebar.selectbox(
+    "Categoría",
+    list(CATEGORIAS.keys()),
+    index=list(CATEGORIAS.keys()).index(st.session_state["categoria"])
+)
+# Actualizamos la sesión si cambian aquí también
+st.session_state["categoria"] = cat
+file_id = CATEGORIAS[cat]
 
 #st.sidebar.title("Elige equipo:")
 
