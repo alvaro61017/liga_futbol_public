@@ -12,26 +12,47 @@ import random
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle, Arc
 
-st.set_page_config(page_title="Temporada 24/25", layout="wide")
+st.set_page_config(page_title="City", layout="wide")
 
 
 CATEGORIAS = {
-    "senior": "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3",
-    "juvenil": "",
-    "chicas garci": ""
+    "Senior city": "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3",
+    "Juvenil city": "",
+    "Garci femenino": "",
 }
 
-st.sidebar.title("Elige equipo:")
+# 2) Pantalla inicial: solo selector
+if "categoria" not in st.session_state:
+    st.title("📂 Elige un equipo")
+    cat = st.selectbox("¿Qué equipo quieres cargar?", list(CATEGORIAS.keys()))
+    if st.button("Cargar equipo"):
+        st.session_state["categoria"] = cat
+        st.experimental_rerun()
+
+# 3) Una vez seleccionada, ya mostramos sidebar y contenido
+else:
+    # Sidebar con opción de cambiar categoría y vista
+    st.sidebar.title("🛠 Equipos")
+    # Permitimos cambiar la categoría en cualquier momento
+    cat = st.sidebar.selectbox(
+        "Equipo",
+        list(CATEGORIAS.keys()),
+        index=list(CATEGORIAS.keys()).index(st.session_state["categoria"])
+    )
+    st.session_state["categoria"] = cat
+    file_id = CATEGORIAS[cat]
+
+#st.sidebar.title("Elige equipo:")
 
 # 2) Selector de categoría
-categoria_sel = st.sidebar.selectbox(
-    "Selecciona una categoría:",
-    list(CATEGORIAS.keys())
-)
-file_id_sel = CATEGORIAS[categoria_sel]
+#categoria_sel = st.sidebar.selectbox(
+#    "Selecciona una categoría:",
+#    list(CATEGORIAS.keys())
+#)
+#file_id_sel = CATEGORIAS[categoria_sel]
 
 # st.title("⚽ Grupo 7 Segunda Regional")
-st.title(f"⚽ {categoria_sel}")
+st.title(f"⚽ {categoria}")
 
 
 @st.cache_data
@@ -51,7 +72,7 @@ def cargar_datos_desde_drive(file_id):
     df["minutos_goles_propia"] = df["minutos_goles_propia"].apply(ast.literal_eval)
     return df
 
-df = cargar_datos_desde_drive(file_id_sel)
+df = cargar_datos_desde_drive(file_id)
 
 def calcular_estadisticas_equipo(df, equipo):
      df_equipo = df[df["equipo"] == equipo]
