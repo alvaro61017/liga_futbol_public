@@ -38,37 +38,38 @@ CATEGORIAS = {
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# ————— 1) Splash inicial —————
+# 1) Splash inicial: solo si no hemos inicializado
 if not st.session_state.get("initialized", False):
-    # Solo categorías con datos
+    # Solo equipos con file_id
     disponibles = [e for e,fid in CATEGORIAS.items() if fid.strip()]
-    opciones    = ["Elige un equipo…"] + disponibles
+    placeholder = "Elige un equipo…"
+    opciones   = [placeholder] + disponibles
 
-    # Select escribe en session_state["categoria_init"]
-    st.selectbox(
+    # Este selectbox escribe en session_state["categoria_init"]
+    seleccion = st.selectbox(
         "📢 ¿Qué equipo quieres cargar?",
         opciones,
         key="categoria_init"
     )
 
-    # Si ya no es placeholder, marcamos inicializado y fijamos la categoría final
-    if st.session_state["categoria_init"] != opciones[0]:
-        st.session_state["categoria_final"]   = st.session_state["categoria_init"]
-        st.session_state["initialized"]       = True
+    # Si sigue el placeholder, lo detenemos
+    if seleccion == placeholder:
+        st.stop()
 
-    # Hasta escoger un equipo válido, no renderizamos el resto
-    st.stop()
+    # Si ha elegido algo válido, inicializamos y guardamos la categoría final
+    st.session_state["categoria_final"] = seleccion
+    st.session_state["initialized"]     = True
+    # ¡NO hay st.stop() ni experimental_rerun() aquí!
 
-# ————— 2) Layout principal —————
-# Ahora session_state["initialized"] == True y tenemos categoria_final
+# 2) Layout principal: ya con session_state["categoria_final"]
+categoria = st.session_state["categoria_final"]
 
-st.sidebar.title("🛠 Configuración")
-
-# Permitimos cambiar el equipo en el sidebar: escribe en categoria_final
+st.sidebar.title("🛠 Equipos")
+# Permite cambiar de equipo en el sidebar
 categoria = st.sidebar.selectbox(
     "Equipo seleccionado",
     list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(st.session_state["categoria_final"]),
+    index=list(CATEGORIAS.keys()).index(categoria),
     key="categoria_final"
 )
 
