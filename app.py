@@ -135,7 +135,7 @@ def calcular_estadisticas_equipo(df, equipo):
 if df is not None:
     # menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Detalle Equipos"))
 
-    if menu == "🏆 General":
+    if vista == "🏆 General":
 
         st.header("🏆 Clasificación")
 
@@ -535,7 +535,7 @@ if df is not None:
     
 
 
-    elif menu == "📋 Detalle Equipos":
+    elif vista == "📋 Detalle Equipos":
         st.header("📋 Estadísticas por equipo")
         equipos = sorted(df["equipo"].unique())
         if categoria == "Senior city":
