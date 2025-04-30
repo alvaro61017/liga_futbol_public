@@ -18,41 +18,29 @@ st.set_page_config(page_title="City", layout="wide")
 CATEGORIAS = {
     "Senior city": "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3",
     "Juvenil city": "",
-    "Garci femenino": "",
+    "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# 2) Pantalla inicial: solo selector
-if "categoria" not in st.session_state:
-    opciones = ["Elige un equipo"] + list(CATEGORIAS.keys())
-    seleccion = st.selectbox("📢  ¿Qué equipo quieres cargar?", opciones)
+# ————— Pantalla inicial “limpia” —————
+opciones = ["Elige un equipo"] + list(CATEGORIAS.keys())
+seleccion = st.selectbox("📢  ¿Qué equipo quieres cargar?", opciones)
 
-    # Cuando elige algo que no sea el placeholder, guardamos y rerunneamos
-    if seleccion != opciones[0]:
-        st.session_state["categoria"] = seleccion
-        st.experimental_rerun()
-    
+# Si sigue en el placeholder, detenemos aquí
+if seleccion == opciones[0]:
     st.stop()
 
-cat = st.sidebar.selectbox(
+# Ya tenemos categoría válida
+categoria = seleccion
+
+# ————— Sidebar con opción de cambiar categoría y elegir vista —————
+st.sidebar.title("🛠 Equipos")
+
+# Permitimos cambiar la categoría en el sidebar
+categoria = st.sidebar.selectbox(
     "Categoría",
     list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(st.session_state["categoria"])
+    index=list(CATEGORIAS.keys()).index(categoria)
 )
-# Actualizamos la sesión si cambian aquí también
-st.session_state["categoria"] = cat
-file_id = CATEGORIAS[cat]
-
-#st.sidebar.title("Elige equipo:")
-
-# 2) Selector de categoría
-#categoria_sel = st.sidebar.selectbox(
-#    "Selecciona una categoría:",
-#    list(CATEGORIAS.keys())
-#)
-#file_id_sel = CATEGORIAS[categoria_sel]
-
-# st.title("⚽ Grupo 7 Segunda Regional")
-st.title(f"⚽ {cat}")
 
 
 @st.cache_data
@@ -72,9 +60,15 @@ def cargar_datos_desde_drive(file_id):
     df["minutos_goles_propia"] = df["minutos_goles_propia"].apply(ast.literal_eval)
     return df
 
+
+file_id = CATEGORIAS[categoria]
+
 df = cargar_datos_desde_drive(file_id)
 if df is None:
     st.stop()
+
+# st.title("⚽ Grupo 7 Segunda Regional")
+st.title(f"⚽ {categoria}")
 
 def calcular_estadisticas_equipo(df, equipo):
      df_equipo = df[df["equipo"] == equipo]
