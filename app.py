@@ -52,7 +52,7 @@ else:
 #file_id_sel = CATEGORIAS[categoria_sel]
 
 # st.title("⚽ Grupo 7 Segunda Regional")
-st.title(f"⚽ {categoria}")
+st.title(f"⚽ {cat}")
 
 
 @st.cache_data
