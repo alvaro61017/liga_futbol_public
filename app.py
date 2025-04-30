@@ -27,7 +27,8 @@ if "categoria" not in st.session_state:
     cat = st.selectbox("¿Qué equipo quieres cargar?", list(CATEGORIAS.keys()))
     if st.button("Cargar equipo"):
         st.session_state["categoria"] = cat
-        st.experimental_rerun()
+    
+    st.stop()
 
 # 3) Una vez seleccionada, ya mostramos sidebar y contenido
 else:
@@ -73,6 +74,8 @@ def cargar_datos_desde_drive(file_id):
     return df
 
 df = cargar_datos_desde_drive(file_id)
+if df is None:
+    st.stop()
 
 def calcular_estadisticas_equipo(df, equipo):
      df_equipo = df[df["equipo"] == equipo]
