@@ -282,20 +282,7 @@ if df is not None:
                 sin_ganar_seguidos.append((equipo, no_ganar))
 
             sin_ganar_seguidos = sorted(sin_ganar_seguidos, key=lambda x: x[1], reverse=True)[:5]
-            # st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']).reset_index(drop=True), use_container_width=True)
-            st.markdown(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']).to_html(index=False), unsafe_allow_html=True)
-
-            df_sin_ganar = pd.DataFrame(
-    sin_ganar_seguidos,
-    columns=['Equipo', 'Racha de Partidos sin Ganar']
-)
-
-# crea la tabla HTML sin índice
-table_html = df_sin_ganar.to_html(index=False)
-
-# y la inserta como HTML (asegúrate de permitir HTML)
-st.markdown(table_html, unsafe_allow_html=True)
-
+            st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']), use_container_width=True)
 
         st.header("🎯 Goleadores")
         goleadores = df.groupby(["nombre_jugador", "equipo"])["num_goles"].sum().reset_index()
