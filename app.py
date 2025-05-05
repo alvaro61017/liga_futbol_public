@@ -282,7 +282,7 @@ if df is not None:
                 sin_ganar_seguidos.append((equipo, no_ganar))
 
             sin_ganar_seguidos = sorted(sin_ganar_seguidos, key=lambda x: x[1], reverse=True)[:5]
-            st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']), use_container_width=True)
+            st.dataframe(pd.DataFrame(sin_ganar_seguidos.style.hide_index(), columns=['Equipo', 'Racha de Partidos sin Ganar']), use_container_width=True)
 
         st.header("🎯 Goleadores")
         goleadores = df.groupby(["nombre_jugador", "equipo"])["num_goles"].sum().reset_index()
