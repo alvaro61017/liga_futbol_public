@@ -598,7 +598,7 @@ if df is not None:
         
 
         st.subheader("🏅 Jugadores destacados")
-        col1, col2, col3, col4, col5 = st.columns(5)  # Añadimos una cuarta columna
+        col1, col2, col3, col4, col8 = st.columns(5)  # Añadimos una cuarta columna
 
         # Lógica de tarjetas amarillas y expulsiones
         def calcular_amarillas(row):
@@ -637,7 +637,7 @@ if df is not None:
             st.markdown("**⌚ Más minutos jugados**")
             st.dataframe(top_minutos)
 
-        with col3:
+        with col8:
             top_asistencias = df_equipo.groupby("nombre_jugador")["num_asistencias"].sum().reset_index().sort_values(by="num_asistencias", ascending=False).head(5)
             st.markdown("**🅰️ Máximos asistentes**")
             st.dataframe(top_asistencias.rename(columns={"num_asistencias": "Asistencias"}))
@@ -645,12 +645,12 @@ if df is not None:
         #     top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
         #     st.markdown("**Más amarillas**")
         #     st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
-        with col4:
+        with col3:
             top_amarillas = df_equipo.groupby("nombre_jugador")["amarillas_totales"].sum().reset_index().sort_values(by="amarillas_totales", ascending=False).head(5)
             st.markdown("**🟨 Más amarillas**")
             st.dataframe(top_amarillas.rename(columns={"amarillas_totales": "Amarillas"}))
         
-        with col5:
+        with col4:
             top_expulsiones = expulsiones_totales.groupby("nombre_jugador")["Expulsiones"].sum().reset_index().sort_values(by="Expulsiones", ascending=False).head(5)
             st.markdown("**🟥 Más expulsiones**")
             st.dataframe(top_expulsiones)
