@@ -822,7 +822,7 @@ if df is not None:
 
 
         # pinto los 11
-        if equipo_seleccionado == "C.D. GETAFE CITY 'A'":
+        if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
         
             # Sumar minutos por jugador y posición
             df_min = (
