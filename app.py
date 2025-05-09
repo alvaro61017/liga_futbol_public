@@ -138,6 +138,16 @@ def calcular_estadisticas_equipo(df, equipo):
 
 if df is not None:
     # menu = st.sidebar.radio("Selecciona una vista:", ("🏆 General", "📋 Detalle Equipos"))
+    
+    # Calculo los dorsales mas utilizados por cada jugador para luego pegarselo en los listados
+    dorsales_mas_comunes = (
+                df.groupby(["nombre_jugador", "dorsal"])
+                .size()
+                .reset_index(name="cuenta")
+                .sort_values(["nombre_jugador", "cuenta"], ascending=[True, False])
+                .drop_duplicates("nombre_jugador")
+            )
+    
 
     if vista == "🏆 General":
 
@@ -288,7 +298,7 @@ if df is not None:
         st.header("🎯 Goleadores")
         goleadores = df.groupby(["nombre_jugador", "equipo"])["num_goles"].sum().reset_index()
         goleadores = goleadores[goleadores["num_goles"] > 0].sort_values(by="num_goles", ascending=False)
-        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True, hide_index=True)
+        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}).merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left"), use_container_width=True, hide_index=True)
 
         # Modificación aquí para mostrar todas las tarjetas amarillas
         # st.header("🟨 Tarjetas Amarillas")
