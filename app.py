@@ -705,10 +705,16 @@ if df is not None:
                 'asistencias': 'Gol',
                 'Conexiones': 'Conexiones'
             })
+
+            # Ordenamos el dataframe por la columna 'Conexiones' en orden descendente
+            conexiones_count = conexiones_count.sort_values(by='Conexiones', ascending=False)
+            
+            # Seleccionamos el top 5
+            top_5_conexiones = conexiones_count.head(5)
             
             # Mostrar el dataframe final
             st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
-            st.dataframe(conexiones_count)
+            st.dataframe(top_5_conexiones)
             
 
 
