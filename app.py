@@ -299,7 +299,7 @@ if df is not None:
         st.header("🎯 Goleadores")
         goleadores = df.groupby(["nombre_jugador", "equipo"])["num_goles"].sum().reset_index()
         goleadores = goleadores[goleadores["num_goles"] > 0].sort_values(by="num_goles", ascending=False)
-        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}).merge(dorsales_mas_comunes[["nombre_jugador", "numero"]], on="nombre_jugador", how="left")["numero", "nombre_jugador", "equipo", "Goles"], use_container_width=True, hide_index=True)
+        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}).merge(dorsales_mas_comunes[["nombre_jugador", "numero"]], on="nombre_jugador", how="left")[["numero", "nombre_jugador", "equipo", "Goles"]], use_container_width=True, hide_index=True)
 
         # Modificación aquí para mostrar todas las tarjetas amarillas
         # st.header("🟨 Tarjetas Amarillas")
