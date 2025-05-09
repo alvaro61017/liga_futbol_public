@@ -687,27 +687,28 @@ if df is not None:
 
         col9 = st.columns(1)
         with col9[0]:
-            # Explosión de la columna 'asistencias'
+            # Aseguramos que la columna 'asistencias' es una lista
+            df_equipo['asistencias'] = df_equipo['asistencias'].apply(lambda x: eval(x) if isinstance(x, str) else x)
+            
+            # Ahora explotamos la columna 'asistencias' para descomponer las listas en filas
             df_exploded = df_equipo.explode('asistencias')
             
-            # Verifica cómo queda el dataframe después de la explosión
-            st.write(df_exploded.head())  # Esto te mostrará las primeras filas del dataframe para ver si 'asistencias' está bien explotado
+            # Verificamos el dataframe explotado para asegurarnos que se ha hecho correctamente
+            # st.write(df_exploded.head())  # Imprimimos las primeras filas para ver cómo quedó el dataframe
             
-            # Ahora, intentamos el grupo por jugador asistente y jugador gol
-            try:
-                conexiones_count = df_exploded.groupby(['nombre_jugador', 'asistencias']).size().reset_index(name='Conexiones')
-                # Renombramos las columnas para que sea más comprensible
-                conexiones_count = conexiones_count.rename(columns={
-                    'nombre_jugador': 'Jugador Asistente',
-                    'asistencias': 'Jugador Gol',
-                    'Conexiones': 'Número de Conexiones'
-                })
-                
-                # Mostrar el dataframe final
-                st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
-                st.dataframe(conexiones_count)
-            except Exception as e:
-                st.error(f"Ocurrió un error al procesar las conexiones: {e}")
+            # Contamos las asistencias de un jugador a otro
+            conexiones_count = df_exploded.groupby(['nombre_jugador', 'asistencias']).size().reset_index(name='Conexiones')
+            
+            # Renombramos las columnas para que sea más comprensible
+            conexiones_count = conexiones_count.rename(columns={
+                'nombre_jugador': 'Asistencia',
+                'asistencias': 'Gol',
+                'Conexiones': 'Conexiones'
+            })
+            
+            # Mostrar el dataframe final
+            st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
+            st.dataframe(conexiones_count)
             
 
 
