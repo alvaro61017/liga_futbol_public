@@ -599,7 +599,7 @@ if df is not None:
         
 
         st.subheader("🏅 Jugadores destacados")
-        col1, col2, col3, col4, col8 = st.columns(5)  # Añadimos una cuarta columna
+        col1, col2, col8 = st.columns(3)  
 
         # Lógica de tarjetas amarillas y expulsiones
         def calcular_amarillas(row):
@@ -628,24 +628,28 @@ if df is not None:
         # Calcular las expulsiones totales sumando las dobles amarillas y las rojas directas
         expulsiones_totales["Expulsiones"] = expulsiones_totales["Dobles Amarillas"] + expulsiones_totales["Tarjetas Rojas Directas"]
 
-    
         with col1:
-            top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
-            st.markdown("**🎯Goleadores**")
-            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}))
-        with col2:
             top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by="minutos_jugados", ascending=False).head(5)
             st.markdown("**⌚ Más minutos jugados**")
             st.dataframe(top_minutos)
-
+            
+        with col2:
+            top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by="num_goles", ascending=False).head(5)
+            st.markdown("**🎯Goleadores**")
+            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}))
+        
         with col8:
             top_asistencias = df_equipo.groupby("nombre_jugador")["num_asistencias"].sum().reset_index().sort_values(by="num_asistencias", ascending=False).head(5)
-            st.markdown("**🅰️ Máximos asistentes**")
+            st.markdown("**🎁 Asistencias **")
             st.dataframe(top_asistencias.rename(columns={"num_asistencias": "Asistencias"}))
         # with col3:
         #     top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
         #     st.markdown("**Más amarillas**")
         #     st.dataframe(top_amarillas.rename(columns={"num_tarjeta_amarilla": "Amarillas"}))
+        
+
+        col3, col4 = st.columns(2)
+        
         with col3:
             top_amarillas = df_equipo.groupby("nombre_jugador")["amarillas_totales"].sum().reset_index().sort_values(by="amarillas_totales", ascending=False).head(5)
             st.markdown("**🟨 Más amarillas**")
