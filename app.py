@@ -684,6 +684,22 @@ if df is not None:
             top_suplentes = top_suplentes.sort_values(by="entradas_desde_banquillo", ascending=False).head(5)
             st.markdown("**🔁 Más veces desde banquillo**")
             st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "entradas_desde_banquillo": "Entradas"}), use_container_width=True)
+
+        col9 = st.columns(1)
+        with col9:
+            # Contamos las asistencias de un jugador a otro
+            conexiones_count = df_exploded.groupby(['nombre_jugador', 'asistencias']).size().reset_index(name='Conexiones')
+            
+            # Renombramos las columnas para que sea más comprensible
+            conexiones_count = conexiones_count.rename(columns={
+                'nombre_jugador': 'Jugador Asistente',
+                'asistencias': 'Jugador Gol',
+                'Conexiones': 'Número de Conexiones'
+            })
+            
+            # Mostrar el dataframe final
+            st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
+            st.dataframe(conexiones_count)
             
 
 
