@@ -640,7 +640,7 @@ if df is not None:
         
         with col8:
             top_asistencias = df_equipo.groupby("nombre_jugador")["num_asistencias"].sum().reset_index().sort_values(by="num_asistencias", ascending=False).head(5)
-            st.markdown("**🎁 Asistencias **")
+            st.markdown("🎁 Asistencias")
             st.dataframe(top_asistencias.rename(columns={"num_asistencias": "Asistencias"}))
         # with col3:
         #     top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
