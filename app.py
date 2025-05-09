@@ -687,19 +687,27 @@ if df is not None:
 
         col9 = st.columns(1)
         with col9[0]:
-            # Contamos las asistencias de un jugador a otro
-            conexiones_count = df_exploded.groupby(['nombre_jugador', 'asistencias']).size().reset_index(name='Conexiones')
+            # Explosión de la columna 'asistencias'
+            df_exploded = df_equipo.explode('asistencias')
             
-            # Renombramos las columnas para que sea más comprensible
-            conexiones_count = conexiones_count.rename(columns={
-                'nombre_jugador': 'Jugador Asistente',
-                'asistencias': 'Jugador Gol',
-                'Conexiones': 'Número de Conexiones'
-            })
+            # Verifica cómo queda el dataframe después de la explosión
+            st.write(df_exploded.head())  # Esto te mostrará las primeras filas del dataframe para ver si 'asistencias' está bien explotado
             
-            # Mostrar el dataframe final
-            st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
-            st.dataframe(conexiones_count)
+            # Ahora, intentamos el grupo por jugador asistente y jugador gol
+            try:
+                conexiones_count = df_exploded.groupby(['nombre_jugador', 'asistencias']).size().reset_index(name='Conexiones')
+                # Renombramos las columnas para que sea más comprensible
+                conexiones_count = conexiones_count.rename(columns={
+                    'nombre_jugador': 'Jugador Asistente',
+                    'asistencias': 'Jugador Gol',
+                    'Conexiones': 'Número de Conexiones'
+                })
+                
+                # Mostrar el dataframe final
+                st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
+                st.dataframe(conexiones_count)
+            except Exception as e:
+                st.error(f"Ocurrió un error al procesar las conexiones: {e}")
             
 
 
