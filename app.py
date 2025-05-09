@@ -631,7 +631,7 @@ if df is not None:
         with col1:
             top_minutos = df_equipo.groupby("nombre_jugador")["minutos_jugados"].sum().reset_index().sort_values(by=["minutos_jugados", "nombre_jugador"], ascending=[False, True])#.head(5)
             st.markdown("**⌚ Más minutos jugados**")
-            st.dataframe(top_minutos, height=200)
+            st.dataframe(top_minutos, height=210)
             
         with col2:
             top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by=["num_goles", "nombre_jugador"], ascending=[False, True])#.head(5)
