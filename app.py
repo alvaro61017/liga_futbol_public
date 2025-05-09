@@ -302,10 +302,10 @@ if df is not None:
         # st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True, hide_index=True)
         st.data_editor(
             goleadores.rename(columns={"num_goles": "Goles"}),
-            use_container_width=False,
+            use_container_width=True,
             hide_index=True,
             column_config={},
-            fit_columns="data"  # Ajusta el ancho al contenido de cada columna
+            fit_columns=True  # Ajusta el ancho al contenido de cada columna
         )
 
         # Modificación aquí para mostrar todas las tarjetas amarillas
