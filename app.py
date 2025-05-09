@@ -638,7 +638,7 @@ if df is not None:
             st.markdown("**🎯Goleadores**")
             st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}))
         
-        if equipo_seleccionado == "C.D. GETAFE CITY 'A'"
+        if equipo_seleccionado == "C.D. GETAFE CITY 'A'":
             with col8:
                 top_asistencias = df_equipo.groupby("nombre_jugador")["num_asistencias"].sum().reset_index().sort_values(by="num_asistencias", ascending=False).head(5)
                 st.markdown("🎁 Asistencias")
