@@ -245,7 +245,7 @@ if df is not None:
         "locales_ganados": "G_local", "locales_empatados": "E_local", "locales_perdidos": "P_local",
         "visitantes_ganados": "G_visitante", "visitantes_empatados": "E_visitante", "visitantes_perdidos": "P_visitante",
         "tarjetas_amarillas": "🟨", "expulsiones": "🟥"
-        }), use_container_width=True)
+        }), use_container_width=True, hide_index=True)
 
         
         
@@ -267,7 +267,7 @@ if df is not None:
                 victorias_seguidas.append((equipo, victorias))
 
             victorias_seguidas = sorted(victorias_seguidas, key=lambda x: x[1], reverse=True)[:5]
-            st.dataframe(pd.DataFrame(victorias_seguidas, columns=['Equipo', 'Racha de Victorias Seguidas']), use_container_width=True)
+            st.dataframe(pd.DataFrame(victorias_seguidas, columns=['Equipo', 'Racha de Victorias Seguidas']), use_container_width=True, hide_index=True)
 
         with col2:
             st.subheader("⚠️ Racha actual de partidos seguidos sin ganar")
@@ -283,12 +283,12 @@ if df is not None:
                 sin_ganar_seguidos.append((equipo, no_ganar))
 
             sin_ganar_seguidos = sorted(sin_ganar_seguidos, key=lambda x: x[1], reverse=True)[:5]
-            st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']), use_container_width=True)
+            st.dataframe(pd.DataFrame(sin_ganar_seguidos, columns=['Equipo', 'Racha de Partidos sin Ganar']), use_container_width=True, hide_index=True)
 
         st.header("🎯 Goleadores")
         goleadores = df.groupby(["nombre_jugador", "equipo"])["num_goles"].sum().reset_index()
         goleadores = goleadores[goleadores["num_goles"] > 0].sort_values(by="num_goles", ascending=False)
-        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True)
+        st.dataframe(goleadores.rename(columns={"num_goles": "Goles"}), use_container_width=True, hide_index=True)
 
         # Modificación aquí para mostrar todas las tarjetas amarillas
         # st.header("🟨 Tarjetas Amarillas")
@@ -319,7 +319,7 @@ if df is not None:
         amarillas = amarillas.sort_values(by="amarillas_totales", ascending=False)
         
         # Mostramos el resultado
-        st.dataframe(amarillas)
+        st.dataframe(amarillas, hide_index=True)
         
 
         # Cálculo de expulsiones: doble amarilla + roja directa
@@ -344,7 +344,7 @@ if df is not None:
         expulsiones_totales = expulsiones_totales.sort_values(by="Expulsiones", ascending=False)
         
         # Mostrar la tabla con las columnas de expulsiones, doble amarilla y roja directa
-        st.dataframe(expulsiones_totales[["nombre_jugador", "equipo", "Expulsiones", "Dobles Amarillas", "Tarjetas Rojas Directas"]], use_container_width=True)
+        st.dataframe(expulsiones_totales[["nombre_jugador", "equipo", "Expulsiones", "Dobles Amarillas", "Tarjetas Rojas Directas"]], use_container_width=True, hide_index=True)
 
 
         # Evolucion clasificacion por jornada
@@ -594,7 +594,7 @@ if df is not None:
         ultimos_resultados = ultimos_resultados.rename(columns={"numero_jornada": "Jornada", "vs": "Rival", "marcador": "Marcador", "resultado": "Resultado"})
         
         # Mostramos
-        st.dataframe(ultimos_resultados, use_container_width=True)
+        st.dataframe(ultimos_resultados, use_container_width=True, hide_index=True)
         
         
 
@@ -636,13 +636,13 @@ if df is not None:
         with col2:
             top_goleadores = df_equipo.groupby("nombre_jugador")["num_goles"].sum().reset_index().sort_values(by=["num_goles", "nombre_jugador"], ascending=[False, True])#.head(5)
             st.markdown("**🎯Goleadores**")
-            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}), height=212)
+            st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}), height=212, hide_index=True)
         
         if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
             with col8:
                 top_asistencias = df_equipo.groupby("nombre_jugador")["num_asistencias"].sum().reset_index().sort_values(by="num_asistencias", ascending=False)#.head(5)
                 st.markdown("🎁 Asistencias")
-                st.dataframe(top_asistencias.rename(columns={"num_asistencias": "Asistencias"}), height=212)
+                st.dataframe(top_asistencias.rename(columns={"num_asistencias": "Asistencias"}), height=212, hide_index=True)
         # with col3:
         #     top_amarillas = df_equipo[df_equipo["num_tarjeta_amarilla"] > 0].groupby("nombre_jugador")["num_tarjeta_amarilla"].sum().reset_index().sort_values(by="num_tarjeta_amarilla", ascending=False).head(5)
         #     st.markdown("**Más amarillas**")
@@ -654,12 +654,12 @@ if df is not None:
         with col3:
             top_amarillas = df_equipo.groupby("nombre_jugador")["amarillas_totales"].sum().reset_index().sort_values(by="amarillas_totales", ascending=False)#.head(5)
             st.markdown("**🟨 Más amarillas**")
-            st.dataframe(top_amarillas.rename(columns={"amarillas_totales": "Amarillas"}), height=212)
+            st.dataframe(top_amarillas.rename(columns={"amarillas_totales": "Amarillas"}), height=212, hide_index=True)
         
         with col4:
             top_expulsiones = expulsiones_totales.groupby("nombre_jugador")["Expulsiones"].sum().reset_index().sort_values(by="Expulsiones", ascending=False)#.head(5)
             st.markdown("**🟥 Más expulsiones**")
-            st.dataframe(top_expulsiones, height=212)
+            st.dataframe(top_expulsiones, height=212, hide_index=True)
 
         # Fila inferior para titulares y suplentes
         col5, col6, col7 = st.columns(3)
@@ -669,21 +669,21 @@ if df is not None:
             top_titulares = df_equipo[df_equipo["titular"] == 1].groupby(["nombre_jugador"]).size().reset_index(name="titularidades")
             top_titulares = top_titulares.sort_values(by="titularidades", ascending=False)#.head(5)
             st.markdown("**📍 Más veces titular**")
-            st.dataframe(top_titulares.rename(columns={"nombre_jugador": "Jugador", "titularidades": "Titularidades"}), use_container_width=True, height=212)
+            st.dataframe(top_titulares.rename(columns={"nombre_jugador": "Jugador", "titularidades": "Titularidades"}), use_container_width=True, height=212, hide_index=True)
        
         with col6:
             # Jugadores más veces sustituidos (minuto_cambio > 0 y jugador titular)
             top_sustituidos = df_equipo[(df_equipo["titular"] == 1) & (df_equipo["minuto_sustitucion_salida"] > 0)].groupby(["nombre_jugador"]).size().reset_index(name="sustituciones")
             top_sustituidos = top_sustituidos.sort_values(by="sustituciones", ascending=False)#.head(5)
             st.markdown("**⏳ Más veces sustituidos**")
-            st.dataframe(top_sustituidos.rename(columns={"nombre_jugador": "Jugador", "sustituciones": "Sustituciones"}), use_container_width=True, height=212)
+            st.dataframe(top_sustituidos.rename(columns={"nombre_jugador": "Jugador", "sustituciones": "Sustituciones"}), use_container_width=True, height=212, hide_index=True)
         
         with col7:
             # Jugadores que más han entrado desde el banquillo
             top_suplentes = df_equipo[(df_equipo["titular"] == 0) & (df_equipo["minutos_jugados"] > 0)].groupby(["nombre_jugador"]).size().reset_index(name="entradas_desde_banquillo")
             top_suplentes = top_suplentes.sort_values(by="entradas_desde_banquillo", ascending=False)#.head(5)
             st.markdown("**🔁 Más veces desde banquillo**")
-            st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "entradas_desde_banquillo": "Entradas"}), use_container_width=True, height=212)
+            st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "entradas_desde_banquillo": "Entradas"}), use_container_width=True, height=212, hide_index=True)
 
         col9 = st.columns(1)
         with col9[0]:
@@ -714,7 +714,7 @@ if df is not None:
             
             # Mostrar el dataframe final
             st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
-            st.dataframe(top_5_conexiones, height=212)
+            st.dataframe(top_5_conexiones, height=212, hide_index=True)
             
 
 
@@ -856,10 +856,10 @@ if df is not None:
         col_a, col_b = st.columns(2)
         with col_a:
             st.markdown("**Jugadores ganando protagonismo**")
-            st.dataframe(tendencia.head(5).rename(columns={"variacion": "+/- minutos"}))
+            st.dataframe(tendencia.head(5).rename(columns={"variacion": "+/- minutos"}), hide_index=True)
         with col_b:
             st.markdown("**Jugadores perdiendo protagonismo**")
-            st.dataframe(tendencia.tail(5).sort_values(by="variacion").rename(columns={"variacion": "+/- minutos"}))
+            st.dataframe(tendencia.tail(5).sort_values(by="variacion").rename(columns={"variacion": "+/- minutos"}), hide_index=True)
 
 
 
