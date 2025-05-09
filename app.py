@@ -686,7 +686,7 @@ if df is not None:
             st.dataframe(top_suplentes.rename(columns={"nombre_jugador": "Jugador", "entradas_desde_banquillo": "Entradas"}), use_container_width=True)
 
         col9 = st.columns(1)
-        with col9:
+        with col9[0:
             # Contamos las asistencias de un jugador a otro
             conexiones_count = df_exploded.groupby(['nombre_jugador', 'asistencias']).size().reset_index(name='Conexiones')
             
