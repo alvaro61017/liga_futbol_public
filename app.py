@@ -732,8 +732,9 @@ if df is not None:
             top_5_conexiones = conexiones_count#.head(5)
             
             # Mostrar el dataframe final
-            st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
-            st.dataframe(top_5_conexiones, height=212, hide_index=True)
+            if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
+                st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
+                st.dataframe(top_5_conexiones, height=212, hide_index=True)
             
 
 
@@ -875,10 +876,10 @@ if df is not None:
         col_a, col_b = st.columns(2)
         with col_a:
             st.markdown("**Jugadores ganando protagonismo**")
-            st.dataframe(tendencia.head(5).rename(columns={"variacion": "+/- minutos"}), hide_index=True)
+            st.dataframe(tendencia.head(5).rename(columns={"variacion": "+/- minutos"}).merge(dorsales_mas_comunes[["nombre_jugador", "numero"]], on="nombre_jugador", how="left")[['numero', 'nombre_jugador', '+/- minutos', 'minutos_jugados_5prev', 'minutos_jugados_ult5']], hide_index=True)
         with col_b:
             st.markdown("**Jugadores perdiendo protagonismo**")
-            st.dataframe(tendencia.tail(5).sort_values(by="variacion").rename(columns={"variacion": "+/- minutos"}), hide_index=True)
+            st.dataframe(tendencia.tail(5).sort_values(by="variacion").rename(columns={"variacion": "+/- minutos"}).merge(dorsales_mas_comunes[["nombre_jugador", "numero"]], on="nombre_jugador", how="left")[['numero', 'nombre_jugador', '+/- minutos', 'minutos_jugados_5prev', 'minutos_jugados_ult5']], hide_index=True)
 
 
 
