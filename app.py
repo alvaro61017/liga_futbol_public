@@ -883,24 +883,45 @@ if df is not None:
 
         # pinto los 11
         if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
-        
-            # Sumar minutos por jugador y posición
+
+            # Sumar minutos jugados por jugador en cada posición
             df_min = (
                 df.groupby(["posicion_numerico", "nombre_jugador"], as_index=False)["minutos_jugados"]
                 .sum()
-                .sort_values(["posicion_numerico", "minutos_jugados"], ascending=[True, False])
+            )
+            
+            # Contar cuántas veces ha jugado en esa posición
+            df_apariciones = (
+                df.groupby(["posicion_numerico", "nombre_jugador"], as_index=False)
+                .size()
+                .rename(columns={"size": "apariciones_en_posicion"})
+            )
+            
+            # Unir minutos y apariciones
+            df_min = df_min.merge(df_apariciones, on=["posicion_numerico", "nombre_jugador"])
+            
+            # Ordenar por minutos jugados y luego por número de apariciones en la posición
+            df_min = (
+                df_min.sort_values(["posicion_numerico", "minutos_jugados", "apariciones_en_posicion"], ascending=[True, False, False])
                 .drop_duplicates("posicion_numerico")
             )
-    
+            
             # Sumar titularidades por jugador y posición
             df_tit = (
                 df.groupby(["posicion_numerico", "nombre_jugador"], as_index=False)["titular"]
                 .sum()
-                .sort_values(["posicion_numerico", "titular"], ascending=[True, False])
+            )
+            
+            # Añadir también las apariciones para los titulares
+            df_tit = df_tit.merge(df_apariciones, on=["posicion_numerico", "nombre_jugador"], how="left")
+            
+            # Ordenar por titularidades y luego por apariciones en la posición
+            df_tit = (
+                df_tit.sort_values(["posicion_numerico", "titular", "apariciones_en_posicion"], ascending=[True, False, False])
                 .drop_duplicates("posicion_numerico")
             )
-    
-            # Dorsal más frecuente por jugador
+            
+            # Obtener dorsal más frecuente por jugador
             dorsales_mas_comunes = (
                 df.groupby(["nombre_jugador", "dorsal"])
                 .size()
@@ -909,17 +930,19 @@ if df is not None:
                 .drop_duplicates("nombre_jugador")
             )
             
-            # Cruzar con los 11 ideales
+            # Añadir dorsal más común a los dos 11 ideales
             df_min_con_dorsal = df_min.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
             df_tit_con_dorsal = df_tit.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
-    
+            
+            
+            # Función para pintar el campo y los jugadores
             def dibujar_campo_con_11(df_11, titulo, sistema_tactico="1-4-3-3"):
                 fig, ax = plt.subplots(figsize=(6, 9), facecolor='#006400')  # fondo verde oscuro
                 
                 ax.set_facecolor('#006400')
                 color_lineas = 'white'
                 
-                # Líneas y áreas
+                # Dibujar campo
                 ax.plot([0, 100], [0, 0], color=color_lineas)
                 ax.plot([0, 100], [100, 100], color=color_lineas)
                 ax.plot([0, 0], [0, 100], color=color_lineas)
@@ -936,7 +959,7 @@ if df is not None:
                 ax.add_patch(Arc((50, 11), width=18.3, height=18.3, angle=0, theta1=220, theta2=320, color=color_lineas))
                 ax.add_patch(Arc((50, 89), width=18.3, height=18.3, angle=0, theta1=40, theta2=140, color=color_lineas))
             
-                # Posiciones (1-4-3-3)
+                # Posiciones para 1-4-3-3
                 posiciones = {
                     1: (50, 10),
                     3: (15, 30),
@@ -967,11 +990,8 @@ if df is not None:
                     ax.add_patch(camiseta)
                     
                     ax.text(x, y, str(dorsal), ha='center', va='center', fontsize=7, fontweight='bold', color='white', zorder=3)
-            
-                    # Desplazar los nombres para evitar solapamiento
                     ax.text(x, y - 5, nombre, ha='center', va='top', fontsize=6.5, color='white', zorder=3)
             
-                # Mostrar sistema táctico en la esquina inferior derecha
                 ax.text(95, 5, sistema_tactico, fontsize=8, color='white', ha='right', va='bottom', fontweight='bold')
                 
                 ax.set_xlim(0, 100)
@@ -979,14 +999,121 @@ if df is not None:
                 ax.axis("off")
                 plt.title(titulo, fontsize=13, fontweight="bold", color='white', pad=15)
                 st.pyplot(fig)
-    
-    
-    
-    
+            
+            
+            # Mostrar en Streamlit
             st.title("11 Ideal")
-    
+            
             dibujar_campo_con_11(df_min_con_dorsal, "11 con más minutos por posición")
             dibujar_campo_con_11(df_tit_con_dorsal, "11 con más titularidades por posición")
+
+            
+
+            
+        
+            # # Sumar minutos por jugador y posición
+            # df_min = (
+            #     df.groupby(["posicion_numerico", "nombre_jugador"], as_index=False)["minutos_jugados"]
+            #     .sum()
+            #     .sort_values(["posicion_numerico", "minutos_jugados"], ascending=[True, False])
+            #     .drop_duplicates("posicion_numerico")
+            # )
+    
+            # # Sumar titularidades por jugador y posición
+            # df_tit = (
+            #     df.groupby(["posicion_numerico", "nombre_jugador"], as_index=False)["titular"]
+            #     .sum()
+            #     .sort_values(["posicion_numerico", "titular"], ascending=[True, False])
+            #     .drop_duplicates("posicion_numerico")
+            # )
+    
+            # # Dorsal más frecuente por jugador
+            # dorsales_mas_comunes = (
+            #     df.groupby(["nombre_jugador", "dorsal"])
+            #     .size()
+            #     .reset_index(name="cuenta")
+            #     .sort_values(["nombre_jugador", "cuenta"], ascending=[True, False])
+            #     .drop_duplicates("nombre_jugador")
+            # )
+            
+            # # Cruzar con los 11 ideales
+            # df_min_con_dorsal = df_min.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
+            # df_tit_con_dorsal = df_tit.merge(dorsales_mas_comunes[["nombre_jugador", "dorsal"]], on="nombre_jugador", how="left")
+    
+            # def dibujar_campo_con_11(df_11, titulo, sistema_tactico="1-4-3-3"):
+            #     fig, ax = plt.subplots(figsize=(6, 9), facecolor='#006400')  # fondo verde oscuro
+                
+            #     ax.set_facecolor('#006400')
+            #     color_lineas = 'white'
+                
+            #     # Líneas y áreas
+            #     ax.plot([0, 100], [0, 0], color=color_lineas)
+            #     ax.plot([0, 100], [100, 100], color=color_lineas)
+            #     ax.plot([0, 0], [0, 100], color=color_lineas)
+            #     ax.plot([100, 100], [0, 100], color=color_lineas)
+            #     ax.plot([0, 100], [50, 50], color=color_lineas)
+            #     ax.add_patch(Circle((50, 50), 9.15, color=color_lineas, fill=False, linewidth=1.5))
+            #     ax.plot(50, 50, 'wo')
+            #     ax.add_patch(Rectangle((30, 0), 40, 16.5, fill=False, color=color_lineas, linewidth=1.5))
+            #     ax.add_patch(Rectangle((30, 100 - 16.5), 40, 16.5, fill=False, color=color_lineas, linewidth=1.5))
+            #     ax.add_patch(Rectangle((40, 0), 20, 5.5, fill=False, color=color_lineas))
+            #     ax.add_patch(Rectangle((40, 100 - 5.5), 20, 5.5, fill=False, color=color_lineas))
+            #     ax.plot(50, 11, 'wo')
+            #     ax.plot(50, 89, 'wo')
+            #     ax.add_patch(Arc((50, 11), width=18.3, height=18.3, angle=0, theta1=220, theta2=320, color=color_lineas))
+            #     ax.add_patch(Arc((50, 89), width=18.3, height=18.3, angle=0, theta1=40, theta2=140, color=color_lineas))
+            
+            #     # Posiciones (1-4-3-3)
+            #     posiciones = {
+            #         1: (50, 10),
+            #         3: (15, 30),
+            #         2: (85, 30),
+            #         4: (35, 25),
+            #         5: (65, 25),
+            #         6: (50, 45),
+            #         8: (35, 57),
+            #         10: (65, 57),
+            #         11: (15, 75),
+            #         9: (50, 80),
+            #         7: (85, 75),
+            #     }
+                
+            #     for _, row in df_11.iterrows():
+            #         pos_num = row["posicion_numerico"]
+            #         nombre = row["nombre_jugador"]
+            #         dorsal = row["dorsal"]
+            #         if pos_num not in posiciones:
+            #             continue
+            #         x, y = posiciones[pos_num]
+                    
+            #         color_camiseta = "#800000"  # granate
+            #         if pos_num == 1:
+            #             color_camiseta = "black"  # portero
+                    
+            #         camiseta = Circle((x, y), 3.5, color=color_camiseta, zorder=2)
+            #         ax.add_patch(camiseta)
+                    
+            #         ax.text(x, y, str(dorsal), ha='center', va='center', fontsize=7, fontweight='bold', color='white', zorder=3)
+            
+            #         # Desplazar los nombres para evitar solapamiento
+            #         ax.text(x, y - 5, nombre, ha='center', va='top', fontsize=6.5, color='white', zorder=3)
+            
+            #     # Mostrar sistema táctico en la esquina inferior derecha
+            #     ax.text(95, 5, sistema_tactico, fontsize=8, color='white', ha='right', va='bottom', fontweight='bold')
+                
+            #     ax.set_xlim(0, 100)
+            #     ax.set_ylim(0, 100)
+            #     ax.axis("off")
+            #     plt.title(titulo, fontsize=13, fontweight="bold", color='white', pad=15)
+            #     st.pyplot(fig)
+    
+    
+    
+    
+            # st.title("11 Ideal")
+    
+            # dibujar_campo_con_11(df_min_con_dorsal, "11 con más minutos por posición")
+            # dibujar_campo_con_11(df_tit_con_dorsal, "11 con más titularidades por posición")
 
 
 
