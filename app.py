@@ -34,6 +34,7 @@ def cargar_datos_desde_drive(file_id):
 
 CATEGORIAS = {
     # "Senior city": "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3",
+    # "Senior city": "1PrB1udrmv-6NkpzyvFIuI4diqjeulWts", # jornada 26
     "Senior city": "1PrB1udrmv-6NkpzyvFIuI4diqjeulWts",
     "Juvenil city": "17NhYQ1obx0sNC3sfDEYA7D0M9rnE8hxW",
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
