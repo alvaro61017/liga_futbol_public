@@ -1118,6 +1118,29 @@ if df is not None:
             # dibujar_campo_con_11(df_tit_con_dorsal, "11 con más titularidades por posición")
 
 
+# Inyectar CSS para cambiar el ícono a hamburguesa
+st.markdown("""
+    <style>
+    /* Selector del botón del sidebar */
+    [data-testid="collapsedControl"] svg {
+        display: none;
+    }
+
+    [data-testid="collapsedControl"]::before {
+        content: "☰"; /* Símbolo de hamburguesa */
+        font-size: 24px;
+        color: white;
+        display: block;
+        text-align: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Tu app Streamlit
+st.sidebar.title("Menú")
+st.write("Contenido principal")
+
+
 
 
 else:
