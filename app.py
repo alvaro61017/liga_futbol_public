@@ -36,7 +36,7 @@ CATEGORIAS = {
     # "Senior city": "1vhJL0e3vfiXWQeU6j3fAlZeErYD40ZF3",
     # "Senior city": "1PrB1udrmv-6NkpzyvFIuI4diqjeulWts", # jornada 26
     # "Senior city": "1D5uvvZlyO3dcDnBo5NO4lYrNEhPvd0rs",
-    "Senior city": "1ZQRnbdCcVhSoDHhsglJLi8ASfCezvuwo", # jornada 29
+    "Senior city": "1soSKnwp05SBxSlLKiNz5Wsd1ggNjVQ2d", # jornada 29
     "Juvenil city": "17NhYQ1obx0sNC3sfDEYA7D0M9rnE8hxW",
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
