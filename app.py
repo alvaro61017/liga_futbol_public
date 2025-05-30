@@ -77,25 +77,6 @@ categoria = st.sidebar.selectbox(
     key="categoria_final"
 )
 
-
-
-vista = st.sidebar.radio(
-    "Vista",
-    ("🏆 General", "📋 Detalle Equipos"),
-    key="vista"
-)
-
-# 3) Carga de datos
-file_id = CATEGORIAS.get(st.session_state["categoria_final"], "")
-if not file_id:
-    st.warning(f"⚠️ No hay datos para **{categoria}**.")
-    st.stop()
-
-df = cargar_datos_desde_drive(file_id)
-if df is None:
-    st.stop()
-
-
 # Vista
 vista = st.sidebar.radio(
     "Vista",
@@ -726,36 +707,34 @@ if df is not None:
             st.dataframe(top_suplentes.rename(columns={"entradas_desde_banquillo": "Entradas"}).merge(dorsales_mas_comunes[["nombre_jugador", "numero"]], on="nombre_jugador", how="left")[['numero', 'nombre_jugador', 'Entradas']], use_container_width=True, height=212, hide_index=True)
 
         col9 = st.columns(1)
-        if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
+        with col9[0]:
+            # Aseguramos que la columna 'asistencias' es una lista
+            df_equipo['asistencias'] = df_equipo['asistencias'].apply(lambda x: eval(x) if isinstance(x, str) else x)
             
-            with col9[0]:
-                # Aseguramos que la columna 'asistencias' es una lista
-                df_equipo['asistencias'] = df_equipo['asistencias'].apply(lambda x: eval(x) if isinstance(x, str) else x)
-                
-                # Ahora explotamos la columna 'asistencias' para descomponer las listas en filas
-                df_exploded = df_equipo.explode('asistencias')
-                
-                # Verificamos el dataframe explotado para asegurarnos que se ha hecho correctamente
-                # st.write(df_exploded.head())  # Imprimimos las primeras filas para ver cómo quedó el dataframe
-                
-                # Contamos las asistencias de un jugador a otro
-                conexiones_count = df_exploded.groupby(['nombre_jugador', 'asistencias']).size().reset_index(name='Conexiones')
-                
-                # Renombramos las columnas para que sea más comprensible
-                conexiones_count = conexiones_count.rename(columns={
-                    'nombre_jugador': 'Asistencia',
-                    'asistencias': 'Gol',
-                    'Conexiones': 'Conexiones'
-                })
-    
-                # Ordenamos el dataframe por la columna 'Conexiones' en orden descendente
-                conexiones_count = conexiones_count.sort_values(by='Conexiones', ascending=False)
-                
-                # Seleccionamos el top 5
-                top_5_conexiones = conexiones_count#.head(5)
-                
-                # Mostrar el dataframe final
-                
+            # Ahora explotamos la columna 'asistencias' para descomponer las listas en filas
+            df_exploded = df_equipo.explode('asistencias')
+            
+            # Verificamos el dataframe explotado para asegurarnos que se ha hecho correctamente
+            # st.write(df_exploded.head())  # Imprimimos las primeras filas para ver cómo quedó el dataframe
+            
+            # Contamos las asistencias de un jugador a otro
+            conexiones_count = df_exploded.groupby(['nombre_jugador', 'asistencias']).size().reset_index(name='Conexiones')
+            
+            # Renombramos las columnas para que sea más comprensible
+            conexiones_count = conexiones_count.rename(columns={
+                'nombre_jugador': 'Asistencia',
+                'asistencias': 'Gol',
+                'Conexiones': 'Conexiones'
+            })
+
+            # Ordenamos el dataframe por la columna 'Conexiones' en orden descendente
+            conexiones_count = conexiones_count.sort_values(by='Conexiones', ascending=False)
+            
+            # Seleccionamos el top 5
+            top_5_conexiones = conexiones_count#.head(5)
+            
+            # Mostrar el dataframe final
+            if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
                 st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
                 st.dataframe(top_5_conexiones, height=212, hide_index=True)
             
