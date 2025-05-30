@@ -359,7 +359,7 @@ if df is not None:
             return clasificacion
 
         
-        clasificacion = calcular_clasificacion_completa(df)
+        clasificacion = calcular_clasificacion_completa_con_autogoles(df)
         
         # Mostrar
         st.dataframe(clasificacion[[
