@@ -754,8 +754,9 @@ if df is not None:
             st.markdown("**🔁 Más veces desde banquillo**")
             st.dataframe(top_suplentes.rename(columns={"entradas_desde_banquillo": "Entradas"}).merge(dorsales_mas_comunes[["nombre_jugador", "numero"]], on="nombre_jugador", how="left")[['numero', 'nombre_jugador', 'Entradas']], use_container_width=True, height=212, hide_index=True)
 
+        col9 = st.columns(1)
         if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
-            col9 = st.columns(1)
+            
             with col9[0]:
                 # Aseguramos que la columna 'asistencias' es una lista
                 df_equipo['asistencias'] = df_equipo['asistencias'].apply(lambda x: eval(x) if isinstance(x, str) else x)
