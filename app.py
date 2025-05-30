@@ -362,16 +362,29 @@ if df is not None:
         clasificacion = calcular_clasificacion_completa_con_autogoles(df)
         
         # Mostrar
+        # st.dataframe(clasificacion[[
+        # "Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
+        # "locales_ganados", "locales_empatados", "locales_perdidos",
+        # "visitantes_ganados", "visitantes_empatados", "visitantes_perdidos",
+        # "tarjetas_amarillas", "expulsiones"
+        # ]].rename(columns={
+        # "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P",
+        # "locales_ganados": "G_local", "locales_empatados": "E_local", "locales_perdidos": "P_local",
+        # "visitantes_ganados": "G_visitante", "visitantes_empatados": "E_visitante", "visitantes_perdidos": "P_visitante",
+        # "tarjetas_amarillas": "🟨", "expulsiones": "🟥"
+        # }), use_container_width=True, hide_index=True)
+
         st.dataframe(clasificacion[[
-        "Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
-        "locales_ganados", "locales_empatados", "locales_perdidos",
-        "visitantes_ganados", "visitantes_empatados", "visitantes_perdidos",
-        "tarjetas_amarillas", "expulsiones"
+            "pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
+            "ganado_local", "empatado_local", "perdido_local",
+            "ganado_visitante", "empatado_visitante", "perdido_visitante",
+            "tarjetas_amarillas", "expulsiones"
         ]].rename(columns={
-        "gf": "GF", "gc": "GC", "dif": "DIF", "ganado": "G", "empatado": "E", "perdido": "P",
-        "locales_ganados": "G_local", "locales_empatados": "E_local", "locales_perdidos": "P_local",
-        "visitantes_ganados": "G_visitante", "visitantes_empatados": "E_visitante", "visitantes_perdidos": "P_visitante",
-        "tarjetas_amarillas": "🟨", "expulsiones": "🟥"
+            "pos": "Pos", "gf": "GF", "gc": "GC", "dif": "DIF",
+            "ganado": "G", "empatado": "E", "perdido": "P",
+            "ganado_local": "G_local", "empatado_local": "E_local", "perdido_local": "P_local",
+            "ganado_visitante": "G_visitante", "empatado_visitante": "E_visitante", "perdido_visitante": "P_visitante",
+            "tarjetas_amarillas": "🟨", "expulsiones": "🟥"
         }), use_container_width=True, hide_index=True)
 
         
