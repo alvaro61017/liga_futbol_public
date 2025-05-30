@@ -42,63 +42,6 @@ CATEGORIAS = {
     "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
 }
 
-# # 1) Splash inicial: solo si no hemos inicializado
-# if not st.session_state.get("initialized", False):
-#     # Solo equipos con file_id
-#     disponibles = [e for e,fid in CATEGORIAS.items() if fid.strip()]
-#     placeholder = "Elige un equipo…"
-#     opciones   = [placeholder] + disponibles
-
-#     # Este selectbox escribe en session_state["categoria_init"]
-#     seleccion = st.selectbox(
-#         "📢 ¿Qué equipo quieres cargar?",
-#         opciones,
-#         key="categoria_init"
-#     )
-
-#     # Si sigue el placeholder, lo detenemos
-#     if seleccion == placeholder:
-#         st.stop()
-
-#     # Si ha elegido algo válido, inicializamos y guardamos la categoría final
-#     st.session_state["categoria_final"] = seleccion
-#     st.session_state["initialized"]     = True
-#     # ¡NO hay st.stop() ni experimental_rerun() aquí!
-
-# # 2) Layout principal: ya con session_state["categoria_final"]
-# categoria = st.session_state["categoria_final"]
-
-# st.sidebar.title("🛠 Equipos")
-# # Permite cambiar de equipo en el sidebar
-# categoria = st.sidebar.selectbox(
-#     "Equipo seleccionado",
-#     list(CATEGORIAS.keys()),
-#     index=list(CATEGORIAS.keys()).index(categoria),
-#     key="categoria_final"
-# )
-
-# # Vista
-# vista = st.sidebar.radio(
-#     "Vista",
-#     ("🏆 General", "📋 Detalle Equipos"),
-#     key="vista"
-# )
-
-# # ————— 3) Carga de datos y renderizado —————
-# file_id = CATEGORIAS.get(categoria, "")
-# if not file_id:
-#     st.warning(f"⚠️ No hay datos para **{categoria}**.")
-#     st.stop()
-
-# df = cargar_datos_desde_drive(file_id)
-# if df is None:
-#     st.stop()
-
-
-
-# # st.title("⚽ Grupo 7 Segunda Regional")
-# st.title(f"⚽ {categoria}")
-
 
 # 1) Splash inicial: solo si no hemos inicializado
 if not st.session_state.get("initialized", False):
