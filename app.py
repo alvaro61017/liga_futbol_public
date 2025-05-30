@@ -120,7 +120,7 @@ if not st.session_state.get("initialized", False):
     st.session_state["categoria_final"] = seleccion
     st.session_state["initialized"] = True
 
-    st.experimental_rerun()
+    st.rerun()
 
 # 2) Layout principal
 categoria = st.session_state["categoria_final"]
