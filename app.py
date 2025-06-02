@@ -12,6 +12,18 @@ import random
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle, Arc
 
+ga_snippet = """
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2PWS19JHGD', { 'anonymize_ip': true });
+</script>
+"""
+components.html(ga_snippet, height=0)
+
 st.set_page_config(page_title="City", layout="wide")
 
 @st.cache_data
