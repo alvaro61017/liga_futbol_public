@@ -22,7 +22,8 @@ ga_snippet = """
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-2PWS19JHGD', { 'anonymize_ip': true });
+
+  gtag('config', 'G-2PWS19JHGD');
 </script>
 """
 components.html(ga_snippet, height=1)
