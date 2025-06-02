@@ -183,11 +183,35 @@ if df is not None:
 
         st.subheader("📅 Últimos 3 resultados")
 
-        # Agrupamos goles por partido y equipo
-        goles_partido = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+                # --- Agrupar goles a favor por partido y equipo ---
+        goles_a_favor = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
         
-        # Hacemos merge para tener equipo, rival, goles a favor y en contra
-        partidos_equipo = goles_partido.merge(goles_partido, on="codacta")
+        # --- Obtener goles en propia y asignarlos al rival ---
+        autogoles = df[df["num_goles_propia"] > 0].copy()
+        autogoles["num_goles_propia"] = autogoles["num_goles_propia"].astype(int)
+        
+        # Identificamos los equipos por partido
+        equipos_por_partido = df[["codacta", "equipo"]].drop_duplicates()
+        rivales_por_partido = equipos_por_partido.groupby("codacta")["equipo"].unique().to_dict()
+        
+        def obtener_rival(row):
+            equipos = rivales_por_partido.get(row["codacta"], [])
+            return [e for e in equipos if e != row["equipo"]][0] if len(equipos) == 2 else None
+        
+        autogoles["equipo_rival"] = autogoles.apply(obtener_rival, axis=1)
+        
+        # Sumamos los autogoles como goles a favor del rival
+        goles_en_propia = autogoles.groupby(["codacta", "equipo_rival"])["num_goles_propia"].sum().reset_index()
+        goles_en_propia = goles_en_propia.rename(columns={"equipo_rival": "equipo", "num_goles_propia": "goles_propia_favor"})
+        
+        # --- Combinamos goles normales y goles en propia ---
+        goles_totales = goles_a_favor.merge(goles_en_propia, on=["codacta", "equipo"], how="left")
+        goles_totales["goles_propia_favor"] = goles_totales["goles_propia_favor"].fillna(0).astype(int)
+        goles_totales["gf"] = goles_totales["num_goles"] + goles_totales["goles_propia_favor"]
+        goles_totales = goles_totales[["codacta", "equipo", "gf"]]
+        
+        # --- Merge para obtener rival y goles encajados ---
+        partidos_equipo = goles_totales.merge(goles_totales, on="codacta")
         partidos_equipo = partidos_equipo[partidos_equipo["equipo_x"] == equipo_seleccionado]
         partidos_equipo = partidos_equipo[partidos_equipo["equipo_x"] != partidos_equipo["equipo_y"]].copy()
         
@@ -195,24 +219,66 @@ if df is not None:
         partidos_equipo = partidos_equipo.rename(columns={
             "equipo_x": "equipo",
             "equipo_y": "rival",
-            "num_goles_x": "gf",
-            "num_goles_y": "gc"
+            "gf_x": "gf",
+            "gf_y": "gc"
         })
         
-        # Añadimos fecha y resultado
-        partidos_equipo = partidos_equipo.merge(df[["codacta", "numero_jornada"]].drop_duplicates(), on="codacta", how="left")
+        # Añadimos jornada y marcador
+        partidos_equipo = partidos_equipo.merge(
+            df[["codacta", "numero_jornada"]].drop_duplicates(), on="codacta", how="left"
+        )
+        
         partidos_equipo["resultado"] = partidos_equipo.apply(
             lambda row: "G" if row.gf > row.gc else "E" if row.gf == row.gc else "P", axis=1
         )
         partidos_equipo["marcador"] = partidos_equipo["gf"].astype(str) + "-" + partidos_equipo["gc"].astype(str)
         partidos_equipo["vs"] = "vs " + partidos_equipo["rival"]
         
-        # Ordenamos por fecha y nos quedamos con los 3 últimos
-        ultimos_resultados = partidos_equipo.sort_values(by="numero_jornada", ascending=False).head(3)[["numero_jornada", "vs", "marcador", "resultado"]]
-        ultimos_resultados = ultimos_resultados.rename(columns={"numero_jornada": "Jornada", "vs": "Rival", "marcador": "Marcador", "resultado": "Resultado"})
+        # Ordenamos y mostramos los 3 últimos
+        ultimos_resultados = partidos_equipo.sort_values(by="numero_jornada", ascending=False).head(3)[
+            ["numero_jornada", "vs", "marcador", "resultado"]
+        ]
+        ultimos_resultados = ultimos_resultados.rename(columns={
+            "numero_jornada": "Jornada",
+            "vs": "Rival",
+            "marcador": "Marcador",
+            "resultado": "Resultado"
+        })
         
-        # Mostramos
+        # Mostrar en Streamlit
         st.dataframe(ultimos_resultados, use_container_width=True, hide_index=True)
+
+
+        # # Agrupamos goles por partido y equipo
+        # goles_partido = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index()
+        
+        # # Hacemos merge para tener equipo, rival, goles a favor y en contra
+        # partidos_equipo = goles_partido.merge(goles_partido, on="codacta")
+        # partidos_equipo = partidos_equipo[partidos_equipo["equipo_x"] == equipo_seleccionado]
+        # partidos_equipo = partidos_equipo[partidos_equipo["equipo_x"] != partidos_equipo["equipo_y"]].copy()
+        
+        # # Renombramos columnas
+        # partidos_equipo = partidos_equipo.rename(columns={
+        #     "equipo_x": "equipo",
+        #     "equipo_y": "rival",
+        #     "num_goles_x": "gf",
+        #     "num_goles_y": "gc"
+        # })
+        
+        # # Añadimos fecha y resultado
+        # partidos_equipo = partidos_equipo.merge(df[["codacta", "numero_jornada"]].drop_duplicates(), on="codacta", how="left")
+        # partidos_equipo["resultado"] = partidos_equipo.apply(
+        #     lambda row: "G" if row.gf > row.gc else "E" if row.gf == row.gc else "P", axis=1
+        # )
+        # partidos_equipo["marcador"] = partidos_equipo["gf"].astype(str) + "-" + partidos_equipo["gc"].astype(str)
+        # partidos_equipo["vs"] = "vs " + partidos_equipo["rival"]
+        
+        # # Ordenamos por fecha y nos quedamos con los 3 últimos
+        # ultimos_resultados = partidos_equipo.sort_values(by="numero_jornada", ascending=False).head(3)[["numero_jornada", "vs", "marcador", "resultado"]]
+        # ultimos_resultados = ultimos_resultados.rename(columns={"numero_jornada": "Jornada", "vs": "Rival", "marcador": "Marcador", "resultado": "Resultado"})
+        
+        # # Mostramos
+        # st.dataframe(ultimos_resultados, use_container_width=True, hide_index=True)
         
         
 
