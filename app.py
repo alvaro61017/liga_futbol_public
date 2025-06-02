@@ -25,7 +25,7 @@ ga_snippet = """
   gtag('config', 'G-2PWS19JHGD', { 'anonymize_ip': true });
 </script>
 """
-components.html(ga_snippet, height=0)
+components.html(ga_snippet, height=1)
 
 @st.cache_data
 def cargar_datos_desde_drive(file_id):
