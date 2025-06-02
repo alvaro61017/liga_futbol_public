@@ -270,7 +270,6 @@ if df is not None:
             equipos_por_partido = df[["codacta", "equipo"]].drop_duplicates()
             rivales = equipos_por_partido.groupby("codacta")["equipo"].unique().to_dict()
         
-            # Función para obtener el rival correcto
             def obtener_rival(row):
                 equipos = rivales.get(row["codacta"], [])
                 return [e for e in equipos if e != row["equipo"]][0] if len(equipos) == 2 else None
@@ -351,10 +350,10 @@ if df is not None:
             disciplinario["expulsiones"] = disciplinario["dobles_amarillas"] + disciplinario["rojas_directas"]
             disciplinario = disciplinario.rename(columns={"amarillas_totales": "tarjetas_amarillas"})
         
-            # Añadir disciplina a la clasificación
             clasificacion = clasificacion.merge(disciplinario[["equipo", "tarjetas_amarillas", "expulsiones"]], on="equipo", how="left")
         
             return clasificacion, partidos
+
 
 
 
