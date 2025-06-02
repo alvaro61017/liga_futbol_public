@@ -1206,7 +1206,7 @@ if df is not None:
 
         
         # clasificacion, partidos = calcular_clasificacion_completa(df)
-        clasificacion = calcular_clasificacion(df)
+        # clasificacion = calcular_clasificacion(df)
         
         # Mostrar
         # st.dataframe(clasificacion[[
@@ -1236,18 +1236,18 @@ if df is not None:
         #     "tarjetas_amarillas": "🟨", "expulsiones": "🟥"
         # }), use_container_width=True, hide_index=True)
 
-        st.dataframe(clasificacion[[
-            "Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
-            "locales_ganado", "locales_empatado", "locales_perdido",
-            "visitantes_ganado", "visitantes_empatado", "visitantes_perdido",
-            "tarjetas_amarillas", "expulsiones"
-        ]].rename(columns={
-            "pos": "Pos", "gf": "GF", "gc": "GC", "dif": "DIF",
-            "ganado": "G", "empatado": "E", "perdido": "P",
-            "locales_ganado": "G_local", "locales_empatado": "E_local", "locales_perdido": "P_local",
-            "visitantes_ganado": "G_visitante", "visitantes_empatado": "E_visitante", "visitantes_perdido": "P_visitante",
-            "tarjetas_amarillas": "🟨", "expulsiones": "🟥"
-        }), use_container_width=True, hide_index=True)
+        # st.dataframe(clasificacion[[
+        #     "Pos", "equipo", "puntos", "partidos_jugados", "ganado", "empatado", "perdido", "gf", "gc", "dif",
+        #     "locales_ganado", "locales_empatado", "locales_perdido",
+        #     "visitantes_ganado", "visitantes_empatado", "visitantes_perdido",
+        #     "tarjetas_amarillas", "expulsiones"
+        # ]].rename(columns={
+        #     "pos": "Pos", "gf": "GF", "gc": "GC", "dif": "DIF",
+        #     "ganado": "G", "empatado": "E", "perdido": "P",
+        #     "locales_ganado": "G_local", "locales_empatado": "E_local", "locales_perdido": "P_local",
+        #     "visitantes_ganado": "G_visitante", "visitantes_empatado": "E_visitante", "visitantes_perdido": "P_visitante",
+        #     "tarjetas_amarillas": "🟨", "expulsiones": "🟥"
+        # }), use_container_width=True, hide_index=True)
 
 
         
