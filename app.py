@@ -259,23 +259,31 @@ if df is not None:
                 if col not in df.columns:
                     df[col] = 0
         
-            # === GOLES A FAVOR ===
+            # === GOLES A FAVOR (normales) ===
             goles_a_favor = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index(name="gf")
         
-            # === GOLES EN PROPIA: sumar como goles a favor del rival ===
+            # === GOLES EN PROPIA PUERTA (asignados al rival) ===
             autogoles = df[df["num_goles_propia"] > 0].copy()
             autogoles["num_goles_propia"] = autogoles["num_goles_propia"].astype(int)
         
-            # Identificamos el rival (equipo contrario en el mismo partido)
-            rivales = df[["codacta", "equipo"]].drop_duplicates()
-            autogoles = autogoles.merge(rivales, on="codacta")
-            autogoles = autogoles[autogoles["equipo_x"] != autogoles["equipo_y"]]
-            autogoles = autogoles.rename(columns={"equipo_y": "equipo"})
-            goles_autogol = autogoles.groupby(["codacta", "equipo"])["num_goles_propia"].sum().reset_index(name="autogoles_recibidos")
+            # Identificamos los dos equipos por partido
+            equipos_por_partido = df[["codacta", "equipo"]].drop_duplicates()
+            rivales = equipos_por_partido.groupby("codacta")["equipo"].unique().to_dict()
         
-            # Unimos goles normales + goles en propia a favor
-            goles = pd.merge(goles_a_favor, goles_autogol, on=["codacta", "equipo"], how="left").fillna(0)
-            goles["gf"] += goles["autogoles_recibidos"]
+            # Función para obtener el rival correcto
+            def obtener_rival(row):
+                equipos = rivales.get(row["codacta"], [])
+                return [e for e in equipos if e != row["equipo"]][0] if len(equipos) == 2 else None
+        
+            autogoles["equipo_rival"] = autogoles.apply(obtener_rival, axis=1)
+        
+            # Sumamos autogoles como goles a favor del rival
+            goles_autogol = autogoles.groupby(["codacta", "equipo_rival"])["num_goles_propia"].sum().reset_index()
+            goles_autogol = goles_autogol.rename(columns={"equipo_rival": "equipo", "num_goles_propia": "autogoles_recibidos"})
+        
+            # Combinamos goles normales + autogoles a favor
+            goles = pd.merge(goles_a_favor, goles_autogol, on=["codacta", "equipo"], how="outer").fillna(0)
+            goles["gf"] = goles["gf"] + goles["autogoles_recibidos"]
             goles.drop(columns="autogoles_recibidos", inplace=True)
         
             # === CONSTRUIMOS PARTIDOS ===
