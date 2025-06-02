@@ -253,106 +253,68 @@ if df is not None:
 
 
 
-        def calcular_clasificacion_completa(df):
-            # Aseguramos columnas necesarias
-            for col in ["num_goles", "num_goles_propia", "local", "visitante", "segunda_amarilla", "num_tarjeta_amarilla", "num_tarjeta_roja"]:
-                if col not in df.columns:
-                    df[col] = 0
+        def calcular_clasificacion(df):
+            equipos = df["equipo"].unique()
+            clasificacion = []
         
-            # === GOLES A FAVOR (normales) ===
-            goles_a_favor = df.groupby(["codacta", "equipo"])["num_goles"].sum().reset_index(name="gf")
+            for equipo in equipos:
+                df_equipo = df[df["equipo"] == equipo]
+                df_rival = df[df["equipo"] != equipo]
         
-            # === GOLES EN PROPIA PUERTA (asignados al rival) ===
-            autogoles = df[df["num_goles_propia"] > 0].copy()
-            autogoles["num_goles_propia"] = autogoles["num_goles_propia"].astype(int)
+                # Obtener todos los codacta (partidos) donde jugó este equipo
+                partidos_equipo = df_equipo["codacta"].unique()
         
-            # Identificamos los dos equipos por partido
-            equipos_por_partido = df[["codacta", "equipo"]].drop_duplicates()
-            rivales = equipos_por_partido.groupby("codacta")["equipo"].unique().to_dict()
+                puntos = 0
+                ganados = 0
+                empatados = 0
+                perdidos = 0
+                gf_total = 0
+                gc_total = 0
         
-            def obtener_rival(row):
-                equipos = rivales.get(row["codacta"], [])
-                return [e for e in equipos if e != row["equipo"]][0] if len(equipos) == 2 else None
+                for codacta in partidos_equipo:
+                    df_partido = df[df["codacta"] == codacta]
+                    equipos_partido = df_partido["equipo"].unique()
         
-            autogoles["equipo_rival"] = autogoles.apply(obtener_rival, axis=1)
+                    if len(equipos_partido) != 2:
+                        continue  # saltar si hay un error de datos
         
-            # Sumamos autogoles como goles a favor del rival
-            goles_autogol = autogoles.groupby(["codacta", "equipo_rival"])["num_goles_propia"].sum().reset_index()
-            goles_autogol = goles_autogol.rename(columns={"equipo_rival": "equipo", "num_goles_propia": "autogoles_recibidos"})
+                    equipo_rival = [e for e in equipos_partido if e != equipo][0]
+                    df_equipo_partido = df_partido[df_partido["equipo"] == equipo]
+                    df_rival_partido = df_partido[df_partido["equipo"] == equipo_rival]
         
-            # Combinamos goles normales + autogoles a favor
-            goles = pd.merge(goles_a_favor, goles_autogol, on=["codacta", "equipo"], how="outer").fillna(0)
-            goles["gf"] = goles["gf"] + goles["autogoles_recibidos"]
-            goles.drop(columns="autogoles_recibidos", inplace=True)
+                    # Goles a favor: goles normales + goles en propia puerta del rival
+                    gf = df_equipo_partido["num_goles"].sum() + df_rival_partido["num_goles_propia"].sum()
+                    # Goles en contra: goles normales del rival + goles en propia del propio equipo
+                    gc = df_rival_partido["num_goles"].sum() + df_equipo_partido["num_goles_propia"].sum()
         
-            # === CONSTRUIMOS PARTIDOS ===
-            partidos = goles.merge(goles, on="codacta")
-            partidos = partidos[partidos["equipo_x"] != partidos["equipo_y"]].copy()
-            partidos = partidos.rename(columns={
-                "equipo_x": "equipo",
-                "gf_x": "gf",
-                "equipo_y": "rival",
-                "gf_y": "gc"
-            })
+                    gf_total += gf
+                    gc_total += gc
         
-            # Resultado del partido
-            partidos["puntos"] = partidos.apply(lambda row: 3 if row.gf > row.gc else 1 if row.gf == row.gc else 0, axis=1)
-            partidos["ganado"] = (partidos["gf"] > partidos["gc"]).astype(int)
-            partidos["empatado"] = (partidos["gf"] == partidos["gc"]).astype(int)
-            partidos["perdido"] = (partidos["gf"] < partidos["gc"]).astype(int)
+                    if gf > gc:
+                        puntos += 3
+                        ganados += 1
+                    elif gf == gc:
+                        puntos += 1
+                        empatados += 1
+                    else:
+                        perdidos += 1
         
-            # Marcar local o visitante
-            local_dict = df[df["local"] == 1].groupby("codacta")["equipo"].first().to_dict()
-            partidos["local"] = partidos.apply(lambda x: 1 if x["equipo"] == local_dict.get(x["codacta"], "") else 0, axis=1)
-            partidos["visitante"] = 1 - partidos["local"]
+                clasificacion.append({
+                    "Equipo": equipo,
+                    "Puntos": puntos,
+                    "PJ": len(partidos_equipo),
+                    "PG": ganados,
+                    "PE": empatados,
+                    "PP": perdidos,
+                    "GF": gf_total,
+                    "GC": gc_total,
+                    "DG": gf_total - gc_total
+                })
         
-            # === CLASIFICACIÓN GENERAL ===
-            clasificacion = partidos.groupby("equipo").agg({
-                "puntos": "sum",
-                "gf": "sum",
-                "gc": "sum",
-                "ganado": "sum",
-                "empatado": "sum",
-                "perdido": "sum"
-            }).reset_index()
-        
-            clasificacion["dif"] = clasificacion["gf"] - clasificacion["gc"]
-            clasificacion["partidos_jugados"] = partidos.groupby("equipo")["codacta"].nunique().values
-            clasificacion = clasificacion.sort_values(by=["puntos", "dif", "gf"], ascending=False)
-            clasificacion["Pos"] = range(1, len(clasificacion) + 1)
-        
-            # === DESGLOSE LOCAL / VISITANTE ===
-            for campo, etiqueta in [("local", "locales"), ("visitante", "visitantes")]:
-                for res in ["ganado", "empatado", "perdido"]:
-                    temp = partidos[partidos[campo] == 1].groupby("equipo")[res].sum().reset_index(name=f"{etiqueta}_{res}")
-                    clasificacion = clasificacion.merge(temp, on="equipo", how="left")
-        
-            # === DISCIPLINA ===
-            def calcular_amarillas(row):
-                amarillas = row["num_tarjeta_amarilla"]
-                if row["segunda_amarilla"] == 1 or row["num_tarjeta_amarilla"] == 2:
-                    amarillas = 0
-                if row["num_tarjeta_roja"] == 1 and row["num_tarjeta_amarilla"] == 0:
-                    amarillas += 1
-                return amarillas
-        
-            df["amarillas_totales"] = df.apply(calcular_amarillas, axis=1)
-            df.loc[df["num_tarjeta_amarilla"] == 2, "segunda_amarilla"] = 1
-        
-            amarillas_equipo = df.groupby("equipo")["amarillas_totales"].sum().reset_index()
-            dobles_amarillas = df[df["segunda_amarilla"] > 0].groupby("equipo")["segunda_amarilla"].count().reset_index()
-            dobles_amarillas = dobles_amarillas.rename(columns={"segunda_amarilla": "dobles_amarillas"})
-            rojas_directas = df[df["num_tarjeta_roja"] > 0].groupby("equipo")["num_tarjeta_roja"].sum().reset_index()
-            rojas_directas = rojas_directas.rename(columns={"num_tarjeta_roja": "rojas_directas"})
-        
-            disciplinario = pd.merge(amarillas_equipo, dobles_amarillas, on="equipo", how="left")
-            disciplinario = pd.merge(disciplinario, rojas_directas, on="equipo", how="left").fillna(0)
-            disciplinario["expulsiones"] = disciplinario["dobles_amarillas"] + disciplinario["rojas_directas"]
-            disciplinario = disciplinario.rename(columns={"amarillas_totales": "tarjetas_amarillas"})
-        
-            clasificacion = clasificacion.merge(disciplinario[["equipo", "tarjetas_amarillas", "expulsiones"]], on="equipo", how="left")
-        
-            return clasificacion, partidos
+            df_clasificacion = pd.DataFrame(clasificacion)
+            df_clasificacion = df_clasificacion.sort_values(by=["Puntos", "DG", "GF"], ascending=False).reset_index(drop=True)
+            df_clasificacion.index += 1
+            return df_clasificacion
 
 
 
