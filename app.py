@@ -11,6 +11,7 @@ import streamlit as st
 import random
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle, Arc
+import streamlit.components.v1 as components
 
 ga_snippet = """
 <!-- Google tag (gtag.js) -->
