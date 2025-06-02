@@ -41,8 +41,8 @@ CATEGORIAS = {
     # "Juvenil city": "17NhYQ1obx0sNC3sfDEYA7D0M9rnE8hxW",
     # "Juvenil city": "1H_-A1rReweoRCW6qyH3im-qkewOcj7uL", # Jornada 29
     "Juvenil city": "1oj6Ep7Y9XL6r1LWvIa9sM9yuT5FLHQaT", # Jornada 30
-    "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
-     # "Garci femenino": "", # Ultima jornada
+    # "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
+    "Garci femenino": "1VmxNMs3_k1xuYiJGEwxSq7U0ijGQ394E", # Ultima jornada
 }
 
 
