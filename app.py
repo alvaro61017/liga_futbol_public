@@ -15,18 +15,11 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="City", layout="wide")  # <- esta línea debe ir aquí
 
-ga_snippet = """
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2PWS19JHGD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-2PWS19JHGD');
-</script>
+plausible_script = """
+<script defer data-domain="temporada24-25.streamlit.app" src="https://plausible.io/js/script.js"></script>
 """
-components.html(ga_snippet, height=1)
+components.html(plausible_script, height=1)  # Usa altura > 0 para que se ejecute
 
 @st.cache_data
 def cargar_datos_desde_drive(file_id):
