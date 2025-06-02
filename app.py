@@ -37,7 +37,7 @@ CATEGORIAS = {
     # "Senior city": "1PrB1udrmv-6NkpzyvFIuI4diqjeulWts", # jornada 26
     # "Senior city": "1D5uvvZlyO3dcDnBo5NO4lYrNEhPvd0rs",
     # "Senior city": "1soSKnwp05SBxSlLKiNz5Wsd1ggNjVQ2d", # jornada 29
-    "Senior city": "1sJIwu2XC1ehVFO7hT8ln5Hw73nylkGkA", # jornada 30
+    "Senior city": "1am5lxSOlqlBP1R6sic9_T4a4mBF4pL2i", # jornada 30
     # "Juvenil city": "17NhYQ1obx0sNC3sfDEYA7D0M9rnE8hxW",
     # "Juvenil city": "1H_-A1rReweoRCW6qyH3im-qkewOcj7uL", # Jornada 29
     "Juvenil city": "1oj6Ep7Y9XL6r1LWvIa9sM9yuT5FLHQaT", # Jornada 30
