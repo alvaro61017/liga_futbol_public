@@ -82,7 +82,8 @@ categoria = st.sidebar.selectbox(
 # Vista (esto está bien)
 vista = st.sidebar.radio(
     "Vista",
-    ("🏆 General", "📋 Detalle Equipos"),
+    # ("🏆 General", "📋 Detalle Equipos"),
+    ("📋 Detalle Equipos", "🏆 General"),
     key="vista"
 )
 
