@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Rectangle, Arc
 import streamlit.components.v1 as components
 
+st.set_page_config(page_title="City", layout="wide")  # <- esta línea debe ir aquí
+
 ga_snippet = """
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -24,8 +26,6 @@ ga_snippet = """
 </script>
 """
 components.html(ga_snippet, height=0)
-
-st.set_page_config(page_title="City", layout="wide")
 
 @st.cache_data
 def cargar_datos_desde_drive(file_id):
