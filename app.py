@@ -50,6 +50,12 @@ CATEGORIAS = {
     "Juvenil city": "1oj6Ep7Y9XL6r1LWvIa9sM9yuT5FLHQaT", # Jornada 30
     # "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
     "Garci femenino": "1VmxNMs3_k1xuYiJGEwxSq7U0ijGQ394E", # Ultima jornada
+    "Senior 23/24": "1ji4IPhKoYJHg25PS--oGCTMDVJ-laksb",
+    "Senior 22/23": "1phka39s5gjuCbnIKnNheHgIaU6CvK5CL",
+    "Senior 21/22": "1hjIfI-lAe__iSkTGS4wv2KQAocqnqixY",
+    "Senior 20/21": "1vKrCW4Ao6Lyy31RkNKRmJxZsJTVj_n7W",
+    "Senior 19/20": "1HqX2hp-WgUuU-YQliuLSw2g7mDvIlnsI",
+    "Senior 18/19": "1Rom2FimtNXSdkkiwJsGIT3qRJFzvxw-h",
 }
 
 
