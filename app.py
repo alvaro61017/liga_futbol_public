@@ -184,7 +184,7 @@ if df is not None:
         elif categoria == "Senior 22/23":
             equipo_default = "GETAFE CITY"
         elif categoria == "Senior 21/22":
-        equipo_d    efault = "GETAFE CITY"
+            equipo_default = "GETAFE CITY"
         elif categoria == "Senior 20/21":
             equipo_default = "GETAFE CITY"
         elif categoria == "Senior 19/20":
