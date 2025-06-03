@@ -179,6 +179,19 @@ if df is not None:
             equipo_default = "C.D. GETAFE CITY 'A'"
         elif categoria == "Garci femenino":
             equipo_default = "C.D. GETAFE FEMENINO 'A'"
+         elif categoria == "Senior 23/24":
+            equipo_default = "C.D. GETAFE CITY 'A'"
+        elif categoria == "Senior 22/23":
+            equipo_default = "GETAFE CITY"
+        elif categoria == "Senior 21/22":
+        equipo_d    efault = "GETAFE CITY"
+        elif categoria == "Senior 20/21":
+            equipo_default = "GETAFE CITY"
+        elif categoria == "Senior 19/20":
+            equipo_default = "GETAFE CITY"
+        elif categoria == "Senior 18/19":
+            equipo_default = "GETAFE CITY"
+
         
         index_default = equipos.index(equipo_default) if equipo_default in equipos else 0
         equipo_seleccionado = st.selectbox("Selecciona un equipo:", equipos, index=index_default) # selecciono por defecto el getafe city
