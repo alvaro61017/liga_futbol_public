@@ -56,7 +56,7 @@ CATEGORIAS = {
     "Senior 20/21": "1vKrCW4Ao6Lyy31RkNKRmJxZsJTVj_n7W",
     "Senior 19/20": "1HqX2hp-WgUuU-YQliuLSw2g7mDvIlnsI",
     "Senior 18/19": "1Rom2FimtNXSdkkiwJsGIT3qRJFzvxw-h",
-    "Histórico":,
+    "Histórico": "",
 }
 
 
