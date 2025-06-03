@@ -62,6 +62,7 @@ CATEGORIAS = {
 # 1) Splash inicial: solo si no hemos inicializado
 if not st.session_state.get("initialized", False):
     disponibles = [e for e, fid in CATEGORIAS.items() if fid.strip()]
+    disponibles.append("Histórico")  # ✅ Agregamos manualmente
     placeholder = "Elige un equipo…"
     opciones = [placeholder] + disponibles
 
