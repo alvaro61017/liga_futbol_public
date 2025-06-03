@@ -179,7 +179,7 @@ if df is not None:
             equipo_default = "C.D. GETAFE CITY 'A'"
         elif categoria == "Garci femenino":
             equipo_default = "C.D. GETAFE FEMENINO 'A'"
-         elif categoria == "Senior 23/24":
+        elif categoria == "Senior 23/24":
             equipo_default = "C.D. GETAFE CITY 'A'"
         elif categoria == "Senior 22/23":
             equipo_default = "GETAFE CITY"
