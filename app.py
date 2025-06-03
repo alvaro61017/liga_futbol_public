@@ -184,13 +184,13 @@ if df is not None:
         elif categoria == "Senior 22/23":
             equipo_default = "GETAFE CITY "
         elif categoria == "Senior 21/22":
-            equipo_default = "GETAFE CITY"
+            equipo_default = "GETAFE CITY "
         elif categoria == "Senior 20/21":
-            equipo_default = "GETAFE CITY"
+            equipo_default = "GETAFE CITY "
         elif categoria == "Senior 19/20":
-            equipo_default = "GETAFE CITY"
+            equipo_default = "GETAFE CITY "
         elif categoria == "Senior 18/19":
-            equipo_default = "GETAFE CITY"
+            equipo_default = "GETAFE CITY "
 
         
         index_default = equipos.index(equipo_default) if equipo_default in equipos else 0
