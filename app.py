@@ -85,21 +85,7 @@ if not st.session_state.get("initialized", False):
 # 2) Layout principal
 categoria = st.session_state["categoria_final"]
 
-st.sidebar.title("🛠 Equipos")
-categoria = st.sidebar.selectbox(
-    "Equipo seleccionado",
-    list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(categoria),
-    key="categoria_final"  # Ahora está controlado solo aquí
-)
 
-# Vista (esto está bien)
-vista = st.sidebar.radio(
-    "Vista",
-    # ("🏆 General", "📋 Detalle Equipos"),
-    ("📋 Detalle Equipos", "🏆 General"),
-    key="vista"
-)
 
 
 if categoria == "Histórico":
@@ -233,7 +219,21 @@ if categoria == "Histórico":
 
 
 
+st.sidebar.title("🛠 Equipos")
+categoria = st.sidebar.selectbox(
+    "Equipo seleccionado",
+    list(CATEGORIAS.keys()),
+    index=list(CATEGORIAS.keys()).index(categoria),
+    key="categoria_final"  # Ahora está controlado solo aquí
+)
 
+# Vista (esto está bien)
+vista = st.sidebar.radio(
+    "Vista",
+    # ("🏆 General", "📋 Detalle Equipos"),
+    ("📋 Detalle Equipos", "🏆 General"),
+    key="vista"
+)
 
 
 # 3) Carga de datos y renderizado
