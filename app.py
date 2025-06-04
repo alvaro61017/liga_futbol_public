@@ -103,7 +103,7 @@ vista = st.sidebar.radio(
 
 
 if categoria == "Histórico":
-    # st.title("📊 Historia que tu hiciste...")
+    st.title("♥ Historia que tu hiciste...")
 
     # Excluir Garci femenino y Juvenil city
     categorias_getafe = [
@@ -130,7 +130,7 @@ if categoria == "Histórico":
     df_getafe = df_hist[df_hist["equipo"].str.contains("GETAFE CITY", na=False)]
 
     # 🏟️ CLUB - Estadísticas
-    st.header("Historia que tu hiciste...")
+    # st.header("Historia que tu hiciste...")
 
     num_temporadas = df_getafe["temporada"].nunique()
 
