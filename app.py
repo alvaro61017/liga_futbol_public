@@ -181,14 +181,12 @@ if categoria == "Histórico":
 
     # Métricas de resumen
     st.markdown("### 📌 Datos del Club")
-    cols = st.columns(2)
+    cols = st.columns(5)
     cols[0].metric("🏅 Temporadas", num_temporadas)
     cols[1].metric("📅 Partidos", partidos["codacta"].nunique())
-
-    col2 = st.columns(3)
-    col2[0].metric("✅ Ganados", (partidos.resultado == "G").sum())
-    col2[1].metric("➖ Empatados", (partidos.resultado == "E").sum())
-    col2[2].metric("❌ Perdidos", (partidos.resultado == "P").sum())
+    cols[2].metric("✅ Ganados", (partidos.resultado == "G").sum())
+    cols[3].metric("➖ Empatados", (partidos.resultado == "E").sum())
+    cols[4].metric("❌ Perdidos", (partidos.resultado == "P").sum())    
 
     col3 = st.columns(2)
     col3[0].metric("⚽ Goles a favor", int(partidos["gf"].sum()))
