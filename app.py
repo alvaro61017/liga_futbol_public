@@ -183,17 +183,17 @@ if categoria == "Histórico":
     st.markdown("### 📌 Datos del Club")
     cols = st.columns(5)
     cols[0].metric("🏅 Temporadas", num_temporadas)
-    cols[1].metric("📅 Partidos", partidos["codacta"].nunique())
-    cols[2].metric("✅ Ganados", (partidos.resultado == "G").sum())
-    cols[3].metric("➖ Empatados", (partidos.resultado == "E").sum())
-    cols[4].metric("❌ Perdidos", (partidos.resultado == "P").sum())    
+    cols[1].metric("📅 Partidos jugados", partidos["codacta"].nunique())
+    cols[2].metric("✅ Partidos Ganados", (partidos.resultado == "G").sum())
+    cols[3].metric("➖ Partidos Empatados", (partidos.resultado == "E").sum())
+    cols[4].metric("❌ Partidos Perdidos", (partidos.resultado == "P").sum())    
 
     col3 = st.columns(2)
     col3[0].metric("⚽ Goles a favor", int(partidos["gf"].sum()))
     col3[1].metric("🥅 Goles en contra", int(partidos["gc"].sum()))
 
     col4 = st.columns(1)
-    col4[0].metric("👥 Jugadores distintos", jugadores_distintos)
+    col4[0].metric("👥 Jugadores que han vestido la camiseta", jugadores_distintos)
 
 
 
