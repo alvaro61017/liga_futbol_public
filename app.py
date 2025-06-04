@@ -88,11 +88,25 @@ categoria = st.session_state["categoria_final"]
 
 
 st.sidebar.title("🛠 Equipos")
+# categoria = st.sidebar.selectbox(
+#     "Equipo seleccionado",
+#     list(CATEGORIAS.keys()),
+#     index=list(CATEGORIAS.keys()).index(categoria),
+#     key="categoria_final"  # Ahora está controlado solo aquí
+# )
+todas_las_categorias = list(CATEGORIAS.keys()) + ["Histórico"]
+
+# Protegemos el cálculo del índice
+if categoria in todas_las_categorias:
+    index_categoria = todas_las_categorias.index(categoria)
+else:
+    index_categoria = 0  # fallback
+
 categoria = st.sidebar.selectbox(
     "Equipo seleccionado",
-    list(CATEGORIAS.keys()),
-    index=list(CATEGORIAS.keys()).index(categoria),
-    key="categoria_final"  # Ahora está controlado solo aquí
+    todas_las_categorias,
+    index=index_categoria,
+    key="categoria_final"
 )
 
 # Vista (esto está bien)
