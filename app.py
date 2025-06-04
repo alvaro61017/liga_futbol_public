@@ -238,7 +238,7 @@ if categoria == "Histórico":
         .agg(
             temporadas=("temporada", "nunique"),
             # partidos=("codacta", "nunique"),
-            partidos=("codacta", lambda x: df_getafe.loc[x.index, "minutos_jugados"].gt(0).sum())
+            partidos=("codacta", lambda x: df_getafe.loc[x.index, "minutos_jugados"].gt(0).sum()),
             minutos=("minutos_jugados", "sum"),
             goles=("num_goles", "sum"),
             amarillas=("amarillas_totales", "sum")
