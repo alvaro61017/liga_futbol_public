@@ -190,12 +190,49 @@ if categoria == "Histórico":
     col2[1].metric("➖ Empatados", (partidos.resultado == "E").sum())
     col2[2].metric("❌ Perdidos", (partidos.resultado == "P").sum())
 
+
+
+    
     # 👤 RANKINGS DE JUGADORES
+    
     st.header("💎 Hall of Fame")
 
     df_getafe["jugador"] = df_getafe["nombre_jugador"].str.strip().str.upper()
 
-    # Estadísticas base
+    # ============================
+    # 🔁 AMARILLAS AJUSTADAS
+    # ============================
+    def calcular_amarillas(row):
+        amarillas = row["num_tarjeta_amarilla"]
+        if row.get("segunda_amarilla", 0) == 1 or row["num_tarjeta_amarilla"] == 2:
+            amarillas = 0
+        if row["num_tarjeta_roja"] == 1 and row["num_tarjeta_amarilla"] == 0:
+            amarillas += 1
+        return amarillas
+    
+    df_getafe["segunda_amarilla"] = df_getafe.apply(
+        lambda row: 1 if row["num_tarjeta_amarilla"] == 2 else row.get("segunda_amarilla", 0),
+        axis=1
+    )
+    df_getafe["amarillas_totales"] = df_getafe.apply(calcular_amarillas, axis=1)
+    
+    # ============================
+    # 📛 EXPULSIONES
+    # ============================
+    expulsiones = df_getafe[
+        (df_getafe["segunda_amarilla"] > 0) | (df_getafe["num_tarjeta_amarilla"] == 2)
+    ].groupby("jugador")["segunda_amarilla"].sum().reset_index()
+    expulsiones = expulsiones.rename(columns={"segunda_amarilla": "dobles_amarillas"})
+    
+    rojas_directas = df_getafe[df_getafe["num_tarjeta_roja"] > 0].groupby("jugador")["num_tarjeta_roja"].sum().reset_index()
+    rojas_directas = rojas_directas.rename(columns={"num_tarjeta_roja": "rojas_directas"})
+    
+    expulsiones_totales = pd.merge(expulsiones, rojas_directas, on="jugador", how="outer").fillna(0)
+    expulsiones_totales["expulsiones"] = expulsiones_totales["dobles_amarillas"] + expulsiones_totales["rojas_directas"]
+    
+    # ============================
+    # 🎯 ESTADÍSTICAS GENERALES
+    # ============================
     resumen = (
         df_getafe.groupby("jugador")
         .agg(
@@ -203,29 +240,34 @@ if categoria == "Histórico":
             partidos=("codacta", "nunique"),
             minutos=("minutos_jugados", "sum"),
             goles=("num_goles", "sum"),
-            amarillas=("num_tarjetas_amarilla", "sum"),
-            expulsiones=("num_tarjetas_roja", "sum"),
-            sustituciones=("sustituido", "sum")
+            amarillas=("amarillas_totales", "sum")
         )
         .reset_index()
     )
     
-    # Calcular apariciones desde el banquillo
-    desde_banquillo = (
-        df_getafe[df_getafe["titular"] == 0]
-        .groupby("jugador")
-        .size()
-        .reset_index(name="desde_banquillo")
-    )
+    # ============================
+    # 🔁 SUSTITUCIONES Y BANQUILLO
+    # ============================
+    sustituciones = df_getafe[
+        (df_getafe["titular"] == 1) & (df_getafe["minuto_sustitucion_salida"] > 0)
+    ].groupby("jugador").size().reset_index(name="sustituciones")
     
-    # Unimos las columnas
+    desde_banquillo = df_getafe[
+        (df_getafe["titular"] == 0) & (df_getafe["minutos_jugados"] > 0)
+    ].groupby("jugador").size().reset_index(name="desde_banquillo")
+    
+    # ============================
+    # 🔗 UNIR TODO
+    # ============================
+    resumen = resumen.merge(sustituciones, on="jugador", how="left")
     resumen = resumen.merge(desde_banquillo, on="jugador", how="left")
-    resumen["desde_banquillo"] = resumen["desde_banquillo"].fillna(0).astype(int)
+    resumen = resumen.merge(expulsiones_totales[["jugador", "expulsiones"]], on="jugador", how="left")
     
-    # Orden por partidos
-    resumen = resumen.sort_values(by="partidos", ascending=False)
+    resumen = resumen.fillna(0)
     
-    # Mostrar rankings
+    # ============================
+    # 📊 MOSTRAR RANKINGS
+    # ============================
     ranking_cols = {
         "temporadas": "🎖 Más temporadas",
         "partidos": "🧩 Más partidos",
@@ -242,6 +284,7 @@ if categoria == "Histórico":
             st.subheader(titulo)
             top = resumen[["jugador", campo]].sort_values(by=campo, ascending=False).head(10)
             st.dataframe(top, hide_index=True, use_container_width=True)
+    
         
     st.stop()
 
