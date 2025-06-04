@@ -282,7 +282,8 @@ if categoria == "Histórico":
     for campo, titulo in ranking_cols.items():
         if campo in resumen.columns:
             st.subheader(titulo)
-            top = resumen[["jugador", campo]].sort_values(by=campo, ascending=False)
+            top = resumen[["jugador", campo]].sort_values(by=campo, ascending=False).reset_index(drop=True)
+            top.insert(0, "🏅", top.index + 1)  # Añade columna de ranking
             st.dataframe(top, hide_index=True, use_container_width=True, height=212)
     
         
