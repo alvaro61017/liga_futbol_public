@@ -44,18 +44,19 @@ CATEGORIAS = {
     # "Senior city": "1PrB1udrmv-6NkpzyvFIuI4diqjeulWts", # jornada 26
     # "Senior city": "1D5uvvZlyO3dcDnBo5NO4lYrNEhPvd0rs",
     # "Senior city": "1soSKnwp05SBxSlLKiNz5Wsd1ggNjVQ2d", # jornada 29
-    "Senior city": "1am5lxSOlqlBP1R6sic9_T4a4mBF4pL2i", # jornada 30
-    # "Juvenil city": "17NhYQ1obx0sNC3sfDEYA7D0M9rnE8hxW",
-    # "Juvenil city": "1H_-A1rReweoRCW6qyH3im-qkewOcj7uL", # Jornada 29
-    "Juvenil city": "1oj6Ep7Y9XL6r1LWvIa9sM9yuT5FLHQaT", # Jornada 30
-    # "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
-    "Garci femenino": "1VmxNMs3_k1xuYiJGEwxSq7U0ijGQ394E", # Ultima jornada
+    "Senior 24/25": "1am5lxSOlqlBP1R6sic9_T4a4mBF4pL2i", # jornada 30
     "Senior 23/24": "1ji4IPhKoYJHg25PS--oGCTMDVJ-laksb",
     "Senior 22/23": "1phka39s5gjuCbnIKnNheHgIaU6CvK5CL",
     "Senior 21/22": "1hjIfI-lAe__iSkTGS4wv2KQAocqnqixY",
     "Senior 20/21": "1vKrCW4Ao6Lyy31RkNKRmJxZsJTVj_n7W",
     "Senior 19/20": "1HqX2hp-WgUuU-YQliuLSw2g7mDvIlnsI",
     "Senior 18/19": "1Rom2FimtNXSdkkiwJsGIT3qRJFzvxw-h",
+    # "Juvenil city": "17NhYQ1obx0sNC3sfDEYA7D0M9rnE8hxW",
+    # "Juvenil city": "1H_-A1rReweoRCW6qyH3im-qkewOcj7uL", # Jornada 29
+    "Juvenil 24/25": "1oj6Ep7Y9XL6r1LWvIa9sM9yuT5FLHQaT", # Jornada 30
+    # "Garci femenino": "1YIQT4-X8a50aNfoFodTEuyQOwOh4pPlh",
+    "Garci femenino": "1VmxNMs3_k1xuYiJGEwxSq7U0ijGQ394E", # Ultima jornada
+    
 }
 
 
@@ -94,7 +95,7 @@ if categoria == "Histórico":
     # Excluir Garci femenino y Juvenil city
     categorias_getafe = [
         cat for cat in CATEGORIAS
-        if cat not in ["Juvenil city", "Garci femenino"]
+        if cat not in ["Juvenil 24/25", "Garci femenino"]
     ]
 
     dataframes = []
@@ -312,9 +313,9 @@ if df is not None:
     if vista == "📋 Detalle Equipos":
         st.header("📋 Estadísticas por equipo")
         equipos = sorted(df["equipo"].unique())
-        if categoria == "Senior city":
+        if categoria == "Senior 24/25":
             equipo_default = "C.D. GETAFE CITY 'A'"
-        elif categoria == "Juvenil city":
+        elif categoria == "Juvenil 24/25":
             equipo_default = "C.D. GETAFE CITY 'A'"
         elif categoria == "Garci femenino":
             equipo_default = "C.D. GETAFE FEMENINO 'A'"
@@ -487,7 +488,7 @@ if df is not None:
             st.markdown("**🎯Goleadores**")
             st.dataframe(top_goleadores.rename(columns={"num_goles": "Goles"}).merge(dorsales_mas_comunes[["nombre_jugador", "numero"]], on="nombre_jugador", how="left")[['numero', 'nombre_jugador', 'Goles']], height=212, hide_index=True)
         
-        if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
+        if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior 24/25':
             with col8:
                 top_asistencias = df_equipo.groupby("nombre_jugador")["num_asistencias"].sum().reset_index().sort_values(by="num_asistencias", ascending=False)#.head(5)
                 st.markdown("🎁 Asistencias")
@@ -535,7 +536,7 @@ if df is not None:
             st.dataframe(top_suplentes.rename(columns={"entradas_desde_banquillo": "Entradas"}).merge(dorsales_mas_comunes[["nombre_jugador", "numero"]], on="nombre_jugador", how="left")[['numero', 'nombre_jugador', 'Entradas']], use_container_width=True, height=212, hide_index=True)
 
         col9 = st.columns(1)
-        if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
+        if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior 24/25':
             with col9[0]:
                 # Aseguramos que la columna 'asistencias' es una lista
                 df_equipo['asistencias'] = df_equipo['asistencias'].apply(lambda x: eval(x) if isinstance(x, str) else x)
@@ -563,7 +564,7 @@ if df is not None:
                 top_5_conexiones = conexiones_count#.head(5)
                 
                 # Mostrar el dataframe final
-                # if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
+                # if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior 24/25':
                 st.markdown("👨‍❤️‍💋‍👨 Conexiones Más Fructíferas")
                 st.dataframe(top_5_conexiones, height=212, hide_index=True)
             
@@ -715,7 +716,7 @@ if df is not None:
 
 
         # pinto los 11
-        if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior city':
+        if equipo_seleccionado == "C.D. GETAFE CITY 'A'" and categoria == 'Senior 24/25':
 
             # Sumar minutos jugados por jugador en cada posición
             df_min = (
