@@ -103,7 +103,7 @@ vista = st.sidebar.radio(
 
 
 if categoria == "Histórico":
-    st.title("📊 Histórico - GETAFE CITY")
+    # st.title("📊 Historia que tu hiciste...")
 
     # Excluir Garci femenino y Juvenil city
     categorias_getafe = [
@@ -130,7 +130,7 @@ if categoria == "Histórico":
     df_getafe = df_hist[df_hist["equipo"].str.contains("GETAFE CITY", na=False)]
 
     # 🏟️ CLUB - Estadísticas
-    st.header("🏟️ Estadísticas del Club")
+    st.header("Historia que tu hiciste...")
 
     num_temporadas = df_getafe["temporada"].nunique()
 
@@ -176,19 +176,26 @@ if categoria == "Histórico":
     partidos = partidos_full.copy()
     partidos["gf"] = partidos["gf_getafe"]
     partidos["gc"] = partidos["gf_rival"]
+    
+    jugadores_distintos = df_getafe[df_getafe["minutos_jugados"] > 0]["nombre_jugador"].nunique()
 
     # Métricas de resumen
-    st.markdown("### 📌 Resumen del Club")
-    cols = st.columns(4)
+    st.markdown("### 📌 Datos del Club")
+    cols = st.columns(2)
     cols[0].metric("🏅 Temporadas", num_temporadas)
     cols[1].metric("📅 Partidos", partidos["codacta"].nunique())
-    cols[2].metric("⚽ Goles a favor", int(partidos["gf"].sum()))
-    cols[3].metric("🥅 Goles en contra", int(partidos["gc"].sum()))
 
     col2 = st.columns(3)
     col2[0].metric("✅ Ganados", (partidos.resultado == "G").sum())
     col2[1].metric("➖ Empatados", (partidos.resultado == "E").sum())
     col2[2].metric("❌ Perdidos", (partidos.resultado == "P").sum())
+
+    col3 = st.columns(2)
+    col3[0].metric("⚽ Goles a favor", int(partidos["gf"].sum()))
+    col3[1].metric("🥅 Goles en contra", int(partidos["gc"].sum()))
+
+    col4 = st.columns(1)
+    col4[0].metric("👥 Jugadores distintos", jugadores_distintos)
 
 
 
