@@ -103,7 +103,7 @@ vista = st.sidebar.radio(
 
 
 if categoria == "Histórico":
-    st.title("♥ Historia que tu hiciste...")
+    st.title("💗💖 Historia que tu hiciste...")
 
     # Excluir Garci femenino y Juvenil city
     categorias_getafe = [
