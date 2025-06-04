@@ -59,60 +59,42 @@ CATEGORIAS = {
     
 }
 
-
-# 1) Splash inicial: solo si no hemos inicializado
-if not st.session_state.get("initialized", False):
-    disponibles = [e for e, fid in CATEGORIAS.items() if fid.strip()]
-    disponibles.append("Histórico")  # ✅ Agregamos manualmente
+# 1) Splash inicial solo una vez
+if "categoria_final" not in st.session_state:
+    disponibles = list(CATEGORIAS.keys()) + ["Histórico"]
     placeholder = "Elige un equipo…"
-    opciones = [placeholder] + disponibles
-
-    # Usamos un key temporal para evitar conflictos
-    seleccion = st.selectbox(
-        "📢 ¿Qué equipo quieres cargar?",
-        opciones,
-        key="categoria_init"
-    )
+    seleccion = st.selectbox("📢 ¿Qué equipo quieres cargar?", [placeholder] + disponibles, key="categoria_init")
 
     if seleccion == placeholder:
         st.stop()
 
-    # Guardamos solo una vez
     st.session_state["categoria_final"] = seleccion
-    st.session_state["initialized"] = True
-
     st.rerun()
 
-# 2) Layout principal
-categoria = st.session_state["categoria_final"]
-
+# 2) Sidebar siempre visible
+todas_las_categorias = list(CATEGORIAS.keys()) + ["Histórico"]
+categoria_actual = st.session_state["categoria_final"]
 
 st.sidebar.title("🛠 Equipos")
-# categoria = st.sidebar.selectbox(
-#     "Equipo seleccionado",
-#     list(CATEGORIAS.keys()),
-#     index=list(CATEGORIAS.keys()).index(categoria),
-#     key="categoria_final"  # Ahora está controlado solo aquí
-# )
-todas_las_categorias = list(CATEGORIAS.keys()) + ["Histórico"]
 
-# Protegemos el cálculo del índice
-if categoria in todas_las_categorias:
-    index_categoria = todas_las_categorias.index(categoria)
-else:
-    index_categoria = 0  # fallback
-
-categoria = st.sidebar.selectbox(
+categoria_sidebar = st.sidebar.selectbox(
     "Equipo seleccionado",
     todas_las_categorias,
-    index=index_categoria,
-    key="categoria_final"
+    index=todas_las_categorias.index(categoria_actual),
+    key="categoria_sidebar"
 )
 
-# Vista (esto está bien)
+# Actualiza solo si ha cambiado
+if categoria_sidebar != categoria_actual:
+    st.session_state["categoria_final"] = categoria_sidebar
+    st.rerun()
+
+# Usamos la categoría definitiva
+categoria = st.session_state["categoria_final"]
+
+# Vista
 vista = st.sidebar.radio(
     "Vista",
-    # ("🏆 General", "📋 Detalle Equipos"),
     ("📋 Detalle Equipos", "🏆 General"),
     key="vista"
 )
