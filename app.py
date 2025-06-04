@@ -191,10 +191,11 @@ if categoria == "Histórico":
     col2[2].metric("❌ Perdidos", (partidos.resultado == "P").sum())
 
     # 👤 RANKINGS DE JUGADORES
-    st.header("👤 Rankings de Jugadores")
+    st.header("💎 Hall of Fame")
 
     df_getafe["jugador"] = df_getafe["nombre_jugador"].str.strip().str.upper()
 
+    # Estadísticas base
     resumen = (
         df_getafe.groupby("jugador")
         .agg(
@@ -204,13 +205,27 @@ if categoria == "Histórico":
             goles=("num_goles", "sum"),
             amarillas=("num_tarjetas_amarilla", "sum"),
             expulsiones=("num_tarjetas_roja", "sum"),
-            sustituciones=("sustituido", "sum"),
-            desde_banquillo=(lambda x: (~x).sum() if x.name == "titular" else None)
+            sustituciones=("sustituido", "sum")
         )
         .reset_index()
-        .sort_values(by="partidos", ascending=False)
     )
-
+    
+    # Calcular apariciones desde el banquillo
+    desde_banquillo = (
+        df_getafe[df_getafe["titular"] == 0]
+        .groupby("jugador")
+        .size()
+        .reset_index(name="desde_banquillo")
+    )
+    
+    # Unimos las columnas
+    resumen = resumen.merge(desde_banquillo, on="jugador", how="left")
+    resumen["desde_banquillo"] = resumen["desde_banquillo"].fillna(0).astype(int)
+    
+    # Orden por partidos
+    resumen = resumen.sort_values(by="partidos", ascending=False)
+    
+    # Mostrar rankings
     ranking_cols = {
         "temporadas": "🎖 Más temporadas",
         "partidos": "🧩 Más partidos",
@@ -221,13 +236,13 @@ if categoria == "Histórico":
         "sustituciones": "🔁 Más sustituciones",
         "desde_banquillo": "🪑 Más veces desde el banquillo"
     }
-
+    
     for campo, titulo in ranking_cols.items():
         if campo in resumen.columns:
             st.subheader(titulo)
             top = resumen[["jugador", campo]].sort_values(by=campo, ascending=False).head(10)
             st.dataframe(top, hide_index=True, use_container_width=True)
-
+        
     st.stop()
 
 
