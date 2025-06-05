@@ -61,7 +61,7 @@ CATEGORIAS = {
 
 # 1) Splash inicial solo una vez
 if "categoria_final" not in st.session_state:
-    disponibles = list(CATEGORIAS.keys()) + ["Histórico"]
+    disponibles = ["Histórico"] + list(CATEGORIAS.keys()) 
     placeholder = "Elige un equipo…"
     seleccion = st.selectbox("📢 ¿Qué equipo quieres cargar?", [placeholder] + disponibles, key="categoria_init")
 
@@ -72,7 +72,7 @@ if "categoria_final" not in st.session_state:
     st.rerun()
 
 # 2) Sidebar siempre visible
-todas_las_categorias = list(CATEGORIAS.keys()) + ["Histórico"]
+todas_las_categorias = ["Histórico"] + list(CATEGORIAS.keys()) 
 categoria_actual = st.session_state["categoria_final"]
 
 st.sidebar.title("🛠 Equipos")
