@@ -279,10 +279,10 @@ if categoria == "Histórico":
         "partidos": "🧩 Más partidos",
         "minutos": "⏱️ Más minutos",
         "goles": "⚽ Más goles",
-        "amarillas": "🟨 Más amarillas",
-        "expulsiones": "🟥 Más expulsiones",
-        "sustituciones": "🔁 Más sustituciones",
-        "desde_banquillo": "🪑 Más veces desde el banquillo"
+        # "amarillas": "🟨 Más amarillas",
+        # "expulsiones": "🟥 Más expulsiones",
+        # "sustituciones": "🔁 Más sustituciones",
+        # "desde_banquillo": "🪑 Más veces desde el banquillo"
     }
     
     for campo, titulo in ranking_cols.items():
