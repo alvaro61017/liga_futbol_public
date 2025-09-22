@@ -375,7 +375,9 @@ if df is not None:
     if vista == "📋 Detalle Equipos":
         st.header("📋 Estadísticas por equipo")
         equipos = sorted(df["equipo"].unique())
-        if categoria == "Senior 24/25":
+        if categoria == "Senior 25/26":
+            equipo_default = "C.D. GETAFE CITY 'A'"
+        elif categoria == "Senior 24/25":
             equipo_default = "C.D. GETAFE CITY 'A'"
         elif categoria == "Juvenil 24/25":
             equipo_default = "C.D. GETAFE CITY 'A'"
@@ -1787,4 +1789,5 @@ if df is not None:
 
 else:
     st.warning("❌ No se pudieron cargar los datos desde Google Drive.")
+
 
