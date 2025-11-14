@@ -46,7 +46,8 @@ CATEGORIAS = {
     # "Senior city": "1soSKnwp05SBxSlLKiNz5Wsd1ggNjVQ2d", # jornada 29
     # "Senior 25/26": "1vzWRTHoFRDYRV26sPs-6jSmLpYrH6iEV", # jornada 2
     # "Senior 25/26": "1tBRXPiviwLNDeuHafzGuiYiqxH0v2fkz", # jornada 6
-    "Senior 25/26": "1ZbovOIx3eoTJ0CYz52uNrrehDRTntmU4", # jornada 8
+    # "Senior 25/26": "1ZbovOIx3eoTJ0CYz52uNrrehDRTntmU4", # jornada 8
+    "Senior 25/26": "1Z6Cr9d-oQoxQFfWsM0w9WBc3TCA7aguK", # jornada 9
     "Senior 24/25": "1am5lxSOlqlBP1R6sic9_T4a4mBF4pL2i", 
     "Senior 23/24": "1ji4IPhKoYJHg25PS--oGCTMDVJ-laksb",
     "Senior 22/23": "1phka39s5gjuCbnIKnNheHgIaU6CvK5CL",
@@ -1791,6 +1792,7 @@ if df is not None:
 
 else:
     st.warning("❌ No se pudieron cargar los datos desde Google Drive.")
+
 
 
 
