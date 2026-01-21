@@ -218,8 +218,8 @@ if categoria == "Histórico":
         amarillas = row["num_tarjeta_amarilla"]
         if row.get("segunda_amarilla", 0) == 1 or row["num_tarjeta_amarilla"] == 2:
             amarillas = 0
-        if row["num_tarjeta_roja"] == 1 and row["num_tarjeta_amarilla"] == 0:
-            amarillas += 1
+        # if row["num_tarjeta_roja"] == 1 and row["num_tarjeta_amarilla"] == 0:
+        #     amarillas += 1
         return amarillas
     
     df_getafe["segunda_amarilla"] = df_getafe.apply(
@@ -526,8 +526,8 @@ if df is not None:
             amarillas = row['num_tarjeta_amarilla']
             if row['segunda_amarilla'] == 1 or row['num_tarjeta_amarilla'] == 2:
                 amarillas = 0  # Si hay segunda amarilla, no sumamos las amarillas
-            if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
-                amarillas += 1  # Si hay tarjeta roja, sumamos 1 amarilla adicional
+            # if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
+            #     amarillas += 1  # Si hay tarjeta roja, sumamos 1 amarilla adicional
             return amarillas
             
         df_equipo['amarillas_totales'] = df_equipo.apply(calcular_amarillas, axis=1)
@@ -1246,8 +1246,8 @@ if df is not None:
                     if row.get("segunda_amarilla", 0) == 1 or row["num_tarjeta_amarilla"] == 2:
                         amar = 0
                     # Si hay roja directa sin amarilla, contar esa roja como “una amarilla extra”
-                    if row["num_tarjeta_roja"] == 1 and row["num_tarjeta_amarilla"] == 0:
-                        amar += 1
+                    # if row["num_tarjeta_roja"] == 1 and row["num_tarjeta_amarilla"] == 0:
+                    #     amar += 1
                     return amar
         
                 df["segunda_amarilla"] = df["segunda_amarilla"].fillna(0)
@@ -1551,8 +1551,8 @@ if df is not None:
             amarillas = row['num_tarjeta_amarilla']
             if row['segunda_amarilla'] == 1 or row['num_tarjeta_amarilla'] == 2:
                 amarillas = 0  # Si hay segunda amarilla, no sumamos las amarillas
-            if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
-                amarillas += 1  # Si hay tarjeta roja, sumamos 1 amarilla adicional
+            # if row['num_tarjeta_roja'] == 1 and row['num_tarjeta_amarilla'] == 0:
+            #     amarillas += 1  # Si hay tarjeta roja, sumamos 1 amarilla adicional
             return amarillas
         
         # Aplicamos la lógica a cada fila
@@ -1795,6 +1795,7 @@ if df is not None:
 
 else:
     st.warning("❌ No se pudieron cargar los datos desde Google Drive.")
+
 
 
 
