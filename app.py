@@ -51,8 +51,9 @@ CATEGORIAS = {
     # "Senior 25/26": "1B2EbOyZ9PJqmzhEBCYLH8eF4vzvS9dE9", # jornada 11
     # "Senior 25/26": "15HYDdWA4Fpxm0ThHkzyZSy1quAug5TP1", Jornada 15
     # "Senior 25/26": "1m4VieqnlyMDv3M0Azj5GuAoq1oqNa5XM", # Jornada 16
-    "Senior 25/26": "1IC91e1ztslDXPGyKBvUAVjw8qeRhTV-I", # Jornada 19
-    "Senior 25/26": "1WUVc9BHb0PLNafIMy2oiZ0_ekAFmlXfl", # Jornada 23
+    # "Senior 25/26": "1IC91e1ztslDXPGyKBvUAVjw8qeRhTV-I", # Jornada 19
+    # "Senior 25/26": "1WUVc9BHb0PLNafIMy2oiZ0_ekAFmlXfl", # Jornada 23
+    "Senior 25/26": "1wmN470Pkx4Wdf59crj0lrfKjd9VkfZ8p", # Jornada 28 
     
     "Senior 24/25": "1am5lxSOlqlBP1R6sic9_T4a4mBF4pL2i", 
     "Senior 23/24": "1ji4IPhKoYJHg25PS--oGCTMDVJ-laksb",
